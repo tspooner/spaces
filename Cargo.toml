@@ -1,0 +1,28 @@
+[package]
+name = "spaces"
+description = "Vector space primitives for machine learning problems."
+
+version = "0.0.1"
+authors = ["Tom Spooner <t.spooner@liverpool.ac.uk>"]
+
+license = "MIT"
+readme = "README.md"
+
+keywords = ["geometry", "vector", "spaces", "mahcine", "learning"]
+
+repository = "https://github.com/tspooner/spaces"
+documentation = "https://tspooner.github.io/spaces/spaces/index.html"
+
+[badges]
+travis-ci = { repository = "tspooner/spaces", branch = "master" }
+coveralls = { repository = "tspooner/spaces", branch = "master", service = "github" }
+
+[dependencies]
+rand = "0.4"
+ndarray = { version = "0.11", features = ["serde-1"] }
+rusty-machine = "0.5"
+
+serde = "1.0"
+serde_json = "1.0"
+serde_test = "1.0"
+serde_derive = "1.0"
