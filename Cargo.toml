@@ -11,7 +11,7 @@ readme = "README.md"
 keywords = ["geometry", "vector", "spaces", "mahcine", "learning"]
 
 repository = "https://github.com/tspooner/spaces"
-documentation = "https://tspooner.github.io/spaces/spaces/index.html"
+documentation = "https://docs.rs/spaces"
 
 [badges]
 travis-ci = { repository = "tspooner/spaces", branch = "master" }

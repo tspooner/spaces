@@ -1,4 +1,4 @@
-# spaces ([api](https://tspooner.github.io/spaces))
+# spaces ([api](https://docs.rs/spaces))
 
 [![Crates.io](https://img.shields.io/crates/v/spaces.svg)](https://crates.io/crates/spaces)
 [![Build Status](https://travis-ci.org/tspooner/spaces.svg?branch=master)](https://travis-ci.org/tspooner/spaces)
@@ -6,6 +6,7 @@
 
 <!--
 ## Overview
+-->
 
 
 ## Installation
@@ -15,6 +16,7 @@ spaces = "0.0"
 ```
 
 
+<!--
 ## Usage
 -->
 
