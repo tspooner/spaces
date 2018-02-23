@@ -71,6 +71,9 @@ mod tests {
         assert_eq!(Span::Null * Span::Infinite, Span::Infinite);
         assert_eq!(Span::Infinite * Span::Null, Span::Infinite);
 
+        assert_eq!(Span::Finite(1) * Span::Infinite, Span::Infinite);
+        assert_eq!(Span::Finite(5) * Span::Infinite, Span::Infinite);
+
         assert_eq!(Span::Finite(1) * Span::Finite(1), Span::Finite(1));
         assert_eq!(Span::Finite(1) * Span::Finite(5), Span::Finite(5));
         assert_eq!(Span::Finite(5) * Span::Finite(1), Span::Finite(5));
