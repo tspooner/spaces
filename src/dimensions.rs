@@ -28,9 +28,7 @@ pub trait Dimension {
 }
 
 /// Dimension type with saturating upper/lower bounds.
-pub trait BoundedDimension: Dimension
-    where Self::Value: PartialOrd
-{
+pub trait BoundedDimension: Dimension where Self::Value: PartialOrd {
     /// The upper/lower bound type; not necessarily equal to `Dimension::Value`.
     type ValueBound: PartialOrd + Copy;
 
@@ -53,9 +51,7 @@ pub trait BoundedDimension: Dimension
 }
 
 /// Dimension type with bounds and a finite set of values.
-pub trait FiniteDimension: BoundedDimension
-    where Self::Value: PartialOrd
-{
+pub trait FiniteDimension: BoundedDimension where Self::Value: PartialOrd {
     /// Returns the finite range of values in this dimension.
     fn range(&self) -> Range<Self::Value>;
 }
