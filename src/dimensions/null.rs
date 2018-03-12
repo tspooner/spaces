@@ -7,10 +7,6 @@ pub struct Null;
 impl Dimension for Null {
     type Value = ();
 
-    fn sample(&self, _: &mut ThreadRng) -> () {
-        ()
-    }
-
     fn convert(&self, _: f64) -> Self::Value {
         ()
     }
@@ -18,19 +14,22 @@ impl Dimension for Null {
     fn span(&self) -> Span {
         Span::Null
     }
+
+    fn sample(&self, _: &mut ThreadRng) -> () {
+        ()
+    }
 }
 
 
 #[cfg(test)]
 mod tests {
+    use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
     fn test_null() {
         let d = Null;
-        let mut rng = thread_rng();
 
-        assert_eq!(d.sample(&mut rng), ());
         assert_eq!(d.span(), Span::Null);
 
         assert_tokens(&d, &[Token::UnitStruct { name: "Null" }]);

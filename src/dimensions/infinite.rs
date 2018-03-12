@@ -13,16 +13,16 @@ impl Infinite {
 impl Dimension for Infinite {
     type Value = f64;
 
-    fn sample(&self, _: &mut ThreadRng) -> f64 {
-        unimplemented!()
-    }
-
     fn convert(&self, val: f64) -> Self::Value {
         val
     }
 
     fn span(&self) -> Span {
         Span::Infinite
+    }
+
+    fn sample(&self, _: &mut ThreadRng) -> f64 {
+        unimplemented!()
     }
 }
 
@@ -39,6 +39,8 @@ impl<D: BoundedDimension> From<D> for Infinite where D::Value: PartialOrd {
 
 #[cfg(test)]
 mod tests {
+    use rand::thread_rng;
+    use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]

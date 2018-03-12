@@ -67,16 +67,16 @@ impl Partitioned {
 impl Dimension for Partitioned {
     type Value = usize;
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize {
-        self.to_partition(self.range.ind_sample(rng))
-    }
-
     fn convert(&self, val: f64) -> Self::Value {
         self.to_partition(val)
     }
 
     fn span(&self) -> Span {
         Span::Finite(self.density)
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> usize {
+        self.to_partition(self.range.ind_sample(rng))
     }
 }
 
@@ -232,6 +232,8 @@ impl fmt::Debug for Partitioned {
 
 #[cfg(test)]
 mod tests {
+    use rand::thread_rng;
+    use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]

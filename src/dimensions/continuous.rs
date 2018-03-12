@@ -27,16 +27,16 @@ impl Continuous {
 impl Dimension for Continuous {
     type Value = f64;
 
-    fn sample(&self, rng: &mut ThreadRng) -> f64 {
-        self.range.ind_sample(rng)
-    }
-
     fn convert(&self, val: f64) -> Self::Value {
         clip!(self.lb, val, self.ub)
     }
 
     fn span(&self) -> Span {
         Span::Infinite
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> f64 {
+        self.range.ind_sample(rng)
     }
 }
 
@@ -172,6 +172,8 @@ impl fmt::Debug for Continuous {
 
 #[cfg(test)]
 mod tests {
+    use rand::thread_rng;
+    use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]

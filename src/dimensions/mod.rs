@@ -11,14 +11,14 @@ pub trait Dimension {
     /// The corresponding primitive type.
     type Value: Debug + Clone;
 
-    /// Sample a random value contained by this dimension.
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Value;
-
     /// Map a compatible input into a valid value of this dimension.
     fn convert(&self, val: f64) -> Self::Value;
 
     /// Returns the total span of this dimension.
     fn span(&self) -> Span;
+
+    /// Sample a random value contained by this dimension.
+    fn sample(&self, rng: &mut ThreadRng) -> Self::Value;
 }
 
 /// Dimension type with saturating upper/lower bounds.
@@ -54,32 +54,32 @@ pub trait FiniteDimension: BoundedDimension where Self::Value: PartialOrd {
 impl<D: Dimension> Dimension for Box<D> {
     type Value = D::Value;
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Value {
-        (**self).sample(rng)
-    }
-
     fn convert(&self, val: f64) -> Self::Value {
         (**self).convert(val)
     }
 
     fn span(&self) -> Span {
         (**self).span()
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> Self::Value {
+        (**self).sample(rng)
     }
 }
 
 impl<'a, D: Dimension> Dimension for &'a D {
     type Value = D::Value;
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Value {
-        (**self).sample(rng)
-    }
-
     fn convert(&self, val: f64) -> Self::Value {
         (**self).convert(val)
     }
 
     fn span(&self) -> Span {
         (**self).span()
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> Self::Value {
+        (**self).sample(rng)
     }
 }
 

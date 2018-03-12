@@ -29,12 +29,12 @@ impl Discrete {
 impl Dimension for Discrete {
     type Value = usize;
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize {
-        self.range.ind_sample(rng)
-    }
-
     fn convert(&self, val: f64) -> Self::Value {
         val as usize
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> usize {
+        self.range.ind_sample(rng)
     }
 
     fn span(&self) -> Span {
@@ -164,6 +164,8 @@ impl fmt::Debug for Discrete {
 
 #[cfg(test)]
 mod tests {
+    use rand::thread_rng;
+    use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
