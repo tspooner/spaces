@@ -1,6 +1,32 @@
 use std::ops::Mul;
 
-
+/// Measure of the span of a vector space.
+///
+/// `Span` is typically used to compute the number of possible values that can be reached within
+/// some vector space. For example, for a space with 2 dimensions, each with a finite set of
+/// values, we have:
+///
+/// ```
+/// use spaces::{PairSpace, Space, Span};
+/// use spaces::dimensions::Discrete;
+///
+/// let d1 = Discrete::new(5);
+/// let d2 = Discrete::new(10);
+/// let space = PairSpace::new(d1, d2);
+///
+/// assert_eq!(space.span(), Span::Finite(50));
+/// ```
+///
+/// Internally, this above code does the following:
+///
+/// ```
+/// use spaces::Span;
+///
+/// let s1 = Span::Finite(5);
+/// let s2 = Span::Finite(10);
+///
+/// assert_eq!(s1*s2, Span::Finite(50));
+/// ```
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum Span {
     Null,
