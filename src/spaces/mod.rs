@@ -24,24 +24,18 @@ pub trait Space {
     fn span(&self) -> Span;
 }
 
-/// Geometric space for agent actions.
-///
-/// Currently the only supported representation for actions. In future we will need to handle
-/// continuous actions.
-pub type ActionSpace = UnitarySpace<dimensions::Discrete>;
 
+mod empty;
+pub use self::empty::EmptySpace;
 
-pub mod empty;
-pub use empty::EmptySpace;
+mod unitary;
+pub use self::unitary::UnitarySpace;
 
-pub mod unitary;
-pub use unitary::UnitarySpace;
+mod pair;
+pub use self::pair::PairSpace;
 
-pub mod pair;
-pub use pair::PairSpace;
+mod regular;
+pub use self::regular::RegularSpace;
 
-pub mod regular;
-pub use regular::RegularSpace;
-
-pub mod named;
-pub use named::NamedSpace;
+mod named;
+pub use self::named::NamedSpace;
