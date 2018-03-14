@@ -98,3 +98,6 @@ pub use self::partitioned::Partitioned;
 
 mod discrete;
 pub use self::discrete::Discrete;
+
+mod binary;
+pub use self::binary::Binary;
