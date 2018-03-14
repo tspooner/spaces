@@ -32,10 +32,6 @@ impl BoundedDimension for Binary {
     fn ub(&self) -> &bool { &true }
 
     fn contains(&self, _: Self::Value) -> bool { true }
-
-    fn is_infinite(&self) -> bool {
-        false
-    }
 }
 
 impl FiniteDimension for Binary {
@@ -44,23 +40,74 @@ impl FiniteDimension for Binary {
     }
 }
 
+impl Surjection<bool, bool> for Binary {
+    fn map(&self, val: bool) -> bool { val }
+}
+
 impl Surjection<f64, bool> for Binary {
-    fn map(&self, val: f64) -> Self::Value {
-        val >= 0.0
-    }
+    fn map(&self, val: f64) -> bool { val > 0.0 }
 }
 
 
 #[cfg(test)]
 mod tests {
+    use rand::thread_rng;
     use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
-    fn test_binary() {
+    fn test_span() {
         let d = Binary::new();
 
         assert_eq!(d.span(), Span::Finite(2));
+    }
+
+    #[test]
+    fn test_sampling() {
+        let d = Binary::new();
+        let mut rng = thread_rng();
+
+        for _ in 0..100 {
+            let s = d.sample(&mut rng);
+
+            assert!(s == false || s == true);
+            assert!(d.contains(s));
+        }
+    }
+
+    #[test]
+    fn test_bounds() {
+        let d = Binary::new();
+
+        assert_eq!(d.lb(), &false);
+        assert_eq!(d.ub(), &true);
+
+        assert!(d.contains(false));
+        assert!(d.contains(true));
+    }
+
+    #[test]
+    fn test_range() {
+        let d = Binary::new();
+        let r = d.range();
+
+        assert!(r == (false..true) || r == (true..false));
+    }
+
+    #[test]
+    fn test_surjection() {
+        let d = Binary::new();
+
+        assert_eq!(d.map(true), true);
+        assert_eq!(d.map(false), false);
+
+        assert_eq!(d.map(1.0), true);
+        assert_eq!(d.map(0.0), false);
+    }
+
+    #[test]
+    fn test_serialisation() {
+        let d = Binary::new();
 
         assert_tokens(&d, &[Token::UnitStruct { name: "Binary" }]);
     }

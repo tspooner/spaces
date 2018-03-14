@@ -24,14 +24,41 @@ impl<T> Surjection<T, ()> for Null {
 
 #[cfg(test)]
 mod tests {
+    use rand::{thread_rng, Rng};
     use serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
-    fn test_null() {
+    fn test_span() {
         let d = Null;
 
         assert_eq!(d.span(), Span::Null);
+    }
+
+    #[test]
+    fn test_sampling() {
+        let d = Null;
+        let mut rng = thread_rng();
+
+        for _ in 0..10 {
+            assert_eq!(d.sample(&mut rng), ());
+        }
+    }
+
+    #[test]
+    fn test_surjection() {
+        let d = Null;
+        let mut rng = thread_rng();
+
+        for _ in 0..10 {
+            assert_eq!(d.map(rng.next_f64()), ());
+            assert_eq!(d.map(rng.next_u64()), ());
+        }
+    }
+
+    #[test]
+    fn test_serialisation() {
+        let d = Null;
 
         assert_tokens(&d, &[Token::UnitStruct { name: "Null" }]);
     }

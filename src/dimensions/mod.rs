@@ -36,9 +36,6 @@ pub trait BoundedDimension: Dimension where Self::Value: PartialOrd {
 
     /// Returns true iff `val` is within the dimension's bounds.
     fn contains(&self, val: Self::ValueBound) -> bool;
-
-    /// Returns true if either the upper or lower bound are infinite.
-    fn is_infinite(&self) -> bool;
 }
 
 /// Dimension type with bounds and a finite set of values.
