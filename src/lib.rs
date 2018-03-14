@@ -31,3 +31,8 @@ pub type Vector<T = f64> = ndarray::Array1<T>;
 pub type Matrix<T = f64> = ndarray::Array2<T>;
 
 
+/// A trait for types implementing a mapping from values of one set onto another.
+pub trait Surjection<X, Y> {
+    /// Map value from domain onto codomain.
+    fn map(&self, from: X) -> Y;
+}
