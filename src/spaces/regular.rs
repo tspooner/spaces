@@ -1,4 +1,9 @@
-use super::*;
+use {Dimension, Space, Span, Surjection};
+use dimensions::{Continuous, Partitioned};
+use rand::ThreadRng;
+use std::iter::FromIterator;
+use std::slice::Iter as SliceIter;
+use std::ops::{Add, Index};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -37,7 +42,7 @@ impl<D: Dimension> RegularSpace<D> {
     }
 }
 
-impl RegularSpace<dimensions::Continuous> {
+impl RegularSpace<Continuous> {
     pub fn partitioned(self, density: usize) -> RegularSpace<Partitioned> {
         self.into_iter()
             .map(|d| Partitioned::from_continuous(d, density))
@@ -45,7 +50,7 @@ impl RegularSpace<dimensions::Continuous> {
     }
 }
 
-impl RegularSpace<dimensions::Partitioned> {
+impl RegularSpace<Partitioned> {
     pub fn centres(&self) -> Vec<Vec<f64>> {
         self.dimensions
             .iter()
@@ -67,6 +72,15 @@ impl<D: Dimension> Space for RegularSpace<D> {
 
     fn span(&self) -> Span {
         self.span
+    }
+}
+
+impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for RegularSpace<D>
+where
+    D: Dimension + Surjection<X, <D as Dimension>::Value>,
+{
+    fn map(&self, val: Vec<X>) -> Vec<D::Value> {
+        self.dimensions.iter().zip(val.into_iter()).map(|(d, v)| d.map(v)).collect()
     }
 }
 

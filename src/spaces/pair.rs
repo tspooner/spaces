@@ -1,4 +1,6 @@
-use super::*;
+use {Dimension, Space, Span, Surjection};
+use dimensions::{Continuous, Partitioned};
+use rand::ThreadRng;
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -12,7 +14,7 @@ impl<D1: Dimension, D2: Dimension> PairSpace<D1, D2> {
     }
 }
 
-impl PairSpace<dimensions::Continuous, dimensions::Continuous> {
+impl PairSpace<Continuous, Continuous> {
     pub fn partitioned(self, density: usize) -> PairSpace<Partitioned, Partitioned> {
         PairSpace((Partitioned::from_continuous((self.0).0, density),
                    Partitioned::from_continuous((self.0).1, density)))
@@ -32,6 +34,17 @@ impl<D1: Dimension, D2: Dimension> Space for PairSpace<D1, D2> {
 
     fn span(&self) -> Span {
         (self.0).0.span()*(self.0).1.span()
+    }
+}
+
+impl<D1, X1, D2, X2> Surjection<(X1, X2), (D1::Value, D2::Value)> for PairSpace<D1, D2>
+where
+    D1: Dimension + Surjection<X1, <D1 as Dimension>::Value>,
+    D2: Dimension + Surjection<X2, <D2 as Dimension>::Value>,
+{
+    fn map(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
+        ((self.0).0.map(val.0),
+         (self.0).1.map(val.1))
     }
 }
 

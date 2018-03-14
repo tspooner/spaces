@@ -1,4 +1,5 @@
-use super::*;
+use {Space, Span, Surjection};
+use rand::ThreadRng;
 
 /// An empty space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -18,6 +19,10 @@ impl Space for EmptySpace {
     fn span(&self) -> Span {
         Span::Null
     }
+}
+
+impl<T> Surjection<T, ()> for EmptySpace {
+    fn map(&self, _: T) -> () { () }
 }
 
 

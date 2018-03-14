@@ -1,4 +1,6 @@
-use super::*;
+use {Dimension, Space, Span, Surjection};
+use dimensions::{Continuous, Partitioned};
+use rand::ThreadRng;
 
 /// 1-dimensional space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -10,7 +12,7 @@ impl<D: Dimension> UnitarySpace<D> {
     }
 }
 
-impl UnitarySpace<dimensions::Continuous> {
+impl UnitarySpace<Continuous> {
     pub fn partitioned(self, density: usize) -> UnitarySpace<Partitioned> {
         UnitarySpace(Partitioned::from_continuous(self.0, density))
     }
@@ -29,6 +31,15 @@ impl<D: Dimension> Space for UnitarySpace<D> {
 
     fn span(&self) -> Span {
         self.0.span()
+    }
+}
+
+impl<D, X> Surjection<X, D::Value> for UnitarySpace<D>
+where
+    D: Dimension + Surjection<X, <D as Dimension>::Value>,
+{
+    fn map(&self, val: X) -> D::Value {
+        self.0.map(val)
     }
 }
 
