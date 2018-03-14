@@ -1,3 +1,4 @@
+use Surjection;
 use rand::Rng;
 use super::*;
 
@@ -13,10 +14,6 @@ impl Binary {
 
 impl Dimension for Binary {
     type Value = bool;
-
-    fn convert(&self, val: f64) -> Self::Value {
-        val >= 0.0
-    }
 
     fn span(&self) -> Span {
         Span::Finite(2)
@@ -44,6 +41,12 @@ impl BoundedDimension for Binary {
 impl FiniteDimension for Binary {
     fn range(&self) -> Range<Self::Value> {
         false..true
+    }
+}
+
+impl Surjection<f64, bool> for Binary {
+    fn map(&self, val: f64) -> Self::Value {
+        val >= 0.0
     }
 }
 

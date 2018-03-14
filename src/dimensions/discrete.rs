@@ -1,3 +1,4 @@
+use Surjection;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
@@ -28,10 +29,6 @@ impl Discrete {
 
 impl Dimension for Discrete {
     type Value = usize;
-
-    fn convert(&self, val: f64) -> Self::Value {
-        val as usize
-    }
 
     fn sample(&self, rng: &mut ThreadRng) -> usize {
         self.range.ind_sample(rng)
@@ -65,6 +62,12 @@ impl BoundedDimension for Discrete {
 impl FiniteDimension for Discrete {
     fn range(&self) -> Range<Self::Value> {
         0..self.size
+    }
+}
+
+impl Surjection<usize, usize> for Discrete {
+    fn map(&self, val: usize) -> usize {
+        val as usize
     }
 }
 

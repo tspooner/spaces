@@ -11,9 +11,6 @@ pub trait Dimension {
     /// The corresponding primitive type.
     type Value: Debug + Clone;
 
-    /// Map a compatible input into a valid value of this dimension.
-    fn convert(&self, val: f64) -> Self::Value;
-
     /// Returns the total span of this dimension.
     fn span(&self) -> Span;
 
@@ -54,10 +51,6 @@ pub trait FiniteDimension: BoundedDimension where Self::Value: PartialOrd {
 impl<D: Dimension> Dimension for Box<D> {
     type Value = D::Value;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        (**self).convert(val)
-    }
-
     fn span(&self) -> Span {
         (**self).span()
     }
@@ -69,10 +62,6 @@ impl<D: Dimension> Dimension for Box<D> {
 
 impl<'a, D: Dimension> Dimension for &'a D {
     type Value = D::Value;
-
-    fn convert(&self, val: f64) -> Self::Value {
-        (**self).convert(val)
-    }
 
     fn span(&self) -> Span {
         (**self).span()

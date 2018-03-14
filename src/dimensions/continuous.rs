@@ -1,3 +1,4 @@
+use Surjection;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
@@ -27,10 +28,6 @@ impl Continuous {
 impl Dimension for Continuous {
     type Value = f64;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        clip!(self.lb, val, self.ub)
-    }
-
     fn span(&self) -> Span {
         Span::Infinite
     }
@@ -57,6 +54,12 @@ impl BoundedDimension for Continuous {
 
     fn is_infinite(&self) -> bool {
         self.lb.is_infinite() || self.ub.is_infinite()
+    }
+}
+
+impl Surjection<f64, f64> for Continuous {
+    fn map(&self, val: f64) -> f64 {
+        clip!(self.lb, val, self.ub)
     }
 }
 

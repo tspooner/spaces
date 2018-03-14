@@ -1,3 +1,4 @@
+use Surjection;
 use super::*;
 
 /// An infinite dimension.
@@ -13,16 +14,18 @@ impl Infinite {
 impl Dimension for Infinite {
     type Value = f64;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        val
-    }
-
     fn span(&self) -> Span {
         Span::Infinite
     }
 
     fn sample(&self, _: &mut ThreadRng) -> f64 {
         unimplemented!()
+    }
+}
+
+impl Surjection<f64, f64> for Infinite {
+    fn map(&self, val: f64) -> f64 {
+        val
     }
 }
 

@@ -1,3 +1,4 @@
+use Surjection;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
@@ -67,10 +68,6 @@ impl Partitioned {
 impl Dimension for Partitioned {
     type Value = usize;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        self.to_partition(val)
-    }
-
     fn span(&self) -> Span {
         Span::Finite(self.density)
     }
@@ -104,6 +101,10 @@ impl FiniteDimension for Partitioned {
     fn range(&self) -> Range<Self::Value> {
         0..(self.density + 1)
     }
+}
+
+impl Surjection<f64, usize> for Partitioned {
+    fn map(&self, val: f64) -> usize { self.to_partition(val) }
 }
 
 impl<'de> Deserialize<'de> for Partitioned {

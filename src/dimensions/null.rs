@@ -1,3 +1,4 @@
+use Surjection;
 use super::*;
 
 /// A null dimension.
@@ -7,10 +8,6 @@ pub struct Null;
 impl Dimension for Null {
     type Value = ();
 
-    fn convert(&self, _: f64) -> Self::Value {
-        ()
-    }
-
     fn span(&self) -> Span {
         Span::Null
     }
@@ -18,6 +15,10 @@ impl Dimension for Null {
     fn sample(&self, _: &mut ThreadRng) -> () {
         ()
     }
+}
+
+impl<T> Surjection<T, ()> for Null {
+    fn map(&self, _: T) -> () { () }
 }
 
 
