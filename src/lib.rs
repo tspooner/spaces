@@ -13,6 +13,8 @@ pub use self::rusty_machine::learning::toolkit::kernel as kernels;
 mod macros;
 
 pub mod dimensions;
+pub use self::dimensions::{Dimension, BoundedDimension, FiniteDimension};
+
 pub mod norms;
 
 mod span;
