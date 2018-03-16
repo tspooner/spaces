@@ -1,8 +1,8 @@
-use Surjection;
+use {Space, BoundedSpace, Surjection, Span};
+use rand::ThreadRng;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
-use super::*;
 use std::{cmp, fmt};
 
 /// A continous dimension.
@@ -25,38 +25,30 @@ impl Continuous {
     }
 }
 
-impl Dimension for Continuous {
+impl Space for Continuous {
     type Value = f64;
 
-    fn span(&self) -> Span {
-        Span::Infinite
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn sample(&self, rng: &mut ThreadRng) -> f64 {
-        self.range.ind_sample(rng)
-    }
+    fn span(&self) -> Span { Span::Infinite }
+
+    fn sample(&self, rng: &mut ThreadRng) -> f64 { self.range.ind_sample(rng) }
 }
 
-impl BoundedDimension for Continuous {
-    type ValueBound = Self::Value;
+impl BoundedSpace for Continuous {
+    type BoundValue = Self::Value;
 
-    fn lb(&self) -> &f64 {
-        &self.lb
-    }
+    fn lb(&self) -> &f64 { &self.lb }
 
-    fn ub(&self) -> &f64 {
-        &self.ub
-    }
+    fn ub(&self) -> &f64 { &self.ub }
 
-    fn contains(&self, val: Self::ValueBound) -> bool {
+    fn contains(&self, val: Self::BoundValue) -> bool {
         (val >= self.lb) && (val < self.ub)
     }
 }
 
 impl Surjection<f64, f64> for Continuous {
-    fn map(&self, val: f64) -> f64 {
-        clip!(self.lb, val, self.ub)
-    }
+    fn map(&self, val: f64) -> f64 { clip!(self.lb, val, self.ub) }
 }
 
 impl<'de> Deserialize<'de> for Continuous {

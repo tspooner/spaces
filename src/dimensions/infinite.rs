@@ -1,5 +1,6 @@
-use Surjection;
-use super::*;
+use {Space, Surjection, Span};
+use dimensions::Continuous;
+use rand::ThreadRng;
 
 /// An infinite dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -11,22 +12,18 @@ impl Infinite {
     }
 }
 
-impl Dimension for Infinite {
+impl Space for Infinite {
     type Value = f64;
 
-    fn span(&self) -> Span {
-        Span::Infinite
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn sample(&self, _: &mut ThreadRng) -> f64 {
-        unimplemented!()
-    }
+    fn span(&self) -> Span { Span::Infinite }
+
+    fn sample(&self, _: &mut ThreadRng) -> f64 { unimplemented!() }
 }
 
 impl Surjection<f64, f64> for Infinite {
-    fn map(&self, val: f64) -> f64 {
-        val
-    }
+    fn map(&self, val: f64) -> f64 { val }
 }
 
 

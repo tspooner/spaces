@@ -1,9 +1,11 @@
-use Surjection;
+use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use dimensions::Continuous;
+use rand::ThreadRng;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
 use std::{cmp, fmt};
-use super::*;
+use std::ops::Range;
 
 
 /// A finite, uniformly partitioned continous dimension.
@@ -60,43 +62,35 @@ impl Partitioned {
         (self.lb - self.ub) / self.density as f64
     }
 
-    pub fn density(&self) -> usize {
-        self.density
-    }
+    pub fn density(&self) -> usize { self.density }
 }
 
-impl Dimension for Partitioned {
+impl Space for Partitioned {
     type Value = usize;
 
-    fn span(&self) -> Span {
-        Span::Finite(self.density)
-    }
+    fn dim(&self) -> usize { 1 }
+
+    fn span(&self) -> Span { Span::Finite(self.density) }
 
     fn sample(&self, rng: &mut ThreadRng) -> usize {
         self.to_partition(self.range.ind_sample(rng))
     }
 }
 
-impl BoundedDimension for Partitioned {
-    type ValueBound = f64;
+impl BoundedSpace for Partitioned {
+    type BoundValue = f64;
 
-    fn lb(&self) -> &f64 {
-        &self.lb
-    }
+    fn lb(&self) -> &f64 { &self.lb }
 
-    fn ub(&self) -> &f64 {
-        &self.ub
-    }
+    fn ub(&self) -> &f64 { &self.ub }
 
-    fn contains(&self, val: Self::ValueBound) -> bool {
+    fn contains(&self, val: Self::BoundValue) -> bool {
         (val >= self.lb) && (val < self.ub)
     }
 }
 
-impl FiniteDimension for Partitioned {
-    fn range(&self) -> Range<Self::Value> {
-        0..(self.density + 1)
-    }
+impl FiniteSpace for Partitioned {
+    fn range(&self) -> Range<Self::Value> { 0..(self.density + 1) }
 }
 
 impl Surjection<f64, usize> for Partitioned {

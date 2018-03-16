@@ -1,4 +1,4 @@
-use {Dimension, Space, Span, Surjection};
+use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
 use rand::ThreadRng;
 use std::collections::HashMap;
@@ -8,12 +8,12 @@ use std::ops::Add;
 
 /// Named, N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct NamedSpace<D: Dimension> {
+pub struct NamedSpace<D: Space> {
     dimensions: HashMap<String, D>,
     span: Span,
 }
 
-impl<D: Dimension> NamedSpace<D> {
+impl<D: Space> NamedSpace<D> {
     pub fn new<S: Into<String>>(dimensions: Vec<(S, D)>) -> Self {
         let mut s = Self::empty();
 
@@ -60,8 +60,8 @@ impl NamedSpace<Partitioned> {
     }
 }
 
-impl<D: Dimension> Space for NamedSpace<D> {
-    type Repr = Vec<D::Value>;
+impl<D: Space> Space for NamedSpace<D> {
+    type Value = Vec<D::Value>;
 
     fn dim(&self) -> usize {
         self.dimensions.len()
@@ -71,27 +71,27 @@ impl<D: Dimension> Space for NamedSpace<D> {
         self.span
     }
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
+    fn sample(&self, rng: &mut ThreadRng) -> Vec<D::Value> {
         self.dimensions.values().map(|d| d.sample(rng)).collect()
     }
 }
 
 impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for NamedSpace<D>
 where
-    D: Dimension + Surjection<X, <D as Dimension>::Value>,
+    D: Space + Surjection<X, <D as Space>::Value>,
 {
     fn map(&self, val: Vec<X>) -> Vec<D::Value> {
         self.dimensions.values().zip(val.into_iter()).map(|(d, v)| d.map(v)).collect()
     }
 }
 
-impl<D: Dimension> FromIterator<(String, D)> for NamedSpace<D> {
+impl<D: Space> FromIterator<(String, D)> for NamedSpace<D> {
     fn from_iter<I: IntoIterator<Item = (String, D)>>(iter: I) -> Self {
         Self::new(iter.into_iter().collect())
     }
 }
 
-impl<D: Dimension> IntoIterator for NamedSpace<D> {
+impl<D: Space> IntoIterator for NamedSpace<D> {
     type Item = (String, D);
     type IntoIter = ::std::collections::hash_map::IntoIter<String, D>;
 
@@ -100,7 +100,7 @@ impl<D: Dimension> IntoIterator for NamedSpace<D> {
     }
 }
 
-impl<D: Dimension> Add<NamedSpace<D>> for NamedSpace<D> {
+impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
     type Output = Self;
 
     fn add(self, rhs: NamedSpace<D>) -> Self::Output {

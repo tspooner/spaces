@@ -1,9 +1,10 @@
-use Surjection;
+use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use rand::ThreadRng;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
 use std::{cmp, fmt};
-use super::*;
+use std::ops::Range;
 
 /// A finite discrete dimension.
 #[derive(Clone, Copy, Serialize)]
@@ -27,44 +28,32 @@ impl Discrete {
     }
 }
 
-impl Dimension for Discrete {
+impl Space for Discrete {
     type Value = usize;
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize {
-        self.range.ind_sample(rng)
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span {
-        Span::Finite(self.size)
-    }
+    fn span(&self) -> Span { Span::Finite(self.size) }
+
+    fn sample(&self, rng: &mut ThreadRng) -> usize { self.range.ind_sample(rng) }
 }
 
-impl BoundedDimension for Discrete {
-    type ValueBound = usize;
+impl BoundedSpace for Discrete {
+    type BoundValue = usize;
 
-    fn lb(&self) -> &usize {
-        &0
-    }
+    fn lb(&self) -> &usize { &0 }
 
-    fn ub(&self) -> &usize {
-        &self.ub
-    }
+    fn ub(&self) -> &usize { &self.ub }
 
-    fn contains(&self, val: Self::Value) -> bool {
-        val < self.size
-    }
+    fn contains(&self, val: Self::Value) -> bool { val < self.size }
 }
 
-impl FiniteDimension for Discrete {
-    fn range(&self) -> Range<Self::Value> {
-        0..self.size
-    }
+impl FiniteSpace for Discrete {
+    fn range(&self) -> Range<Self::Value> { 0..self.size }
 }
 
 impl Surjection<usize, usize> for Discrete {
-    fn map(&self, val: usize) -> usize {
-        val as usize
-    }
+    fn map(&self, val: usize) -> usize { val as usize }
 }
 
 impl<'de> Deserialize<'de> for Discrete {

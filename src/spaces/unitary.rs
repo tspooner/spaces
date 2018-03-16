@@ -1,12 +1,12 @@
-use {Dimension, Space, Span, Surjection};
+use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
 use rand::ThreadRng;
 
 /// 1-dimensional space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
-pub struct UnitarySpace<D: Dimension>(D);
+pub struct UnitarySpace<D: Space>(D);
 
-impl<D: Dimension> UnitarySpace<D> {
+impl<D: Space> UnitarySpace<D> {
     pub fn new(d: D) -> Self {
         UnitarySpace(d)
     }
@@ -18,8 +18,8 @@ impl UnitarySpace<Continuous> {
     }
 }
 
-impl<D: Dimension> Space for UnitarySpace<D> {
-    type Repr = D::Value;
+impl<D: Space> Space for UnitarySpace<D> {
+    type Value = D::Value;
 
     fn dim(&self) -> usize {
         1
@@ -29,14 +29,14 @@ impl<D: Dimension> Space for UnitarySpace<D> {
         self.0.span()
     }
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
+    fn sample(&self, rng: &mut ThreadRng) -> D::Value {
         self.0.sample(rng)
     }
 }
 
 impl<D, X> Surjection<X, D::Value> for UnitarySpace<D>
 where
-    D: Dimension + Surjection<X, <D as Dimension>::Value>,
+    D: Space + Surjection<X, <D as Space>::Value>,
 {
     fn map(&self, val: X) -> D::Value {
         self.0.map(val)

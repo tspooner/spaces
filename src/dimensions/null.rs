@@ -1,20 +1,18 @@
-use Surjection;
-use super::*;
+use {Space, Surjection, Span};
+use rand::ThreadRng;
 
 /// A null dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Null;
 
-impl Dimension for Null {
+impl Space for Null {
     type Value = ();
 
-    fn span(&self) -> Span {
-        Span::Null
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn sample(&self, _: &mut ThreadRng) -> () {
-        ()
-    }
+    fn span(&self) -> Span { Span::Null }
+
+    fn sample(&self, _: &mut ThreadRng) -> () { () }
 }
 
 impl<T> Surjection<T, ()> for Null {

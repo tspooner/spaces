@@ -6,7 +6,7 @@ use rand::ThreadRng;
 pub struct EmptySpace;
 
 impl Space for EmptySpace {
-    type Repr = ();
+    type Value = ();
 
     fn dim(&self) -> usize {
         0
@@ -16,7 +16,7 @@ impl Space for EmptySpace {
         Span::Null
     }
 
-    fn sample(&self, _: &mut ThreadRng) -> Self::Repr {
+    fn sample(&self, _: &mut ThreadRng) -> () {
         ()
     }
 }
