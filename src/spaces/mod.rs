@@ -3,9 +3,6 @@
 mod empty;
 pub use self::empty::EmptySpace;
 
-mod unitary;
-pub use self::unitary::UnitarySpace;
-
 mod pair;
 pub use self::pair::PairSpace;
 
