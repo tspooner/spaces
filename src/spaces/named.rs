@@ -63,16 +63,16 @@ impl NamedSpace<Partitioned> {
 impl<D: Dimension> Space for NamedSpace<D> {
     type Repr = Vec<D::Value>;
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
-        self.dimensions.values().map(|d| d.sample(rng)).collect()
-    }
-
     fn dim(&self) -> usize {
         self.dimensions.len()
     }
 
     fn span(&self) -> Span {
         self.span
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
+        self.dimensions.values().map(|d| d.sample(rng)).collect()
     }
 }
 

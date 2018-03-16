@@ -62,16 +62,16 @@ impl RegularSpace<Partitioned> {
 impl<D: Dimension> Space for RegularSpace<D> {
     type Repr = Vec<D::Value>;
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
-        self.dimensions.iter().map(|d| d.sample(rng)).collect()
-    }
-
     fn dim(&self) -> usize {
         self.dimensions.len()
     }
 
     fn span(&self) -> Span {
         self.span
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
+        self.dimensions.iter().map(|d| d.sample(rng)).collect()
     }
 }
 
@@ -81,6 +81,14 @@ where
 {
     fn map(&self, val: Vec<X>) -> Vec<D::Value> {
         self.dimensions.iter().zip(val.into_iter()).map(|(d, v)| d.map(v)).collect()
+    }
+}
+
+impl<D: Dimension> Index<usize> for RegularSpace<D> {
+    type Output = D;
+
+    fn index(&self, index: usize) -> &D {
+        self.dimensions.index(index)
     }
 }
 
@@ -115,24 +123,27 @@ impl<D: Dimension> Add<RegularSpace<D>> for RegularSpace<D> {
     }
 }
 
-impl<D: Dimension> Index<usize> for RegularSpace<D> {
-    type Output = D;
-
-    fn index(&self, index: usize) -> &D {
-        self.dimensions.index(index)
-    }
-}
-
 
 #[cfg(test)]
 mod tests {
+    use {Space, RegularSpace, Span, Surjection};
+    use dimensions::{Discrete, Continuous};
     use ndarray::arr1;
     use rand::thread_rng;
-    use spaces::{Space, RegularSpace, Span};
-    use spaces::dimensions::Discrete;
+    use std::iter::FromIterator;
 
     #[test]
-    fn test_regular_space() {
+    fn test_dim() {
+        assert_eq!(RegularSpace::new(vec![Discrete::new(2); 2]).dim(), 2);
+    }
+
+    #[test]
+    fn test_span() {
+        assert_eq!(RegularSpace::new(vec![Discrete::new(2); 2]).span(), Span::Finite(4));
+    }
+
+    #[test]
+    fn test_sampling() {
         let space = RegularSpace::new(vec![Discrete::new(2); 2]);
 
         let mut rng = thread_rng();
@@ -151,13 +162,36 @@ mod tests {
 
         assert!((c1/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
         assert!((c2/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
-
-        assert_eq!(space.dim(), 2);
-        assert_eq!(space.span(), Span::Finite(4));
     }
 
     #[test]
-    fn test_regular_space_sugar() {
+    fn test_surjection() {
+        let space = RegularSpace::new(vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)]);
+
+        assert_eq!(space.map(vec![6.0, 0.0]), vec![5.0, 1.0]);
+        assert_eq!(space.map(vec![2.5, 1.5]), vec![2.5, 1.5]);
+        assert_eq!(space.map(vec![-1.0, 3.0]), vec![0.0, 2.0]);
+    }
+
+    #[test]
+    fn test_indexing() {
+        let dimensions = vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)];
+        let space = RegularSpace::from_iter(dimensions.iter().cloned());
+
+        assert_eq!(space[0], dimensions[0]);
+        assert_eq!(space[1], dimensions[1]);
+    }
+
+    #[test]
+    fn test_iteration() {
+        let dimensions = vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)];
+        let space = RegularSpace::from_iter(dimensions.iter().cloned());
+
+        assert_eq!(space.into_iter().collect::<Vec<Continuous>>(), dimensions);
+    }
+
+    #[test]
+    fn test_add_op() {
         let mut sa = RegularSpace::new(vec![Discrete::new(2); 2]);
         let mut sb = RegularSpace::empty() + Discrete::new(2) + Discrete::new(2);
 
@@ -170,7 +204,12 @@ mod tests {
         assert_eq!(sa.dim(), 3);
         assert_eq!(sa.dim(), sb.dim());
 
-        assert_eq!(sa.span(), Span::Finite(4)*Span::Finite(3));
+        assert_eq!(sa.span(), Span::Finite(12));
         assert_eq!(sa.span(), sb.span());
+
+        let sc = sa + sb;
+
+        assert_eq!(sc.dim(), 6);
+        assert_eq!(sc.span(), Span::Finite(144));
     }
 }
