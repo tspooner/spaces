@@ -1,3 +1,4 @@
+use Surjection;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
@@ -67,10 +68,6 @@ impl Partitioned {
 impl Dimension for Partitioned {
     type Value = usize;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        self.to_partition(val)
-    }
-
     fn span(&self) -> Span {
         Span::Finite(self.density)
     }
@@ -94,16 +91,20 @@ impl BoundedDimension for Partitioned {
     fn contains(&self, val: Self::ValueBound) -> bool {
         (val >= self.lb) && (val < self.ub)
     }
-
-    fn is_infinite(&self) -> bool {
-        self.lb.is_infinite() || self.ub.is_infinite()
-    }
 }
 
 impl FiniteDimension for Partitioned {
     fn range(&self) -> Range<Self::Value> {
         0..(self.density + 1)
     }
+}
+
+impl Surjection<f64, usize> for Partitioned {
+    fn map(&self, val: f64) -> usize { self.to_partition(val) }
+}
+
+impl Surjection<usize, usize> for Partitioned {
+    fn map(&self, val: usize) -> usize { clip!(0, val, self.density-1) }
 }
 
 impl<'de> Deserialize<'de> for Partitioned {
@@ -237,21 +238,69 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_partitioned() {
+    fn test_span() {
+        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+            let d = Partitioned::new(lb, ub, density);
+
+            assert_eq!(d.span(), Span::Finite(density));
+        }
+    }
+
+    #[test]
+    fn test_sampling() {
         for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
             let d = Partitioned::new(lb, ub, density);
             let mut rng = thread_rng();
 
-            assert_eq!(d.span(), Span::Finite(density));
+            for _ in 0..100 {
+                let s = d.sample(&mut rng);
+
+                assert!(s < density);
+            }
+        }
+    }
+
+    #[test]
+    fn test_bounds() {
+        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+            let d = Partitioned::new(lb, ub, density);
+
+            assert_eq!(d.lb(), &lb);
+            assert_eq!(d.ub(), &ub);
 
             assert!(!d.contains(ub));
             assert!(d.contains(lb));
             assert!(d.contains(((lb + ub) / 2.0)));
+        }
+    }
 
-            for _ in 0..100 {
-                let s = d.sample(&mut rng);
-                assert!(s < density);
-            }
+    #[test]
+    fn test_surjection_f64() {
+        let d = Partitioned::new(0.0, 5.0, 6);
+
+        assert_eq!(d.map(-1.0), 0);
+        assert_eq!(d.map(0.0), 0);
+        assert_eq!(d.map(1.0), 1);
+        assert_eq!(d.map(2.0), 2);
+        assert_eq!(d.map(3.0), 3);
+        assert_eq!(d.map(4.0), 4);
+        assert_eq!(d.map(5.0), 5);
+        assert_eq!(d.map(6.0), 5);
+    }
+
+    #[test]
+    fn test_surjection_usize() {
+        let d = Partitioned::new(5.0, 6.0, 2);
+
+        assert_eq!(d.map(0), 0);
+        assert_eq!(d.map(1), 1);
+        assert_eq!(d.map(2), 1);
+    }
+
+    #[test]
+    fn test_serialisation() {
+        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+            let d = Partitioned::new(lb, ub, density);
 
             assert_tokens(&d,
                           &[Token::Struct {

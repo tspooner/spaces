@@ -1,4 +1,10 @@
-use super::*;
+use {Dimension, Space, Span, Surjection};
+use dimensions::{Continuous, Partitioned};
+use rand::ThreadRng;
+use std::collections::HashMap;
+use std::collections::hash_map::Iter as HashMapIter;
+use std::iter::FromIterator;
+use std::ops::Add;
 
 /// Named, N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -37,7 +43,7 @@ impl<D: Dimension> NamedSpace<D> {
     }
 }
 
-impl NamedSpace<dimensions::Continuous> {
+impl NamedSpace<Continuous> {
     pub fn partitioned(self, density: usize) -> NamedSpace<Partitioned> {
         self.into_iter()
             .map(|(name, d)| (name, Partitioned::from_continuous(d, density)))
@@ -45,7 +51,7 @@ impl NamedSpace<dimensions::Continuous> {
     }
 }
 
-impl NamedSpace<dimensions::Partitioned> {
+impl NamedSpace<Partitioned> {
     pub fn centres(&self) -> Vec<Vec<f64>> {
         self.dimensions
             .values()
@@ -57,16 +63,25 @@ impl NamedSpace<dimensions::Partitioned> {
 impl<D: Dimension> Space for NamedSpace<D> {
     type Repr = Vec<D::Value>;
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
-        self.dimensions.iter().map(|(_, d)| d.sample(rng)).collect()
-    }
-
     fn dim(&self) -> usize {
         self.dimensions.len()
     }
 
     fn span(&self) -> Span {
         self.span
+    }
+
+    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
+        self.dimensions.values().map(|d| d.sample(rng)).collect()
+    }
+}
+
+impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for NamedSpace<D>
+where
+    D: Dimension + Surjection<X, <D as Dimension>::Value>,
+{
+    fn map(&self, val: Vec<X>) -> Vec<D::Value> {
+        self.dimensions.values().zip(val.into_iter()).map(|(d, v)| d.map(v)).collect()
     }
 }
 

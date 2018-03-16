@@ -1,3 +1,4 @@
+use Surjection;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
@@ -29,10 +30,6 @@ impl Discrete {
 impl Dimension for Discrete {
     type Value = usize;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        val as usize
-    }
-
     fn sample(&self, rng: &mut ThreadRng) -> usize {
         self.range.ind_sample(rng)
     }
@@ -56,15 +53,17 @@ impl BoundedDimension for Discrete {
     fn contains(&self, val: Self::Value) -> bool {
         val < self.size
     }
-
-    fn is_infinite(&self) -> bool {
-        false
-    }
 }
 
 impl FiniteDimension for Discrete {
     fn range(&self) -> Range<Self::Value> {
         0..self.size
+    }
+}
+
+impl Surjection<usize, usize> for Discrete {
+    fn map(&self, val: usize) -> usize {
+        val as usize
     }
 }
 
@@ -169,22 +168,55 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_discrete() {
+    fn test_span() {
+        for size in vec![5, 10, 100] {
+            let d = Discrete::new(size);
+
+            assert_eq!(d.span(), Span::Finite(size));
+        }
+    }
+
+    #[test]
+    fn test_sampling() {
         for size in vec![5, 10, 100] {
             let d = Discrete::new(size);
             let mut rng = thread_rng();
 
-            assert_eq!(d.span(), Span::Finite(size));
+            for _ in 0..100 {
+                let s = d.sample(&mut rng);
 
-            assert!(!d.contains(size));
+                assert!(s < size);
+            }
+        }
+    }
+
+    #[test]
+    fn test_bounds() {
+        for size in vec![5, 10, 100] {
+            let d = Discrete::new(size);
+
+            assert_eq!(d.lb(), &0);
+            assert_eq!(d.ub(), &(size - 1));
 
             assert!(d.contains(0));
             assert!(d.contains((size - 1)));
+            assert!(!d.contains(size));
+        }
+    }
 
-            for _ in 0..100 {
-                let s = d.sample(&mut rng);
-                assert!(s < size);
-            }
+    #[test]
+    fn test_surjection() {
+        let d = Discrete::new(10);
+
+        for i in 0..10 {
+            assert_eq!(d.map(i), i);
+        }
+    }
+
+    #[test]
+    fn test_serialisation() {
+        for size in vec![5, 10, 100] {
+            let d = Discrete::new(size);
 
             assert_tokens(&d,
                           &[Token::Struct {

@@ -1,3 +1,4 @@
+use Surjection;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
@@ -27,10 +28,6 @@ impl Continuous {
 impl Dimension for Continuous {
     type Value = f64;
 
-    fn convert(&self, val: f64) -> Self::Value {
-        clip!(self.lb, val, self.ub)
-    }
-
     fn span(&self) -> Span {
         Span::Infinite
     }
@@ -54,9 +51,11 @@ impl BoundedDimension for Continuous {
     fn contains(&self, val: Self::ValueBound) -> bool {
         (val >= self.lb) && (val < self.ub)
     }
+}
 
-    fn is_infinite(&self) -> bool {
-        self.lb.is_infinite() || self.ub.is_infinite()
+impl Surjection<f64, f64> for Continuous {
+    fn map(&self, val: f64) -> f64 {
+        clip!(self.lb, val, self.ub)
     }
 }
 
@@ -177,23 +176,70 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_continuous() {
+    fn test_span() {
+        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+            let d = Continuous::new(lb, ub);
+
+            assert_eq!(d.span(), Span::Infinite);
+        }
+    }
+
+    #[test]
+    fn test_sampling() {
         for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
             let d = Continuous::new(lb, ub);
             let mut rng = thread_rng();
 
-            assert_eq!(d.span(), Span::Infinite);
-
-            assert!(!d.contains(ub));
-            assert!(d.contains(lb));
-            assert!(d.contains(((lb + ub) / 2.0)));
-
             for _ in 0..100 {
                 let s = d.sample(&mut rng);
+
                 assert!(s < ub);
                 assert!(s >= lb);
                 assert!(d.contains(s));
             }
+
+            assert_tokens(&d,
+                          &[Token::Struct {
+                                name: "Continuous",
+                                len: 2,
+                            },
+                            Token::Str("lb"),
+                            Token::F64(lb),
+                            Token::Str("ub"),
+                            Token::F64(ub),
+                            Token::StructEnd]);
+        }
+    }
+
+    #[test]
+    fn test_bounds() {
+        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+            let d = Continuous::new(lb, ub);
+
+            assert_eq!(d.lb(), &lb);
+            assert_eq!(d.ub(), &ub);
+
+            assert!(!d.contains(ub));
+            assert!(d.contains(lb));
+            assert!(d.contains(((lb + ub) / 2.0)));
+        }
+    }
+
+    #[test]
+    fn test_surjection() {
+        let d = Continuous::new(0.0, 5.0);
+
+        assert_eq!(d.map(-5.0), 0.0);
+        assert_eq!(d.map(0.0), 0.0);
+        assert_eq!(d.map(2.5), 2.5);
+        assert_eq!(d.map(5.0), 5.0);
+        assert_eq!(d.map(10.0), 5.0);
+    }
+
+    #[test]
+    fn test_serialisation() {
+        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+            let d = Continuous::new(lb, ub);
 
             assert_tokens(&d,
                           &[Token::Struct {
