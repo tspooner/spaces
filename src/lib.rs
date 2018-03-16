@@ -1,5 +1,5 @@
 extern crate rand;
-extern crate ndarray;
+pub extern crate ndarray;
 
 extern crate serde;
 extern crate serde_json;
