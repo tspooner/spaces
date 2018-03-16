@@ -20,7 +20,6 @@ coveralls = { repository = "tspooner/spaces", branch = "master", service = "gith
 [dependencies]
 rand = "0.4"
 ndarray = { version = "0.11", features = ["serde-1"] }
-rusty-machine = "0.5"
 
 serde = "1.0"
 serde_json = "1.0"
