@@ -2,13 +2,13 @@
 name = "spaces"
 description = "Vector space primitives for machine learning problems."
 
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Tom Spooner <t.spooner@liverpool.ac.uk>"]
 
 license = "MIT"
 readme = "README.md"
 
-keywords = ["geometry", "vector", "spaces", "mahcine", "learning"]
+keywords = ["geometry", "vector", "spaces", "machine", "learning"]
 
 repository = "https://github.com/tspooner/spaces"
 documentation = "https://docs.rs/spaces"
