@@ -6,9 +6,6 @@ extern crate serde_json;
 extern crate serde_test;
 #[macro_use] extern crate serde_derive;
 
-extern crate rusty_machine;
-pub use self::rusty_machine::learning::toolkit::kernel as kernels;
-
 
 mod macros;
 
