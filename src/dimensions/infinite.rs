@@ -34,6 +34,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_bounded() {
+        let d = Infinite;
+
+        assert_eq!(d.bounded(0.0, 1.0), Continuous::new(0.0, 1.0));
+    }
+
+    #[test]
     fn test_span() {
         let d = Infinite;
 

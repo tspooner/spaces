@@ -194,17 +194,31 @@ mod tests {
     }
 
     #[test]
+    fn test_range() {
+        assert_eq!(Discrete::new(1).range(), 0..1);
+        assert_eq!(Discrete::new(5).range(), 0..5);
+        assert_eq!(Discrete::new(10).range(), 0..10);
+    }
+
+    #[test]
     fn test_surjection() {
         let d = Discrete::new(10);
 
-        for i in 0..10 {
-            assert_eq!(d.map(i), i);
-        }
+        assert_eq!(d.map(0), 0);
+        assert_eq!(d.map(1), 1);
+        assert_eq!(d.map(2), 2);
+        assert_eq!(d.map(3), 3);
+        assert_eq!(d.map(4), 4);
+        assert_eq!(d.map(5), 5);
+        assert_eq!(d.map(6), 6);
+        assert_eq!(d.map(7), 7);
+        assert_eq!(d.map(8), 8);
+        assert_eq!(d.map(9), 9);
     }
 
     #[test]
     fn test_serialisation() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
 
             assert_tokens(&d,
@@ -216,5 +230,9 @@ mod tests {
                             Token::U64(size as u64),
                             Token::StructEnd]);
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 }

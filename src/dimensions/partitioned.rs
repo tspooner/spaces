@@ -269,6 +269,19 @@ mod tests {
     }
 
     #[test]
+    fn test_range() {
+        fn check(lb: f64, ub: f64, density: usize) {
+            let d = Partitioned::new(lb, ub, density);
+
+            assert_eq!(d.range(), 0..density);
+        }
+
+        check(0.0, 5.0, 5);
+        check(-5.0, 5.0, 10);
+        check(-5.0, 0.0, 5);
+    }
+
+    #[test]
     fn test_surjection_f64() {
         let d = Partitioned::new(0.0, 5.0, 6);
 
