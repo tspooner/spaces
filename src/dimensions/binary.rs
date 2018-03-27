@@ -47,8 +47,10 @@ impl Surjection<f64, bool> for Binary {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::thread_rng;
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]

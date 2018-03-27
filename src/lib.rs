@@ -2,8 +2,6 @@ extern crate rand;
 pub extern crate ndarray;
 
 extern crate serde;
-extern crate serde_json;
-extern crate serde_test;
 #[macro_use] extern crate serde_derive;
 
 

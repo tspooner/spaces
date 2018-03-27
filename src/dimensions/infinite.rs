@@ -29,8 +29,10 @@ impl Surjection<f64, f64> for Infinite {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::{thread_rng, Rng};
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]

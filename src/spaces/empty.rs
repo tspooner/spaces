@@ -28,9 +28,11 @@ impl<T> Surjection<T, ()> for EmptySpace {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use {Space, Span, Surjection, EmptySpace};
     use rand::thread_rng;
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
 
     #[test]
     fn test_copy() {
