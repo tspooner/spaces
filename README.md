@@ -4,22 +4,14 @@
 [![Build Status](https://travis-ci.org/tspooner/spaces.svg?branch=master)](https://travis-ci.org/tspooner/spaces)
 [![Coverage Status](https://coveralls.io/repos/github/tspooner/spaces/badge.svg?branch=master)](https://coveralls.io/github/tspooner/spaces?branch=master)
 
-<!--
 ## Overview
--->
-
+`spaces` provides a set of vector space primitives for machine learning problems. Traits such as `Space`, and it's derivatives, may be used to define state/action spaces, for example. Mappings between different spaces may also be defined which simplify many common preprocessing stages.
 
 ## Installation
 ```toml
 [dependencies]
 spaces = "0.1"
 ```
-
-
-<!--
-## Usage
--->
-
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to
