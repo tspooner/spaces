@@ -1,4 +1,5 @@
 #![macro_use]
+#![allow(unused_macros)]
 
 macro_rules! wrap {
     ($lb:expr, $x:expr, $ub:expr) => {
