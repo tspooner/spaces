@@ -74,11 +74,6 @@ pub trait BoundedSpace: Space where Self::Value: PartialOrd {
     /// Returns a reference to the dimension's upper value bound (exclusive).
     fn ub(&self) -> &Self::BoundValue;
 
-    /// Returns an owned tuple of the lower and upper bounds on the dimension.
-    fn limits(&self) -> (Self::BoundValue, Self::BoundValue) {
-        (*self.lb(), *self.ub())
-    }
-
     /// Returns true iff `val` is within the dimension's bounds.
     fn contains(&self, val: Self::BoundValue) -> bool;
 }
