@@ -1,5 +1,6 @@
-use Surjection;
-use super::*;
+use {Space, Surjection, Span};
+use dimensions::Continuous;
+use rand::ThreadRng;
 
 /// An infinite dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -11,30 +12,35 @@ impl Infinite {
     }
 }
 
-impl Dimension for Infinite {
+impl Space for Infinite {
     type Value = f64;
 
-    fn span(&self) -> Span {
-        Span::Infinite
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn sample(&self, _: &mut ThreadRng) -> f64 {
-        unimplemented!()
-    }
+    fn span(&self) -> Span { Span::Infinite }
+
+    fn sample(&self, _: &mut ThreadRng) -> f64 { unimplemented!() }
 }
 
 impl Surjection<f64, f64> for Infinite {
-    fn map(&self, val: f64) -> f64 {
-        val
-    }
+    fn map(&self, val: f64) -> f64 { val }
 }
 
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::{thread_rng, Rng};
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
+
+    #[test]
+    fn test_bounded() {
+        let d = Infinite;
+
+        assert_eq!(d.bounded(0.0, 1.0), Continuous::new(0.0, 1.0));
+    }
 
     #[test]
     fn test_span() {

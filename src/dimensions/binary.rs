@@ -1,6 +1,6 @@
-use Surjection;
-use rand::Rng;
-use super::*;
+use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use rand::{ThreadRng, Rng};
+use std::ops::Range;
 
 /// A binary dimension.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
@@ -12,20 +12,18 @@ impl Binary {
     }
 }
 
-impl Dimension for Binary {
+impl Space for Binary {
     type Value = bool;
 
-    fn span(&self) -> Span {
-        Span::Finite(2)
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn sample(&self, rng: &mut ThreadRng) -> bool {
-        rng.gen()
-    }
+    fn span(&self) -> Span { Span::Finite(2) }
+
+    fn sample(&self, rng: &mut ThreadRng) -> bool { rng.gen() }
 }
 
-impl BoundedDimension for Binary {
-    type ValueBound = bool;
+impl BoundedSpace for Binary {
+    type BoundValue = bool;
 
     fn lb(&self) -> &bool { &false }
 
@@ -34,10 +32,8 @@ impl BoundedDimension for Binary {
     fn contains(&self, _: Self::Value) -> bool { true }
 }
 
-impl FiniteDimension for Binary {
-    fn range(&self) -> Range<Self::Value> {
-        false..true
-    }
+impl FiniteSpace for Binary {
+    fn range(&self) -> Range<Self::Value> { false..true }
 }
 
 impl Surjection<bool, bool> for Binary {
@@ -51,8 +47,10 @@ impl Surjection<f64, bool> for Binary {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::thread_rng;
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]

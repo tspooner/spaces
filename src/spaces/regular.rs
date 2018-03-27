@@ -1,4 +1,4 @@
-use {Dimension, Space, Span, Surjection};
+use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
 use rand::ThreadRng;
 use std::iter::FromIterator;
@@ -7,12 +7,12 @@ use std::ops::{Add, Index};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct RegularSpace<D: Dimension> {
+pub struct RegularSpace<D: Space> {
     dimensions: Vec<D>,
     span: Span,
 }
 
-impl<D: Dimension> RegularSpace<D> {
+impl<D: Space> RegularSpace<D> {
     pub fn new(dimensions: Vec<D>) -> Self {
         let mut s = Self::empty();
 
@@ -59,8 +59,8 @@ impl RegularSpace<Partitioned> {
     }
 }
 
-impl<D: Dimension> Space for RegularSpace<D> {
-    type Repr = Vec<D::Value>;
+impl<D: Space> Space for RegularSpace<D> {
+    type Value = Vec<D::Value>;
 
     fn dim(&self) -> usize {
         self.dimensions.len()
@@ -70,21 +70,21 @@ impl<D: Dimension> Space for RegularSpace<D> {
         self.span
     }
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Repr {
+    fn sample(&self, rng: &mut ThreadRng) -> Vec<D::Value> {
         self.dimensions.iter().map(|d| d.sample(rng)).collect()
     }
 }
 
 impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for RegularSpace<D>
 where
-    D: Dimension + Surjection<X, <D as Dimension>::Value>,
+    D: Space + Surjection<X, <D as Space>::Value>,
 {
     fn map(&self, val: Vec<X>) -> Vec<D::Value> {
         self.dimensions.iter().zip(val.into_iter()).map(|(d, v)| d.map(v)).collect()
     }
 }
 
-impl<D: Dimension> Index<usize> for RegularSpace<D> {
+impl<D: Space> Index<usize> for RegularSpace<D> {
     type Output = D;
 
     fn index(&self, index: usize) -> &D {
@@ -92,13 +92,13 @@ impl<D: Dimension> Index<usize> for RegularSpace<D> {
     }
 }
 
-impl<D: Dimension> FromIterator<D> for RegularSpace<D> {
+impl<D: Space> FromIterator<D> for RegularSpace<D> {
     fn from_iter<I: IntoIterator<Item = D>>(iter: I) -> Self {
         Self::new(iter.into_iter().collect())
     }
 }
 
-impl<D: Dimension> IntoIterator for RegularSpace<D> {
+impl<D: Space> IntoIterator for RegularSpace<D> {
     type Item = D;
     type IntoIter = ::std::vec::IntoIter<D>;
 
@@ -107,7 +107,7 @@ impl<D: Dimension> IntoIterator for RegularSpace<D> {
     }
 }
 
-impl<D: Dimension> Add<D> for RegularSpace<D> {
+impl<D: Space> Add<D> for RegularSpace<D> {
     type Output = Self;
 
     fn add(self, rhs: D) -> Self::Output {
@@ -115,7 +115,7 @@ impl<D: Dimension> Add<D> for RegularSpace<D> {
     }
 }
 
-impl<D: Dimension> Add<RegularSpace<D>> for RegularSpace<D> {
+impl<D: Space> Add<RegularSpace<D>> for RegularSpace<D> {
     type Output = Self;
 
     fn add(self, rhs: RegularSpace<D>) -> Self::Output {

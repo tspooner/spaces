@@ -1,9 +1,11 @@
-use Surjection;
+use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use dimensions::Continuous;
+use rand::ThreadRng;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
 use std::{cmp, fmt};
-use super::*;
+use std::ops::Range;
 
 
 /// A finite, uniformly partitioned continous dimension.
@@ -38,6 +40,21 @@ impl Partitioned {
         }
     }
 
+    #[inline]
+    pub fn density(&self) -> usize { self.density }
+
+    #[inline]
+    pub fn partition_width(&self) -> f64 {
+        (self.ub - self.lb) / self.density as f64
+    }
+
+    pub fn centres(&self) -> Vec<f64> {
+        let w = self.partition_width();
+        let hw = w / 2.0;
+
+        (0..self.density).map(|i| self.lb + w * ((i + 1) as f64) - hw).collect()
+    }
+
     pub fn to_partition(&self, val: f64) -> usize {
         let clipped = clip!(self.lb, val, self.ub);
 
@@ -48,55 +65,34 @@ impl Partitioned {
 
         if i == self.density { i - 1 } else { i }
     }
-
-    pub fn centres(&self) -> Vec<f64> {
-        let w = (self.ub - self.lb) / self.density as f64;
-        let hw = w / 2.0;
-
-        (0..self.density).map(|i| self.lb + w * (i as f64) - hw).collect()
-    }
-
-    pub fn partition_width(&self) -> f64 {
-        (self.lb - self.ub) / self.density as f64
-    }
-
-    pub fn density(&self) -> usize {
-        self.density
-    }
 }
 
-impl Dimension for Partitioned {
+impl Space for Partitioned {
     type Value = usize;
 
-    fn span(&self) -> Span {
-        Span::Finite(self.density)
-    }
+    fn dim(&self) -> usize { 1 }
+
+    fn span(&self) -> Span { Span::Finite(self.density) }
 
     fn sample(&self, rng: &mut ThreadRng) -> usize {
         self.to_partition(self.range.ind_sample(rng))
     }
 }
 
-impl BoundedDimension for Partitioned {
-    type ValueBound = f64;
+impl BoundedSpace for Partitioned {
+    type BoundValue = f64;
 
-    fn lb(&self) -> &f64 {
-        &self.lb
-    }
+    fn lb(&self) -> &f64 { &self.lb }
 
-    fn ub(&self) -> &f64 {
-        &self.ub
-    }
+    fn ub(&self) -> &f64 { &self.ub }
 
-    fn contains(&self, val: Self::ValueBound) -> bool {
+    fn contains(&self, val: Self::BoundValue) -> bool {
         (val >= self.lb) && (val < self.ub)
     }
 }
 
-impl FiniteDimension for Partitioned {
-    fn range(&self) -> Range<Self::Value> {
-        0..(self.density + 1)
-    }
+impl FiniteSpace for Partitioned {
+    fn range(&self) -> Range<Self::Value> { 0..self.density }
 }
 
 impl Surjection<f64, usize> for Partitioned {
@@ -233,22 +229,80 @@ impl fmt::Debug for Partitioned {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::thread_rng;
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
+    fn test_from_continuous() {
+        assert_eq!(Partitioned::new(0.0, 5.0, 5),
+                   Partitioned::from_continuous(Continuous::new(0.0, 5.0), 5));
+    }
+
+    #[test]
+    fn test_density() {
+        assert_eq!(Partitioned::new(0.0, 5.0, 5).density(), 5);
+        assert_eq!(Partitioned::new(0.0, 5.0, 10).density(), 10);
+        assert_eq!(Partitioned::new(-5.0, 5.0, 100).density(), 100);
+    }
+
+    #[test]
+    fn test_partition_width() {
+        assert_eq!(Partitioned::new(0.0, 5.0, 5).partition_width(), 1.0);
+        assert_eq!(Partitioned::new(0.0, 5.0, 10).partition_width(), 0.5);
+        assert_eq!(Partitioned::new(-5.0, 5.0, 10).partition_width(), 1.0);
+    }
+
+    #[test]
+    fn test_centres() {
+        assert_eq!(Partitioned::new(0.0, 5.0, 5).centres(), vec![
+            0.5, 1.5, 2.5, 3.5, 4.5
+        ]);
+
+        assert_eq!(Partitioned::new(-5.0, 5.0, 5).centres(), vec![
+            -4.0, -2.0, 0.0, 2.0, 4.0
+        ]);
+    }
+
+    #[test]
+    fn test_to_partition() {
+        let d = Partitioned::new(0.0, 5.0, 6);
+
+        assert_eq!(d.to_partition(-1.0), 0);
+        assert_eq!(d.to_partition(0.0), 0);
+        assert_eq!(d.to_partition(1.0), 1);
+        assert_eq!(d.to_partition(2.0), 2);
+        assert_eq!(d.to_partition(3.0), 3);
+        assert_eq!(d.to_partition(4.0), 4);
+        assert_eq!(d.to_partition(5.0), 5);
+        assert_eq!(d.to_partition(6.0), 5);
+    }
+
+    #[test]
+    fn test_dim() {
+        assert_eq!(Partitioned::new(0.0, 5.0, 5).dim(), 1);
+        assert_eq!(Partitioned::new(0.0, 5.0, 10).dim(), 1);
+        assert_eq!(Partitioned::new(-5.0, 5.0, 10).dim(), 1);
+    }
+
+    #[test]
     fn test_span() {
-        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+        fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
 
             assert_eq!(d.span(), Span::Finite(density));
         }
+
+        check(0.0, 5.0, 5);
+        check(-5.0, 5.0, 10);
+        check(-5.0, 0.0, 5);
     }
 
     #[test]
     fn test_sampling() {
-        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+        fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
             let mut rng = thread_rng();
 
@@ -258,11 +312,15 @@ mod tests {
                 assert!(s < density);
             }
         }
+
+        check(0.0, 5.0, 5);
+        check(-5.0, 5.0, 10);
+        check(-5.0, 0.0, 5);
     }
 
     #[test]
     fn test_bounds() {
-        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+        fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
 
             assert_eq!(d.lb(), &lb);
@@ -272,6 +330,23 @@ mod tests {
             assert!(d.contains(lb));
             assert!(d.contains(((lb + ub) / 2.0)));
         }
+
+        check(0.0, 5.0, 5);
+        check(-5.0, 5.0, 10);
+        check(-5.0, 0.0, 5);
+    }
+
+    #[test]
+    fn test_range() {
+        fn check(lb: f64, ub: f64, density: usize) {
+            let d = Partitioned::new(lb, ub, density);
+
+            assert_eq!(d.range(), 0..density);
+        }
+
+        check(0.0, 5.0, 5);
+        check(-5.0, 5.0, 10);
+        check(-5.0, 0.0, 5);
     }
 
     #[test]
@@ -299,7 +374,7 @@ mod tests {
 
     #[test]
     fn test_serialisation() {
-        for (lb, ub, density) in vec![(0.0, 5.0, 5), (-5.0, 5.0, 10), (-5.0, 0.0, 5)] {
+        fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
 
             assert_tokens(&d,
@@ -315,5 +390,9 @@ mod tests {
                             Token::U64(density as u64),
                             Token::StructEnd]);
         }
+
+        check(0.0, 5.0, 5);
+        check(-5.0, 5.0, 10);
+        check(-5.0, 0.0, 5);
     }
 }

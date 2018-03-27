@@ -1,9 +1,10 @@
-use Surjection;
+use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use rand::ThreadRng;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
 use std::{cmp, fmt};
-use super::*;
+use std::ops::Range;
 
 /// A finite discrete dimension.
 #[derive(Clone, Copy, Serialize)]
@@ -27,44 +28,32 @@ impl Discrete {
     }
 }
 
-impl Dimension for Discrete {
+impl Space for Discrete {
     type Value = usize;
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize {
-        self.range.ind_sample(rng)
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span {
-        Span::Finite(self.size)
-    }
+    fn span(&self) -> Span { Span::Finite(self.size) }
+
+    fn sample(&self, rng: &mut ThreadRng) -> usize { self.range.ind_sample(rng) }
 }
 
-impl BoundedDimension for Discrete {
-    type ValueBound = usize;
+impl BoundedSpace for Discrete {
+    type BoundValue = usize;
 
-    fn lb(&self) -> &usize {
-        &0
-    }
+    fn lb(&self) -> &usize { &0 }
 
-    fn ub(&self) -> &usize {
-        &self.ub
-    }
+    fn ub(&self) -> &usize { &self.ub }
 
-    fn contains(&self, val: Self::Value) -> bool {
-        val < self.size
-    }
+    fn contains(&self, val: Self::Value) -> bool { val < self.size }
 }
 
-impl FiniteDimension for Discrete {
-    fn range(&self) -> Range<Self::Value> {
-        0..self.size
-    }
+impl FiniteSpace for Discrete {
+    fn range(&self) -> Range<Self::Value> { 0..self.size }
 }
 
 impl Surjection<usize, usize> for Discrete {
-    fn map(&self, val: usize) -> usize {
-        val as usize
-    }
+    fn map(&self, val: usize) -> usize { val as usize }
 }
 
 impl<'de> Deserialize<'de> for Discrete {
@@ -163,22 +152,28 @@ impl fmt::Debug for Discrete {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::thread_rng;
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
     fn test_span() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
 
             assert_eq!(d.span(), Span::Finite(size));
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 
     #[test]
     fn test_sampling() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
             let mut rng = thread_rng();
 
@@ -188,11 +183,15 @@ mod tests {
                 assert!(s < size);
             }
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 
     #[test]
     fn test_bounds() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
 
             assert_eq!(d.lb(), &0);
@@ -202,20 +201,38 @@ mod tests {
             assert!(d.contains((size - 1)));
             assert!(!d.contains(size));
         }
+
+        check(5);
+        check(10);
+        check(100);
+    }
+
+    #[test]
+    fn test_range() {
+        assert_eq!(Discrete::new(1).range(), 0..1);
+        assert_eq!(Discrete::new(5).range(), 0..5);
+        assert_eq!(Discrete::new(10).range(), 0..10);
     }
 
     #[test]
     fn test_surjection() {
         let d = Discrete::new(10);
 
-        for i in 0..10 {
-            assert_eq!(d.map(i), i);
-        }
+        assert_eq!(d.map(0), 0);
+        assert_eq!(d.map(1), 1);
+        assert_eq!(d.map(2), 2);
+        assert_eq!(d.map(3), 3);
+        assert_eq!(d.map(4), 4);
+        assert_eq!(d.map(5), 5);
+        assert_eq!(d.map(6), 6);
+        assert_eq!(d.map(7), 7);
+        assert_eq!(d.map(8), 8);
+        assert_eq!(d.map(9), 9);
     }
 
     #[test]
     fn test_serialisation() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
 
             assert_tokens(&d,
@@ -227,5 +244,9 @@ mod tests {
                             Token::U64(size as u64),
                             Token::StructEnd]);
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 }

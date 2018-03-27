@@ -2,11 +2,11 @@ use {Space, Span, Surjection};
 use rand::ThreadRng;
 
 /// An empty space.
-#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct EmptySpace;
 
 impl Space for EmptySpace {
-    type Repr = ();
+    type Value = ();
 
     fn dim(&self) -> usize {
         0
@@ -16,7 +16,7 @@ impl Space for EmptySpace {
         Span::Null
     }
 
-    fn sample(&self, _: &mut ThreadRng) -> Self::Repr {
+    fn sample(&self, _: &mut ThreadRng) -> () {
         ()
     }
 }
@@ -28,8 +28,18 @@ impl<T> Surjection<T, ()> for EmptySpace {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use {Space, Span, Surjection, EmptySpace};
     use rand::thread_rng;
+    use self::serde_test::{assert_tokens, Token};
+
+    #[test]
+    fn test_copy() {
+        let s = EmptySpace;
+
+        assert_eq!(s, s);
+    }
 
     #[test]
     fn test_dim() {
@@ -54,5 +64,12 @@ mod tests {
         assert_eq!(EmptySpace.map(1.0), ());
         assert_eq!(EmptySpace.map("test"), ());
         assert_eq!(EmptySpace.map(Some(true)), ());
+    }
+
+    #[test]
+    fn test_serialisation() {
+        let d = EmptySpace;
+
+        assert_tokens(&d, &[Token::UnitStruct { name: "EmptySpace" }]);
     }
 }

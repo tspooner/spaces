@@ -1,8 +1,8 @@
-use Surjection;
+use {Space, BoundedSpace, Surjection, Span};
+use rand::ThreadRng;
 use rand::distributions::{Range as RngRange, IndependentSample};
 use serde::{Deserialize, Deserializer, de};
 use serde::de::Visitor;
-use super::*;
 use std::{cmp, fmt};
 
 /// A continous dimension.
@@ -25,38 +25,30 @@ impl Continuous {
     }
 }
 
-impl Dimension for Continuous {
+impl Space for Continuous {
     type Value = f64;
 
-    fn span(&self) -> Span {
-        Span::Infinite
-    }
+    fn dim(&self) -> usize { 1 }
 
-    fn sample(&self, rng: &mut ThreadRng) -> f64 {
-        self.range.ind_sample(rng)
-    }
+    fn span(&self) -> Span { Span::Infinite }
+
+    fn sample(&self, rng: &mut ThreadRng) -> f64 { self.range.ind_sample(rng) }
 }
 
-impl BoundedDimension for Continuous {
-    type ValueBound = Self::Value;
+impl BoundedSpace for Continuous {
+    type BoundValue = Self::Value;
 
-    fn lb(&self) -> &f64 {
-        &self.lb
-    }
+    fn lb(&self) -> &f64 { &self.lb }
 
-    fn ub(&self) -> &f64 {
-        &self.ub
-    }
+    fn ub(&self) -> &f64 { &self.ub }
 
-    fn contains(&self, val: Self::ValueBound) -> bool {
+    fn contains(&self, val: Self::BoundValue) -> bool {
         (val >= self.lb) && (val < self.ub)
     }
 }
 
 impl Surjection<f64, f64> for Continuous {
-    fn map(&self, val: f64) -> f64 {
-        clip!(self.lb, val, self.ub)
-    }
+    fn map(&self, val: f64) -> f64 { clip!(self.lb, val, self.ub) }
 }
 
 impl<'de> Deserialize<'de> for Continuous {
@@ -171,22 +163,28 @@ impl fmt::Debug for Continuous {
 
 #[cfg(test)]
 mod tests {
+    extern crate serde_test;
+
     use rand::thread_rng;
-    use serde_test::{assert_tokens, Token};
+    use self::serde_test::{assert_tokens, Token};
     use super::*;
 
     #[test]
     fn test_span() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
             assert_eq!(d.span(), Span::Infinite);
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 
     #[test]
     fn test_sampling() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
             let mut rng = thread_rng();
 
@@ -209,11 +207,15 @@ mod tests {
                             Token::F64(ub),
                             Token::StructEnd]);
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 
     #[test]
     fn test_bounds() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
             assert_eq!(d.lb(), &lb);
@@ -223,6 +225,10 @@ mod tests {
             assert!(d.contains(lb));
             assert!(d.contains(((lb + ub) / 2.0)));
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 
     #[test]
@@ -238,7 +244,7 @@ mod tests {
 
     #[test]
     fn test_serialisation() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
             assert_tokens(&d,
@@ -252,5 +258,9 @@ mod tests {
                             Token::F64(ub),
                             Token::StructEnd]);
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 }
