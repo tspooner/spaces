@@ -171,16 +171,20 @@ mod tests {
 
     #[test]
     fn test_span() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
             assert_eq!(d.span(), Span::Infinite);
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 
     #[test]
     fn test_sampling() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
             let mut rng = thread_rng();
 
@@ -203,11 +207,15 @@ mod tests {
                             Token::F64(ub),
                             Token::StructEnd]);
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 
     #[test]
     fn test_bounds() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
             assert_eq!(d.lb(), &lb);
@@ -217,6 +225,10 @@ mod tests {
             assert!(d.contains(lb));
             assert!(d.contains(((lb + ub) / 2.0)));
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 
     #[test]
@@ -232,7 +244,7 @@ mod tests {
 
     #[test]
     fn test_serialisation() {
-        for (lb, ub) in vec![(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0)] {
+        fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
             assert_tokens(&d,
@@ -246,5 +258,9 @@ mod tests {
                             Token::F64(ub),
                             Token::StructEnd]);
         }
+
+        check(0.0, 5.0);
+        check(-5.0, 5.0);
+        check(-5.0, 0.0);
     }
 }

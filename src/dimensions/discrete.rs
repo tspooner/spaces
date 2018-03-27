@@ -160,16 +160,20 @@ mod tests {
 
     #[test]
     fn test_span() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
 
             assert_eq!(d.span(), Span::Finite(size));
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 
     #[test]
     fn test_sampling() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
             let mut rng = thread_rng();
 
@@ -179,11 +183,15 @@ mod tests {
                 assert!(s < size);
             }
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 
     #[test]
     fn test_bounds() {
-        for size in vec![5, 10, 100] {
+        fn check(size: usize) {
             let d = Discrete::new(size);
 
             assert_eq!(d.lb(), &0);
@@ -193,6 +201,10 @@ mod tests {
             assert!(d.contains((size - 1)));
             assert!(!d.contains(size));
         }
+
+        check(5);
+        check(10);
+        check(100);
     }
 
     #[test]
