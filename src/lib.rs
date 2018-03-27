@@ -46,7 +46,7 @@ pub trait Space {
 impl<D: Space> Space for Box<D> {
     type Value = D::Value;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> usize { (**self).dim() }
 
     fn span(&self) -> Span { (**self).span() }
 
@@ -56,7 +56,7 @@ impl<D: Space> Space for Box<D> {
 impl<'a, D: Space> Space for &'a D {
     type Value = D::Value;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> usize { (**self).dim() }
 
     fn span(&self) -> Span { (**self).span() }
 
