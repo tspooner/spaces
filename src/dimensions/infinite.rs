@@ -1,5 +1,6 @@
 use {Space, Surjection, Span};
 use dimensions::Continuous;
+
 use rand::ThreadRng;
 
 /// An infinite dimension.

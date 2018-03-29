@@ -1,4 +1,5 @@
 use {Space, Span, Surjection};
+
 use rand::ThreadRng;
 
 /// An empty space.

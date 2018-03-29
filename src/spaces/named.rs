@@ -1,10 +1,15 @@
 use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
+
 use rand::ThreadRng;
-use std::collections::HashMap;
-use std::collections::hash_map::Iter as HashMapIter;
-use std::iter::FromIterator;
-use std::ops::{Add, Index};
+use std::{
+    collections::hash_map::{
+        HashMap,
+        Iter as HashMapIter
+    },
+    iter::FromIterator,
+    ops::{Add, Index}
+};
 
 /// Named, N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]

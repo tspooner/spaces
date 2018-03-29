@@ -1,8 +1,17 @@
 use {Space, BoundedSpace, Surjection, Span};
-use rand::ThreadRng;
-use rand::distributions::{Range as RngRange, IndependentSample};
-use serde::{Deserialize, Deserializer, de};
-use serde::de::Visitor;
+
+use rand::{
+    ThreadRng,
+    distributions::{
+        Range as RngRange,
+        IndependentSample
+    },
+};
+use serde::{
+    Deserialize,
+    Deserializer,
+    de::{self, Visitor},
+};
 use std::{cmp, fmt};
 
 /// A continous dimension.

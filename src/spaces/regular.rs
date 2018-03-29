@@ -1,9 +1,12 @@
 use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
+
 use rand::ThreadRng;
-use std::iter::FromIterator;
-use std::slice::Iter as SliceIter;
-use std::ops::{Add, Index};
+use std::{
+    iter::FromIterator,
+    slice::Iter as SliceIter,
+    ops::{Add, Index}
+};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]

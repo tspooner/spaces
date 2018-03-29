@@ -1,5 +1,6 @@
 use std::ops::Mul;
 
+
 /// Measure of the span of a vector space.
 ///
 /// `Span` is typically used to compute the number of possible values that can be reached within

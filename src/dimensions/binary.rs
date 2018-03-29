@@ -1,4 +1,5 @@
 use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+
 use rand::{ThreadRng, Rng};
 use std::ops::Range;
 

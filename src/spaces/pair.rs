@@ -1,5 +1,6 @@
 use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
+
 use rand::ThreadRng;
 
 /// 2-dimensional homogeneous space.

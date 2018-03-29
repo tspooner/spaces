@@ -1,4 +1,5 @@
 use {Space, Surjection, Span};
+
 use rand::ThreadRng;
 
 /// A null dimension.

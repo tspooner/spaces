@@ -1,10 +1,18 @@
 use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
-use rand::ThreadRng;
-use rand::distributions::{Range as RngRange, IndependentSample};
-use serde::{Deserialize, Deserializer, de};
-use serde::de::Visitor;
-use std::{cmp, fmt};
-use std::ops::Range;
+
+use rand::{
+    ThreadRng,
+    distributions::{
+        Range as RngRange,
+        IndependentSample
+    },
+};
+use serde::{
+    Deserialize,
+    Deserializer,
+    de::{self, Visitor},
+};
+use std::{cmp, fmt, ops::Range};
 
 /// A finite discrete dimension.
 #[derive(Clone, Copy, Serialize)]
