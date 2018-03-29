@@ -1,12 +1,8 @@
-use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
+use {Space, Span, Surjection};
 
 use rand::ThreadRng;
-use std::{
-    iter::FromIterator,
-    slice::Iter as SliceIter,
-    ops::{Add, Index}
-};
+use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -34,15 +30,13 @@ impl<D: Space> RegularSpace<D> {
     }
 
     pub fn push(mut self, d: D) -> Self {
-        self.span = self.span*d.span();
+        self.span = self.span * d.span();
         self.dimensions.push(d);
 
         self
     }
 
-    pub fn iter(&self) -> SliceIter<D> {
-        self.dimensions.iter()
-    }
+    pub fn iter(&self) -> SliceIter<D> { self.dimensions.iter() }
 }
 
 impl RegularSpace<Continuous> {
@@ -54,24 +48,15 @@ impl RegularSpace<Continuous> {
 }
 
 impl RegularSpace<Partitioned> {
-    pub fn centres(&self) -> Vec<Vec<f64>> {
-        self.dimensions
-            .iter()
-            .map(|d| d.centres())
-            .collect()
-    }
+    pub fn centres(&self) -> Vec<Vec<f64>> { self.dimensions.iter().map(|d| d.centres()).collect() }
 }
 
 impl<D: Space> Space for RegularSpace<D> {
     type Value = Vec<D::Value>;
 
-    fn dim(&self) -> usize {
-        self.dimensions.len()
-    }
+    fn dim(&self) -> usize { self.dimensions.len() }
 
-    fn span(&self) -> Span {
-        self.span
-    }
+    fn span(&self) -> Span { self.span }
 
     fn sample(&self, rng: &mut ThreadRng) -> Vec<D::Value> {
         self.dimensions.iter().map(|d| d.sample(rng)).collect()
@@ -79,20 +64,21 @@ impl<D: Space> Space for RegularSpace<D> {
 }
 
 impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for RegularSpace<D>
-where
-    D: Space + Surjection<X, <D as Space>::Value>,
+where D: Space + Surjection<X, <D as Space>::Value>
 {
     fn map(&self, val: Vec<X>) -> Vec<D::Value> {
-        self.dimensions.iter().zip(val.into_iter()).map(|(d, v)| d.map(v)).collect()
+        self.dimensions
+            .iter()
+            .zip(val.into_iter())
+            .map(|(d, v)| d.map(v))
+            .collect()
     }
 }
 
 impl<D: Space> Index<usize> for RegularSpace<D> {
     type Output = D;
 
-    fn index(&self, index: usize) -> &D {
-        self.dimensions.index(index)
-    }
+    fn index(&self, index: usize) -> &D { self.dimensions.index(index) }
 }
 
 impl<D: Space> FromIterator<D> for RegularSpace<D> {
@@ -105,17 +91,13 @@ impl<D: Space> IntoIterator for RegularSpace<D> {
     type Item = D;
     type IntoIter = ::std::vec::IntoIter<D>;
 
-    fn into_iter(self) -> Self::IntoIter {
-        self.dimensions.into_iter()
-    }
+    fn into_iter(self) -> Self::IntoIter { self.dimensions.into_iter() }
 }
 
 impl<D: Space> Add<D> for RegularSpace<D> {
     type Output = Self;
 
-    fn add(self, rhs: D) -> Self::Output {
-        self.push(rhs)
-    }
+    fn add(self, rhs: D) -> Self::Output { self.push(rhs) }
 }
 
 impl<D: Space> Add<RegularSpace<D>> for RegularSpace<D> {
@@ -126,14 +108,13 @@ impl<D: Space> Add<RegularSpace<D>> for RegularSpace<D> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use {Space, RegularSpace, Span, Surjection};
-    use dimensions::{Discrete, Continuous};
+    use dimensions::{Continuous, Discrete};
     use ndarray::arr1;
     use rand::thread_rng;
     use std::iter::FromIterator;
+    use {RegularSpace, Space, Span, Surjection};
 
     #[test]
     fn test_dim() {
@@ -142,7 +123,10 @@ mod tests {
 
     #[test]
     fn test_span() {
-        assert_eq!(RegularSpace::new(vec![Discrete::new(2); 2]).span(), Span::Finite(4));
+        assert_eq!(
+            RegularSpace::new(vec![Discrete::new(2); 2]).span(),
+            Span::Finite(4)
+        );
     }
 
     #[test]
@@ -163,8 +147,8 @@ mod tests {
             assert!(sample[1] == 0 || sample[1] == 1);
         }
 
-        assert!((c1/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
-        assert!((c2/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
+        assert!((c1 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
+        assert!((c2 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
     }
 
     #[test]

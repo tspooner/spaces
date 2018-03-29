@@ -1,9 +1,9 @@
-extern crate rand;
 pub extern crate ndarray;
+extern crate rand;
 
 extern crate serde;
-#[macro_use] extern crate serde_derive;
-
+#[macro_use]
+extern crate serde_derive;
 
 mod macros;
 
@@ -16,13 +16,11 @@ pub use self::span::Span;
 mod spaces;
 pub use self::spaces::*;
 
-
 /// 1d array type.
 pub type Vector<T = f64> = ndarray::Array1<T>;
 
 /// 2d array type.
 pub type Matrix<T = f64> = ndarray::Array2<T>;
-
 
 use rand::ThreadRng;
 use std::fmt::Debug;
@@ -64,7 +62,9 @@ impl<'a, D: Space> Space for &'a D {
 }
 
 /// Space type with saturating upper/lower bounds.
-pub trait BoundedSpace: Space where Self::Value: PartialOrd {
+pub trait BoundedSpace: Space
+where Self::Value: PartialOrd
+{
     /// The upper/lower bound type; not necessarily equal to `Space::Value`.
     type BoundValue: PartialOrd + Copy;
 
@@ -79,12 +79,15 @@ pub trait BoundedSpace: Space where Self::Value: PartialOrd {
 }
 
 /// Space type with bounds and a finite set of values.
-pub trait FiniteSpace: BoundedSpace where Self::Value: PartialOrd {
+pub trait FiniteSpace: BoundedSpace
+where Self::Value: PartialOrd
+{
     /// Returns the finite range of values in this dimension.
     fn range(&self) -> Range<Self::Value>;
 }
 
-/// A trait for types implementing a mapping from values of one set onto another.
+/// A trait for types implementing a mapping from values of one set onto
+/// another.
 pub trait Surjection<X, Y> {
     /// Map value from domain onto codomain.
     fn map(&self, from: X) -> Y;

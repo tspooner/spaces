@@ -1,18 +1,8 @@
-use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
 use dimensions::Continuous;
+use {BoundedSpace, FiniteSpace, Space, Span, Surjection};
 
-use rand::{
-    ThreadRng,
-    distributions::{
-        Range as RngRange,
-        IndependentSample
-    },
-};
-use serde::{
-    Deserialize,
-    Deserializer,
-    de::{self, Visitor},
-};
+use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
+use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 
 /// A finite, uniformly partitioned continous dimension.
@@ -51,15 +41,15 @@ impl Partitioned {
     pub fn density(&self) -> usize { self.density }
 
     #[inline]
-    pub fn partition_width(&self) -> f64 {
-        (self.ub - self.lb) / self.density as f64
-    }
+    pub fn partition_width(&self) -> f64 { (self.ub - self.lb) / self.density as f64 }
 
     pub fn centres(&self) -> Vec<f64> {
         let w = self.partition_width();
         let hw = w / 2.0;
 
-        (0..self.density).map(|i| self.lb + w * ((i + 1) as f64) - hw).collect()
+        (0..self.density)
+            .map(|i| self.lb + w * ((i + 1) as f64) - hw)
+            .collect()
     }
 
     pub fn to_partition(&self, val: f64) -> usize {
@@ -70,7 +60,11 @@ impl Partitioned {
 
         let i = ((self.density as f64) * diff / range).floor() as usize;
 
-        if i == self.density { i - 1 } else { i }
+        if i == self.density {
+            i - 1
+        } else {
+            i
+        }
     }
 }
 
@@ -81,9 +75,7 @@ impl Space for Partitioned {
 
     fn span(&self) -> Span { Span::Finite(self.density) }
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize {
-        self.to_partition(self.range.ind_sample(rng))
-    }
+    fn sample(&self, rng: &mut ThreadRng) -> usize { self.to_partition(self.range.ind_sample(rng)) }
 }
 
 impl BoundedSpace for Partitioned {
@@ -93,9 +85,7 @@ impl BoundedSpace for Partitioned {
 
     fn ub(&self) -> &f64 { &self.ub }
 
-    fn contains(&self, val: Self::BoundValue) -> bool {
-        (val >= self.lb) && (val < self.ub)
-    }
+    fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
 }
 
 impl FiniteSpace for Partitioned {
@@ -107,13 +97,12 @@ impl Surjection<f64, usize> for Partitioned {
 }
 
 impl Surjection<usize, usize> for Partitioned {
-    fn map(&self, val: usize) -> usize { clip!(0, val, self.density-1) }
+    fn map(&self, val: usize) -> usize { clip!(0, val, self.density - 1) }
 }
 
 impl<'de> Deserialize<'de> for Partitioned {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
-    {
+    where D: Deserializer<'de> {
         enum Field {
             Lb,
             Ub,
@@ -123,8 +112,7 @@ impl<'de> Deserialize<'de> for Partitioned {
 
         impl<'de> Deserialize<'de> for Field {
             fn deserialize<D>(deserializer: D) -> Result<Field, D::Error>
-                where D: Deserializer<'de>
-            {
+            where D: Deserializer<'de> {
                 struct FieldVisitor;
 
                 impl<'de> Visitor<'de> for FieldVisitor {
@@ -135,8 +123,7 @@ impl<'de> Deserialize<'de> for Partitioned {
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
-                        where E: de::Error
-                    {
+                    where E: de::Error {
                         match value {
                             "lb" => Ok(Field::Lb),
                             "ub" => Ok(Field::Ub),
@@ -160,8 +147,7 @@ impl<'de> Deserialize<'de> for Partitioned {
             }
 
             fn visit_seq<V>(self, mut seq: V) -> Result<Partitioned, V::Error>
-                where V: de::SeqAccess<'de>
-            {
+            where V: de::SeqAccess<'de> {
                 let lb = seq.next_element()?
                     .ok_or_else(|| de::Error::invalid_length(0, &self))?;
                 let ub = seq.next_element()?
@@ -173,8 +159,7 @@ impl<'de> Deserialize<'de> for Partitioned {
             }
 
             fn visit_map<V>(self, mut map: V) -> Result<Partitioned, V::Error>
-                where V: de::MapAccess<'de>
-            {
+            where V: de::MapAccess<'de> {
                 let mut lb = None;
                 let mut ub = None;
                 let mut density = None;
@@ -187,21 +172,21 @@ impl<'de> Deserialize<'de> for Partitioned {
                             }
 
                             lb = Some(map.next_value()?);
-                        }
+                        },
                         Field::Ub => {
                             if ub.is_some() {
                                 return Err(de::Error::duplicate_field("ub"));
                             }
 
                             ub = Some(map.next_value()?);
-                        }
+                        },
                         Field::Density => {
                             if density.is_some() {
                                 return Err(de::Error::duplicate_field("density"));
                             }
 
                             density = Some(map.next_value()?);
-                        }
+                        },
                     }
                 }
 
@@ -233,19 +218,20 @@ impl fmt::Debug for Partitioned {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use rand::thread_rng;
     use self::serde_test::{assert_tokens, Token};
     use super::*;
+    use rand::thread_rng;
 
     #[test]
     fn test_from_continuous() {
-        assert_eq!(Partitioned::new(0.0, 5.0, 5),
-                   Partitioned::from_continuous(Continuous::new(0.0, 5.0), 5));
+        assert_eq!(
+            Partitioned::new(0.0, 5.0, 5),
+            Partitioned::from_continuous(Continuous::new(0.0, 5.0), 5)
+        );
     }
 
     #[test]
@@ -264,13 +250,15 @@ mod tests {
 
     #[test]
     fn test_centres() {
-        assert_eq!(Partitioned::new(0.0, 5.0, 5).centres(), vec![
-            0.5, 1.5, 2.5, 3.5, 4.5
-        ]);
+        assert_eq!(
+            Partitioned::new(0.0, 5.0, 5).centres(),
+            vec![0.5, 1.5, 2.5, 3.5, 4.5]
+        );
 
-        assert_eq!(Partitioned::new(-5.0, 5.0, 5).centres(), vec![
-            -4.0, -2.0, 0.0, 2.0, 4.0
-        ]);
+        assert_eq!(
+            Partitioned::new(-5.0, 5.0, 5).centres(),
+            vec![-4.0, -2.0, 0.0, 2.0, 4.0]
+        );
     }
 
     #[test]
@@ -384,18 +372,22 @@ mod tests {
         fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
 
-            assert_tokens(&d,
-                          &[Token::Struct {
-                                name: "Partitioned",
-                                len: 3,
-                            },
-                            Token::Str("lb"),
-                            Token::F64(lb),
-                            Token::Str("ub"),
-                            Token::F64(ub),
-                            Token::Str("density"),
-                            Token::U64(density as u64),
-                            Token::StructEnd]);
+            assert_tokens(
+                &d,
+                &[
+                    Token::Struct {
+                        name: "Partitioned",
+                        len: 3,
+                    },
+                    Token::Str("lb"),
+                    Token::F64(lb),
+                    Token::Str("ub"),
+                    Token::F64(ub),
+                    Token::Str("density"),
+                    Token::U64(density as u64),
+                    Token::StructEnd,
+                ],
+            );
         }
 
         check(0.0, 5.0, 5);

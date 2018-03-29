@@ -1,14 +1,11 @@
-use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
+use {Space, Span, Surjection};
 
 use rand::ThreadRng;
 use std::{
-    collections::hash_map::{
-        HashMap,
-        Iter as HashMapIter
-    },
+    collections::hash_map::{HashMap, Iter as HashMapIter},
     iter::FromIterator,
-    ops::{Add, Index}
+    ops::{Add, Index},
 };
 
 /// Named, N-dimensional homogeneous space.
@@ -37,15 +34,13 @@ impl<D: Space> NamedSpace<D> {
     }
 
     pub fn push<S: Into<String>>(mut self, name: S, d: D) -> Self {
-        self.span = self.span*d.span();
+        self.span = self.span * d.span();
         self.dimensions.insert(name.into(), d);
 
         self
     }
 
-    pub fn iter(&self) -> HashMapIter<String, D> {
-        self.dimensions.iter()
-    }
+    pub fn iter(&self) -> HashMapIter<String, D> { self.dimensions.iter() }
 }
 
 impl NamedSpace<Continuous> {
@@ -68,22 +63,20 @@ impl NamedSpace<Partitioned> {
 impl<D: Space> Space for NamedSpace<D> {
     type Value = HashMap<String, D::Value>;
 
-    fn dim(&self) -> usize {
-        self.dimensions.len()
-    }
+    fn dim(&self) -> usize { self.dimensions.len() }
 
-    fn span(&self) -> Span {
-        self.span
-    }
+    fn span(&self) -> Span { self.span }
 
     fn sample(&self, rng: &mut ThreadRng) -> HashMap<String, D::Value> {
-        self.dimensions.iter().map(|(k, d)| (k.clone(), d.sample(rng))).collect()
+        self.dimensions
+            .iter()
+            .map(|(k, d)| (k.clone(), d.sample(rng)))
+            .collect()
     }
 }
 
 impl<D, X> Surjection<Vec<X>, HashMap<String, D::Value>> for NamedSpace<D>
-where
-    D: Space + Surjection<X, <D as Space>::Value>,
+where D: Space + Surjection<X, <D as Space>::Value>
 {
     fn map(&self, val: Vec<X>) -> HashMap<String, D::Value> {
         self.dimensions
@@ -95,8 +88,7 @@ where
 }
 
 impl<D, X> Surjection<HashMap<String, X>, HashMap<String, D::Value>> for NamedSpace<D>
-where
-    D: Space + Surjection<X, <D as Space>::Value>,
+where D: Space + Surjection<X, <D as Space>::Value>
 {
     fn map(&self, val: HashMap<String, X>) -> HashMap<String, D::Value> {
         val.into_iter()
@@ -108,9 +100,7 @@ where
 impl<S: Into<String>, D: Space> Index<S> for NamedSpace<D> {
     type Output = D;
 
-    fn index(&self, index: S) -> &D {
-        self.dimensions.index(&index.into())
-    }
+    fn index(&self, index: S) -> &D { self.dimensions.index(&index.into()) }
 }
 
 impl<S: Into<String>, D: Space> FromIterator<(S, D)> for NamedSpace<D> {
@@ -123,9 +113,7 @@ impl<D: Space> IntoIterator for NamedSpace<D> {
     type Item = (String, D);
     type IntoIter = ::std::collections::hash_map::IntoIter<String, D>;
 
-    fn into_iter(self) -> Self::IntoIter {
-        self.dimensions.into_iter()
-    }
+    fn into_iter(self) -> Self::IntoIter { self.dimensions.into_iter() }
 }
 
 impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
@@ -138,35 +126,32 @@ impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
 
 #[cfg(test)]
 mod tests {
-    use {Space, NamedSpace, Span, Surjection};
-    use dimensions::{Discrete, Continuous};
+    use dimensions::{Continuous, Discrete};
     use ndarray::arr1;
     use rand::thread_rng;
     use std::collections::HashMap;
     use std::iter::FromIterator;
+    use {NamedSpace, Space, Span, Surjection};
 
     #[test]
     fn test_dim() {
-        assert_eq!(NamedSpace::new(vec![
-            ("D1", Discrete::new(2)),
-            ("D2", Discrete::new(2)),
-        ]).dim(), 2);
+        assert_eq!(
+            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).dim(),
+            2
+        );
     }
 
     #[test]
     fn test_span() {
-        assert_eq!(NamedSpace::new(vec![
-            ("D1", Discrete::new(2)),
-            ("D2", Discrete::new(2)),
-        ]).span(), Span::Finite(4));
+        assert_eq!(
+            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).span(),
+            Span::Finite(4)
+        );
     }
 
     #[test]
     fn test_sampling() {
-        let space = NamedSpace::new(vec![
-            ("D1", Discrete::new(2)),
-            ("D2", Discrete::new(2)),
-        ]);
+        let space = NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]);
 
         let mut rng = thread_rng();
 
@@ -182,8 +167,8 @@ mod tests {
             assert!(sample["D2"] == 0 || sample["D2"] == 1);
         }
 
-        assert!((c1/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
-        assert!((c2/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
+        assert!((c1 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
+        assert!((c2 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
     }
 
     #[test]
@@ -212,10 +197,7 @@ mod tests {
         let d1 = Continuous::new(0.0, 5.0);
         let d2 = Continuous::new(1.0, 2.0);
 
-        let space = NamedSpace::from_iter(vec![
-            ("D1", d1.clone()),
-            ("D2", d2.clone()),
-        ]);
+        let space = NamedSpace::from_iter(vec![("D1", d1.clone()), ("D2", d2.clone())]);
 
         assert_eq!(space["D1"], d1);
         assert_eq!(space["D2"], d2);
@@ -229,7 +211,9 @@ mod tests {
         ];
         let space = NamedSpace::new(dimensions.clone());
 
-        assert_eq!(space.into_iter().collect::<HashMap<String, Continuous>>(),
-                   HashMap::from_iter(dimensions));
+        assert_eq!(
+            space.into_iter().collect::<HashMap<String, Continuous>>(),
+            HashMap::from_iter(dimensions)
+        );
     }
 }

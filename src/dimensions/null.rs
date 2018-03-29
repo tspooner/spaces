@@ -1,4 +1,4 @@
-use {Space, Surjection, Span};
+use {Space, Span, Surjection};
 
 use rand::ThreadRng;
 
@@ -20,14 +20,13 @@ impl<T> Surjection<T, ()> for Null {
     fn map(&self, _: T) -> () { () }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use rand::{thread_rng, Rng};
     use self::serde_test::{assert_tokens, Token};
     use super::*;
+    use rand::{thread_rng, Rng};
 
     #[test]
     fn test_span() {

@@ -1,6 +1,6 @@
-use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use {BoundedSpace, FiniteSpace, Space, Span, Surjection};
 
-use rand::{ThreadRng, Rng};
+use rand::{Rng, ThreadRng};
 use std::ops::Range;
 
 /// A binary dimension.
@@ -8,9 +8,7 @@ use std::ops::Range;
 pub struct Binary;
 
 impl Binary {
-    pub fn new() -> Binary {
-        Binary
-    }
+    pub fn new() -> Binary { Binary }
 }
 
 impl Space for Binary {
@@ -45,14 +43,13 @@ impl Surjection<f64, bool> for Binary {
     fn map(&self, val: f64) -> bool { val > 0.0 }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use rand::thread_rng;
     use self::serde_test::{assert_tokens, Token};
     use super::*;
+    use rand::thread_rng;
 
     #[test]
     fn test_span() {

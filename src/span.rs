@@ -1,11 +1,10 @@
 use std::ops::Mul;
 
-
 /// Measure of the span of a vector space.
 ///
-/// `Span` is typically used to compute the number of possible values that can be reached within
-/// some vector space. For example, for a space with 2 dimensions, each with a finite set of
-/// values, we have:
+/// `Span` is typically used to compute the number of possible values that can
+/// be reached within some vector space. For example, for a space with 2
+/// dimensions, each with a finite set of values, we have:
 ///
 /// ```
 /// use spaces::{PairSpace, Space, Span};
@@ -42,13 +41,11 @@ impl Mul for Span {
         match self {
             Span::Null => rhs,
             Span::Infinite => self,
-            Span::Finite(ls) => {
-                match rhs {
-                    Span::Null => self,
-                    Span::Infinite => rhs,
-                    Span::Finite(rs) => Span::Finite(ls * rs),
-                }
-            }
+            Span::Finite(ls) => match rhs {
+                Span::Null => self,
+                Span::Infinite => rhs,
+                Span::Finite(rs) => Span::Finite(ls * rs),
+            },
         }
     }
 }
@@ -61,7 +58,6 @@ impl Into<usize> for Span {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -1,17 +1,7 @@
-use {Space, BoundedSpace, FiniteSpace, Surjection, Span};
+use {BoundedSpace, FiniteSpace, Space, Span, Surjection};
 
-use rand::{
-    ThreadRng,
-    distributions::{
-        Range as RngRange,
-        IndependentSample
-    },
-};
-use serde::{
-    Deserialize,
-    Deserializer,
-    de::{self, Visitor},
-};
+use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
+use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 
 /// A finite discrete dimension.
@@ -66,8 +56,7 @@ impl Surjection<usize, usize> for Discrete {
 
 impl<'de> Deserialize<'de> for Discrete {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
-    {
+    where D: Deserializer<'de> {
         enum Field {
             Size,
         };
@@ -75,8 +64,7 @@ impl<'de> Deserialize<'de> for Discrete {
 
         impl<'de> Deserialize<'de> for Field {
             fn deserialize<D>(deserializer: D) -> Result<Field, D::Error>
-                where D: Deserializer<'de>
-            {
+            where D: Deserializer<'de> {
                 struct FieldVisitor;
 
                 impl<'de> Visitor<'de> for FieldVisitor {
@@ -87,8 +75,7 @@ impl<'de> Deserialize<'de> for Discrete {
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
-                        where E: de::Error
-                    {
+                    where E: de::Error {
                         match value {
                             "size" => Ok(Field::Size),
                             _ => Err(de::Error::unknown_field(value, FIELDS)),
@@ -110,8 +97,7 @@ impl<'de> Deserialize<'de> for Discrete {
             }
 
             fn visit_seq<V>(self, mut seq: V) -> Result<Discrete, V::Error>
-                where V: de::SeqAccess<'de>
-            {
+            where V: de::SeqAccess<'de> {
                 let size = seq.next_element()?
                     .ok_or_else(|| de::Error::invalid_length(0, &self))?;
 
@@ -119,8 +105,7 @@ impl<'de> Deserialize<'de> for Discrete {
             }
 
             fn visit_map<V>(self, mut map: V) -> Result<Discrete, V::Error>
-                where V: de::MapAccess<'de>
-            {
+            where V: de::MapAccess<'de> {
                 let mut size = None;
 
                 while let Some(key) = map.next_key()? {
@@ -131,11 +116,13 @@ impl<'de> Deserialize<'de> for Discrete {
                             }
 
                             size = Some(map.next_value()?);
-                        }
+                        },
                     }
                 }
 
-                Ok(Discrete::new(size.ok_or_else(|| de::Error::missing_field("size"))?))
+                Ok(Discrete::new(size.ok_or_else(|| {
+                    de::Error::missing_field("size")
+                })?))
             }
         }
 
@@ -144,9 +131,7 @@ impl<'de> Deserialize<'de> for Discrete {
 }
 
 impl cmp::PartialEq for Discrete {
-    fn eq(&self, other: &Discrete) -> bool {
-        self.size.eq(&other.size)
-    }
+    fn eq(&self, other: &Discrete) -> bool { self.size.eq(&other.size) }
 }
 
 impl fmt::Debug for Discrete {
@@ -157,14 +142,13 @@ impl fmt::Debug for Discrete {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use rand::thread_rng;
     use self::serde_test::{assert_tokens, Token};
     use super::*;
+    use rand::thread_rng;
 
     #[test]
     fn test_span() {
@@ -243,14 +227,18 @@ mod tests {
         fn check(size: usize) {
             let d = Discrete::new(size);
 
-            assert_tokens(&d,
-                          &[Token::Struct {
-                                name: "Discrete",
-                                len: 1,
-                            },
-                            Token::Str("size"),
-                            Token::U64(size as u64),
-                            Token::StructEnd]);
+            assert_tokens(
+                &d,
+                &[
+                    Token::Struct {
+                        name: "Discrete",
+                        len: 1,
+                    },
+                    Token::Str("size"),
+                    Token::U64(size as u64),
+                    Token::StructEnd,
+                ],
+            );
         }
 
         check(5);

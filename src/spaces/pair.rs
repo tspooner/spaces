@@ -1,37 +1,34 @@
-use {Space, Span, Surjection};
 use dimensions::{Continuous, Partitioned};
+use {Space, Span, Surjection};
 
 use rand::ThreadRng;
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub struct PairSpace<D1, D2>(pub D1, pub D2)
-    where D1: Space,
-          D2: Space;
+where
+    D1: Space,
+    D2: Space;
 
 impl<D1: Space, D2: Space> PairSpace<D1, D2> {
-    pub fn new(d1: D1, d2: D2) -> Self {
-        PairSpace(d1, d2)
-    }
+    pub fn new(d1: D1, d2: D2) -> Self { PairSpace(d1, d2) }
 }
 
 impl PairSpace<Continuous, Continuous> {
     pub fn partitioned(self, density: usize) -> PairSpace<Partitioned, Partitioned> {
-        PairSpace(Partitioned::from_continuous(self.0, density),
-                  Partitioned::from_continuous(self.1, density))
+        PairSpace(
+            Partitioned::from_continuous(self.0, density),
+            Partitioned::from_continuous(self.1, density),
+        )
     }
 }
 
 impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
     type Value = (D1::Value, D2::Value);
 
-    fn dim(&self) -> usize {
-        2
-    }
+    fn dim(&self) -> usize { 2 }
 
-    fn span(&self) -> Span {
-        self.0.span()*self.1.span()
-    }
+    fn span(&self) -> Span { self.0.span() * self.1.span() }
 
     fn sample(&self, rng: &mut ThreadRng) -> (D1::Value, D2::Value) {
         (self.0.sample(rng), self.1.sample(rng))
@@ -48,13 +45,12 @@ where
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use {Space, PairSpace, Span, Surjection};
     use dimensions::{Continuous, Discrete, Partitioned};
     use ndarray::arr1;
     use rand::thread_rng;
+    use {PairSpace, Space, Span, Surjection};
 
     #[test]
     fn test_dim() {
@@ -63,7 +59,10 @@ mod tests {
 
     #[test]
     fn test_span() {
-        assert_eq!(PairSpace::new(Discrete::new(2), Discrete::new(2)).span(), Span::Finite(4));
+        assert_eq!(
+            PairSpace::new(Discrete::new(2), Discrete::new(2)).span(),
+            Span::Finite(4)
+        );
     }
 
     #[test]
@@ -84,8 +83,8 @@ mod tests {
             assert!(sample.1 == 0 || sample.1 == 1);
         }
 
-        assert!((c1/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
-        assert!((c2/5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
+        assert!((c1 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
+        assert!((c2 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
     }
 
     #[test]

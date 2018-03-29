@@ -1,5 +1,5 @@
-use {Space, Surjection, Span};
 use dimensions::Continuous;
+use {Space, Span, Surjection};
 
 use rand::ThreadRng;
 
@@ -8,9 +8,7 @@ use rand::ThreadRng;
 pub struct Infinite;
 
 impl Infinite {
-    pub fn bounded(self, lb: f64, ub: f64) -> Continuous {
-        Continuous::new(lb, ub)
-    }
+    pub fn bounded(self, lb: f64, ub: f64) -> Continuous { Continuous::new(lb, ub) }
 }
 
 impl Space for Infinite {
@@ -27,14 +25,13 @@ impl Surjection<f64, f64> for Infinite {
     fn map(&self, val: f64) -> f64 { val }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use rand::{thread_rng, Rng};
     use self::serde_test::{assert_tokens, Token};
     use super::*;
+    use rand::{thread_rng, Rng};
 
     #[test]
     fn test_bounded() {

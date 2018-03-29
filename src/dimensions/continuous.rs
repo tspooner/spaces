@@ -1,17 +1,7 @@
-use {Space, BoundedSpace, Surjection, Span};
+use {BoundedSpace, Space, Span, Surjection};
 
-use rand::{
-    ThreadRng,
-    distributions::{
-        Range as RngRange,
-        IndependentSample
-    },
-};
-use serde::{
-    Deserialize,
-    Deserializer,
-    de::{self, Visitor},
-};
+use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
+use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt};
 
 /// A continous dimension.
@@ -51,9 +41,7 @@ impl BoundedSpace for Continuous {
 
     fn ub(&self) -> &f64 { &self.ub }
 
-    fn contains(&self, val: Self::BoundValue) -> bool {
-        (val >= self.lb) && (val < self.ub)
-    }
+    fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
 }
 
 impl Surjection<f64, f64> for Continuous {
@@ -62,8 +50,7 @@ impl Surjection<f64, f64> for Continuous {
 
 impl<'de> Deserialize<'de> for Continuous {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
-    {
+    where D: Deserializer<'de> {
         enum Field {
             Lb,
             Ub,
@@ -72,8 +59,7 @@ impl<'de> Deserialize<'de> for Continuous {
 
         impl<'de> Deserialize<'de> for Field {
             fn deserialize<D>(deserializer: D) -> Result<Field, D::Error>
-                where D: Deserializer<'de>
-            {
+            where D: Deserializer<'de> {
                 struct FieldVisitor;
 
                 impl<'de> Visitor<'de> for FieldVisitor {
@@ -84,8 +70,7 @@ impl<'de> Deserialize<'de> for Continuous {
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
-                        where E: de::Error
-                    {
+                    where E: de::Error {
                         match value {
                             "lb" => Ok(Field::Lb),
                             "ub" => Ok(Field::Ub),
@@ -108,8 +93,7 @@ impl<'de> Deserialize<'de> for Continuous {
             }
 
             fn visit_seq<V>(self, mut seq: V) -> Result<Continuous, V::Error>
-                where V: de::SeqAccess<'de>
-            {
+            where V: de::SeqAccess<'de> {
                 let lb = seq.next_element()?
                     .ok_or_else(|| de::Error::invalid_length(0, &self))?;
                 let ub = seq.next_element()?
@@ -119,8 +103,7 @@ impl<'de> Deserialize<'de> for Continuous {
             }
 
             fn visit_map<V>(self, mut map: V) -> Result<Continuous, V::Error>
-                where V: de::MapAccess<'de>
-            {
+            where V: de::MapAccess<'de> {
                 let mut lb = None;
                 let mut ub = None;
 
@@ -132,14 +115,14 @@ impl<'de> Deserialize<'de> for Continuous {
                             }
 
                             lb = Some(map.next_value()?);
-                        }
+                        },
                         Field::Ub => {
                             if ub.is_some() {
                                 return Err(de::Error::duplicate_field("ub"));
                             }
 
                             ub = Some(map.next_value()?);
-                        }
+                        },
                     }
                 }
 
@@ -155,9 +138,7 @@ impl<'de> Deserialize<'de> for Continuous {
 }
 
 impl cmp::PartialEq for Continuous {
-    fn eq(&self, other: &Continuous) -> bool {
-        self.lb.eq(&other.lb) && self.ub.eq(&other.ub)
-    }
+    fn eq(&self, other: &Continuous) -> bool { self.lb.eq(&other.lb) && self.ub.eq(&other.ub) }
 }
 
 impl fmt::Debug for Continuous {
@@ -169,14 +150,13 @@ impl fmt::Debug for Continuous {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use rand::thread_rng;
     use self::serde_test::{assert_tokens, Token};
     use super::*;
+    use rand::thread_rng;
 
     #[test]
     fn test_span() {
@@ -205,16 +185,20 @@ mod tests {
                 assert!(d.contains(s));
             }
 
-            assert_tokens(&d,
-                          &[Token::Struct {
-                                name: "Continuous",
-                                len: 2,
-                            },
-                            Token::Str("lb"),
-                            Token::F64(lb),
-                            Token::Str("ub"),
-                            Token::F64(ub),
-                            Token::StructEnd]);
+            assert_tokens(
+                &d,
+                &[
+                    Token::Struct {
+                        name: "Continuous",
+                        len: 2,
+                    },
+                    Token::Str("lb"),
+                    Token::F64(lb),
+                    Token::Str("ub"),
+                    Token::F64(ub),
+                    Token::StructEnd,
+                ],
+            );
         }
 
         check(0.0, 5.0);
@@ -256,16 +240,20 @@ mod tests {
         fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
-            assert_tokens(&d,
-                          &[Token::Struct {
-                                name: "Continuous",
-                                len: 2,
-                            },
-                            Token::Str("lb"),
-                            Token::F64(lb),
-                            Token::Str("ub"),
-                            Token::F64(ub),
-                            Token::StructEnd]);
+            assert_tokens(
+                &d,
+                &[
+                    Token::Struct {
+                        name: "Continuous",
+                        len: 2,
+                    },
+                    Token::Str("lb"),
+                    Token::F64(lb),
+                    Token::Str("ub"),
+                    Token::F64(ub),
+                    Token::StructEnd,
+                ],
+            );
         }
 
         check(0.0, 5.0);

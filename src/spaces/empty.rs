@@ -9,31 +9,24 @@ pub struct EmptySpace;
 impl Space for EmptySpace {
     type Value = ();
 
-    fn dim(&self) -> usize {
-        0
-    }
+    fn dim(&self) -> usize { 0 }
 
-    fn span(&self) -> Span {
-        Span::Null
-    }
+    fn span(&self) -> Span { Span::Null }
 
-    fn sample(&self, _: &mut ThreadRng) -> () {
-        ()
-    }
+    fn sample(&self, _: &mut ThreadRng) -> () { () }
 }
 
 impl<T> Surjection<T, ()> for EmptySpace {
     fn map(&self, _: T) -> () { () }
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
 
-    use {Space, Span, Surjection, EmptySpace};
-    use rand::thread_rng;
     use self::serde_test::{assert_tokens, Token};
+    use rand::thread_rng;
+    use {EmptySpace, Space, Span, Surjection};
 
     #[test]
     fn test_copy() {
