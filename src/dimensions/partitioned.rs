@@ -1,5 +1,5 @@
 use dimensions::Continuous;
-use {BoundedSpace, FiniteSpace, Space, Span, Surjection};
+use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
@@ -73,7 +73,7 @@ impl Space for Partitioned {
 
     fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span { Span::Finite(self.density) }
+    fn card(&self) -> Card { Card::Finite(self.density) }
 
     fn sample(&self, rng: &mut ThreadRng) -> usize { self.to_partition(self.range.ind_sample(rng)) }
 }
@@ -283,11 +283,11 @@ mod tests {
     }
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
 
-            assert_eq!(d.span(), Span::Finite(density));
+            assert_eq!(d.card(), Card::Finite(density));
         }
 
         check(0.0, 5.0, 5);
@@ -323,7 +323,7 @@ mod tests {
 
             assert!(!d.contains(ub));
             assert!(d.contains(lb));
-            assert!(d.contains(((lb + ub) / 2.0)));
+            assert!(d.contains((lb + ub) / 2.0));
         }
 
         check(0.0, 5.0, 5);

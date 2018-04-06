@@ -1,5 +1,5 @@
 use dimensions::{Continuous, Partitioned};
-use {Space, Span, Surjection};
+use {Space, Card, Surjection};
 
 use rand::ThreadRng;
 use std::{
@@ -12,7 +12,7 @@ use std::{
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct NamedSpace<D: Space> {
     dimensions: HashMap<String, D>,
-    span: Span,
+    card: Card,
 }
 
 impl<D: Space> NamedSpace<D> {
@@ -29,12 +29,12 @@ impl<D: Space> NamedSpace<D> {
     pub fn empty() -> Self {
         NamedSpace {
             dimensions: HashMap::new(),
-            span: Span::Null,
+            card: Card::Null,
         }
     }
 
     pub fn push<S: Into<String>>(mut self, name: S, d: D) -> Self {
-        self.span = self.span * d.span();
+        self.card = self.card * d.card();
         self.dimensions.insert(name.into(), d);
 
         self
@@ -65,7 +65,7 @@ impl<D: Space> Space for NamedSpace<D> {
 
     fn dim(&self) -> usize { self.dimensions.len() }
 
-    fn span(&self) -> Span { self.span }
+    fn card(&self) -> Card { self.card }
 
     fn sample(&self, rng: &mut ThreadRng) -> HashMap<String, D::Value> {
         self.dimensions
@@ -131,7 +131,7 @@ mod tests {
     use rand::thread_rng;
     use std::collections::HashMap;
     use std::iter::FromIterator;
-    use {NamedSpace, Space, Span, Surjection};
+    use {NamedSpace, Space, Card, Surjection};
 
     #[test]
     fn test_dim() {
@@ -142,10 +142,10 @@ mod tests {
     }
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         assert_eq!(
-            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).span(),
-            Span::Finite(4)
+            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).card(),
+            Card::Finite(4)
         );
     }
 

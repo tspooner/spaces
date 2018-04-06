@@ -1,5 +1,5 @@
 use dimensions::{Continuous, Partitioned};
-use {Space, Span, Surjection};
+use {Space, Card, Surjection};
 
 use rand::ThreadRng;
 
@@ -28,7 +28,7 @@ impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
 
     fn dim(&self) -> usize { 2 }
 
-    fn span(&self) -> Span { self.0.span() * self.1.span() }
+    fn card(&self) -> Card { self.0.card() * self.1.card() }
 
     fn sample(&self, rng: &mut ThreadRng) -> (D1::Value, D2::Value) {
         (self.0.sample(rng), self.1.sample(rng))
@@ -50,7 +50,7 @@ mod tests {
     use dimensions::{Continuous, Discrete, Partitioned};
     use ndarray::arr1;
     use rand::thread_rng;
-    use {PairSpace, Space, Span, Surjection};
+    use {PairSpace, Space, Card, Surjection};
 
     #[test]
     fn test_dim() {
@@ -58,10 +58,10 @@ mod tests {
     }
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         assert_eq!(
-            PairSpace::new(Discrete::new(2), Discrete::new(2)).span(),
-            Span::Finite(4)
+            PairSpace::new(Discrete::new(2), Discrete::new(2)).card(),
+            Card::Finite(4)
         );
     }
 
