@@ -1,4 +1,4 @@
-use {BoundedSpace, FiniteSpace, Space, Span, Surjection};
+use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 use rand::{Rng, ThreadRng};
 use std::ops::Range;
@@ -16,7 +16,7 @@ impl Space for Binary {
 
     fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span { Span::Finite(2) }
+    fn card(&self) -> Card { Card::Finite(2) }
 
     fn sample(&self, rng: &mut ThreadRng) -> bool { rng.gen() }
 }
@@ -52,10 +52,10 @@ mod tests {
     use rand::thread_rng;
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         let d = Binary::new();
 
-        assert_eq!(d.span(), Span::Finite(2));
+        assert_eq!(d.card(), Card::Finite(2));
     }
 
     #[test]

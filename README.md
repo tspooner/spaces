@@ -10,7 +10,7 @@
 ## Installation
 ```toml
 [dependencies]
-spaces = "1.0"
+spaces = "2.0"
 ```
 
 ## Contributing

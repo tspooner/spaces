@@ -10,8 +10,8 @@ mod macros;
 pub mod dimensions;
 pub mod norms;
 
-mod span;
-pub use self::span::Span;
+mod card;
+pub use self::card::Card;
 
 mod spaces;
 pub use self::spaces::*;
@@ -35,7 +35,7 @@ pub trait Space {
     fn dim(&self) -> usize;
 
     /// Return the number of linear combinations of values in the space.
-    fn span(&self) -> Span;
+    fn card(&self) -> Card;
 
     /// Generate a random sample from the space.
     fn sample(&self, rng: &mut ThreadRng) -> Self::Value;
@@ -46,7 +46,7 @@ impl<D: Space> Space for Box<D> {
 
     fn dim(&self) -> usize { (**self).dim() }
 
-    fn span(&self) -> Span { (**self).span() }
+    fn card(&self) -> Card { (**self).card() }
 
     fn sample(&self, rng: &mut ThreadRng) -> Self::Value { (**self).sample(rng) }
 }
@@ -56,7 +56,7 @@ impl<'a, D: Space> Space for &'a D {
 
     fn dim(&self) -> usize { (**self).dim() }
 
-    fn span(&self) -> Span { (**self).span() }
+    fn card(&self) -> Card { (**self).card() }
 
     fn sample(&self, rng: &mut ThreadRng) -> Self::Value { (**self).sample(rng) }
 }

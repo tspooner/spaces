@@ -1,4 +1,4 @@
-use {BoundedSpace, FiniteSpace, Space, Span, Surjection};
+use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
@@ -31,7 +31,7 @@ impl Space for Discrete {
 
     fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span { Span::Finite(self.size) }
+    fn card(&self) -> Card { Card::Finite(self.size) }
 
     fn sample(&self, rng: &mut ThreadRng) -> usize { self.range.ind_sample(rng) }
 }
@@ -151,11 +151,11 @@ mod tests {
     use rand::thread_rng;
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         fn check(size: usize) {
             let d = Discrete::new(size);
 
-            assert_eq!(d.span(), Span::Finite(size));
+            assert_eq!(d.card(), Card::Finite(size));
         }
 
         check(5);
@@ -190,7 +190,7 @@ mod tests {
             assert_eq!(d.ub(), &(size - 1));
 
             assert!(d.contains(0));
-            assert!(d.contains((size - 1)));
+            assert!(d.contains(size - 1));
             assert!(!d.contains(size));
         }
 

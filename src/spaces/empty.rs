@@ -1,4 +1,4 @@
-use {Space, Span, Surjection};
+use {Space, Card, Surjection};
 
 use rand::ThreadRng;
 
@@ -11,7 +11,7 @@ impl Space for EmptySpace {
 
     fn dim(&self) -> usize { 0 }
 
-    fn span(&self) -> Span { Span::Null }
+    fn card(&self) -> Card { Card::Null }
 
     fn sample(&self, _: &mut ThreadRng) -> () { () }
 }
@@ -26,7 +26,7 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use rand::thread_rng;
-    use {EmptySpace, Space, Span, Surjection};
+    use {EmptySpace, Space, Card, Surjection};
 
     #[test]
     fn test_copy() {
@@ -41,8 +41,8 @@ mod tests {
     }
 
     #[test]
-    fn test_span() {
-        assert_eq!(EmptySpace.span(), Span::Null);
+    fn test_card() {
+        assert_eq!(EmptySpace.card(), Card::Null);
     }
 
     #[test]

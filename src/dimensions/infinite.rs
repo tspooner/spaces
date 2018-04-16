@@ -1,5 +1,5 @@
 use dimensions::Continuous;
-use {Space, Span, Surjection};
+use {Space, Card, Surjection};
 
 use rand::ThreadRng;
 
@@ -16,7 +16,7 @@ impl Space for Infinite {
 
     fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span { Span::Infinite }
+    fn card(&self) -> Card { Card::Infinite }
 
     fn sample(&self, _: &mut ThreadRng) -> f64 { unimplemented!() }
 }
@@ -41,10 +41,10 @@ mod tests {
     }
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         let d = Infinite;
 
-        assert_eq!(d.span(), Span::Infinite);
+        assert_eq!(d.card(), Card::Infinite);
 
         assert_tokens(&d, &[Token::UnitStruct { name: "Infinite" }]);
     }

@@ -1,4 +1,4 @@
-use {BoundedSpace, Space, Span, Surjection};
+use {BoundedSpace, Space, Card, Surjection};
 
 use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
@@ -29,7 +29,7 @@ impl Space for Continuous {
 
     fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span { Span::Infinite }
+    fn card(&self) -> Card { Card::Infinite }
 
     fn sample(&self, rng: &mut ThreadRng) -> f64 { self.range.ind_sample(rng) }
 }
@@ -159,11 +159,11 @@ mod tests {
     use rand::thread_rng;
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
-            assert_eq!(d.span(), Span::Infinite);
+            assert_eq!(d.card(), Card::Infinite);
         }
 
         check(0.0, 5.0);
@@ -216,7 +216,7 @@ mod tests {
 
             assert!(!d.contains(ub));
             assert!(d.contains(lb));
-            assert!(d.contains(((lb + ub) / 2.0)));
+            assert!(d.contains((lb + ub) / 2.0));
         }
 
         check(0.0, 5.0);

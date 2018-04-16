@@ -1,5 +1,5 @@
 use dimensions::{Continuous, Partitioned};
-use {Space, Span, Surjection};
+use {Space, Card, Surjection};
 
 use rand::ThreadRng;
 use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
@@ -8,7 +8,7 @@ use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct RegularSpace<D: Space> {
     dimensions: Vec<D>,
-    span: Span,
+    card: Card,
 }
 
 impl<D: Space> RegularSpace<D> {
@@ -25,12 +25,12 @@ impl<D: Space> RegularSpace<D> {
     pub fn empty() -> Self {
         RegularSpace {
             dimensions: vec![],
-            span: Span::Null,
+            card: Card::Null,
         }
     }
 
     pub fn push(mut self, d: D) -> Self {
-        self.span = self.span * d.span();
+        self.card = self.card * d.card();
         self.dimensions.push(d);
 
         self
@@ -56,7 +56,7 @@ impl<D: Space> Space for RegularSpace<D> {
 
     fn dim(&self) -> usize { self.dimensions.len() }
 
-    fn span(&self) -> Span { self.span }
+    fn card(&self) -> Card { self.card }
 
     fn sample(&self, rng: &mut ThreadRng) -> Vec<D::Value> {
         self.dimensions.iter().map(|d| d.sample(rng)).collect()
@@ -114,7 +114,7 @@ mod tests {
     use ndarray::arr1;
     use rand::thread_rng;
     use std::iter::FromIterator;
-    use {RegularSpace, Space, Span, Surjection};
+    use {RegularSpace, Space, Card, Surjection};
 
     #[test]
     fn test_dim() {
@@ -122,10 +122,10 @@ mod tests {
     }
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         assert_eq!(
-            RegularSpace::new(vec![Discrete::new(2); 2]).span(),
-            Span::Finite(4)
+            RegularSpace::new(vec![Discrete::new(2); 2]).card(),
+            Card::Finite(4)
         );
     }
 
@@ -183,7 +183,7 @@ mod tests {
         let mut sb = RegularSpace::empty() + Discrete::new(2) + Discrete::new(2);
 
         assert_eq!(sa.dim(), sb.dim());
-        assert_eq!(sa.span(), sb.span());
+        assert_eq!(sa.card(), sb.card());
 
         sa = sa + Discrete::new(3);
         sb = sb + Discrete::new(3);
@@ -191,12 +191,12 @@ mod tests {
         assert_eq!(sa.dim(), 3);
         assert_eq!(sa.dim(), sb.dim());
 
-        assert_eq!(sa.span(), Span::Finite(12));
-        assert_eq!(sa.span(), sb.span());
+        assert_eq!(sa.card(), Card::Finite(12));
+        assert_eq!(sa.card(), sb.card());
 
         let sc = sa + sb;
 
         assert_eq!(sc.dim(), 6);
-        assert_eq!(sc.span(), Span::Finite(144));
+        assert_eq!(sc.card(), Card::Finite(144));
     }
 }

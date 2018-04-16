@@ -1,4 +1,4 @@
-use {Space, Span, Surjection};
+use {Space, Card, Surjection};
 
 use rand::ThreadRng;
 
@@ -11,7 +11,7 @@ impl Space for Null {
 
     fn dim(&self) -> usize { 1 }
 
-    fn span(&self) -> Span { Span::Null }
+    fn card(&self) -> Card { Card::Null }
 
     fn sample(&self, _: &mut ThreadRng) -> () { () }
 }
@@ -29,10 +29,10 @@ mod tests {
     use rand::{thread_rng, Rng};
 
     #[test]
-    fn test_span() {
+    fn test_card() {
         let d = Null;
 
-        assert_eq!(d.span(), Span::Null);
+        assert_eq!(d.card(), Card::Null);
     }
 
     #[test]
