@@ -1,8 +1,7 @@
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
-
-use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
+use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
+use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 /// A finite discrete dimension.
 #[derive(Clone, Copy, Serialize)]
@@ -33,7 +32,9 @@ impl Space for Discrete {
 
     fn card(&self) -> Card { Card::Finite(self.size) }
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize { self.range.ind_sample(rng) }
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
+        self.range.sample(rng)
+    }
 }
 
 impl BoundedSpace for Discrete {

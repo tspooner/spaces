@@ -1,6 +1,5 @@
+use rand::Rng;
 use {Space, Card, Surjection};
-
-use rand::ThreadRng;
 
 /// An empty space.
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
@@ -13,7 +12,7 @@ impl Space for EmptySpace {
 
     fn card(&self) -> Card { Card::Null }
 
-    fn sample(&self, _: &mut ThreadRng) -> () { () }
+    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> () { () }
 }
 
 impl<T> Surjection<T, ()> for EmptySpace {

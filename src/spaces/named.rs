@@ -1,12 +1,11 @@
 use dimensions::{Continuous, Partitioned};
-use {Space, Card, Surjection};
-
-use rand::ThreadRng;
+use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
     iter::FromIterator,
     ops::{Add, Index},
 };
+use {Space, Card, Surjection};
 
 /// Named, N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -67,7 +66,7 @@ impl<D: Space> Space for NamedSpace<D> {
 
     fn card(&self) -> Card { self.card }
 
-    fn sample(&self, rng: &mut ThreadRng) -> HashMap<String, D::Value> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> HashMap<String, D::Value> {
         self.dimensions
             .iter()
             .map(|(k, d)| (k.clone(), d.sample(rng)))

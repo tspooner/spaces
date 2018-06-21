@@ -1,7 +1,6 @@
 use dimensions::Continuous;
+use rand::Rng;
 use {Space, Card, Surjection};
-
-use rand::ThreadRng;
 
 /// An infinite dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -18,7 +17,7 @@ impl Space for Infinite {
 
     fn card(&self) -> Card { Card::Infinite }
 
-    fn sample(&self, _: &mut ThreadRng) -> f64 { unimplemented!() }
+    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> f64 { unimplemented!() }
 }
 
 impl Surjection<f64, f64> for Infinite {
@@ -64,7 +63,7 @@ mod tests {
         let mut rng = thread_rng();
 
         for _ in 0..10 {
-            let v = rng.next_f64();
+            let v = rng.gen::<f64>();
 
             assert_eq!(d.map(v), v);
         }

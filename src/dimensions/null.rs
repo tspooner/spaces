@@ -1,6 +1,5 @@
+use rand::Rng;
 use {Space, Card, Surjection};
-
-use rand::ThreadRng;
 
 /// A null dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -13,7 +12,7 @@ impl Space for Null {
 
     fn card(&self) -> Card { Card::Null }
 
-    fn sample(&self, _: &mut ThreadRng) -> () { () }
+    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> () { () }
 }
 
 impl<T> Surjection<T, ()> for Null {
@@ -51,8 +50,8 @@ mod tests {
         let mut rng = thread_rng();
 
         for _ in 0..10 {
-            assert_eq!(d.map(rng.next_f64()), ());
-            assert_eq!(d.map(rng.next_u64()), ());
+            assert_eq!(d.map(rng.gen::<f64>()), ());
+            assert_eq!(d.map(rng.gen::<u64>()), ());
         }
     }
 
