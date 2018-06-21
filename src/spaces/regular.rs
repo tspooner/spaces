@@ -1,8 +1,7 @@
 use dimensions::{Continuous, Partitioned};
-use {Space, Card, Surjection};
-
-use rand::ThreadRng;
+use rand::Rng;
 use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
+use {Space, Card, Surjection};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -58,7 +57,7 @@ impl<D: Space> Space for RegularSpace<D> {
 
     fn card(&self) -> Card { self.card }
 
-    fn sample(&self, rng: &mut ThreadRng) -> Vec<D::Value> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Vec<D::Value> {
         self.dimensions.iter().map(|d| d.sample(rng)).collect()
     }
 }

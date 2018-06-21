@@ -1,8 +1,7 @@
-use {BoundedSpace, Space, Card, Surjection};
-
-use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
+use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt};
+use {BoundedSpace, Space, Card, Surjection};
 
 /// A continous dimension.
 #[derive(Clone, Copy, Serialize)]
@@ -31,7 +30,9 @@ impl Space for Continuous {
 
     fn card(&self) -> Card { Card::Infinite }
 
-    fn sample(&self, rng: &mut ThreadRng) -> f64 { self.range.ind_sample(rng) }
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
+        self.range.sample(rng)
+    }
 }
 
 impl BoundedSpace for Continuous {

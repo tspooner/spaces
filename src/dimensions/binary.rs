@@ -1,7 +1,6 @@
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
-
-use rand::{Rng, ThreadRng};
+use rand::Rng;
 use std::ops::Range;
+use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 /// A binary dimension.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
@@ -18,7 +17,7 @@ impl Space for Binary {
 
     fn card(&self) -> Card { Card::Finite(2) }
 
-    fn sample(&self, rng: &mut ThreadRng) -> bool { rng.gen() }
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> bool { rng.gen() }
 }
 
 impl BoundedSpace for Binary {

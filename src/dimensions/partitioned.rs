@@ -1,9 +1,8 @@
 use dimensions::Continuous;
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
-
-use rand::{ThreadRng, distributions::{IndependentSample, Range as RngRange}};
+use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
+use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 /// A finite, uniformly partitioned continous dimension.
 #[derive(Clone, Copy, Serialize)]
@@ -75,7 +74,9 @@ impl Space for Partitioned {
 
     fn card(&self) -> Card { Card::Finite(self.density) }
 
-    fn sample(&self, rng: &mut ThreadRng) -> usize { self.to_partition(self.range.ind_sample(rng)) }
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
+        self.to_partition(self.range.sample(rng))
+    }
 }
 
 impl BoundedSpace for Partitioned {

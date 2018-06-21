@@ -22,7 +22,6 @@ pub type Vector<T = f64> = ndarray::Array1<T>;
 /// 2d array type.
 pub type Matrix<T = f64> = ndarray::Array2<T>;
 
-use rand::ThreadRng;
 use std::fmt::Debug;
 use std::ops::Range;
 
@@ -38,7 +37,7 @@ pub trait Space {
     fn card(&self) -> Card;
 
     /// Generate a random sample from the space.
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Value;
+    fn sample<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Self::Value;
 }
 
 impl<D: Space> Space for Box<D> {
@@ -48,7 +47,9 @@ impl<D: Space> Space for Box<D> {
 
     fn card(&self) -> Card { (**self).card() }
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Value { (**self).sample(rng) }
+    fn sample<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Self::Value {
+        (**self).sample(rng)
+    }
 }
 
 impl<'a, D: Space> Space for &'a D {
@@ -58,7 +59,9 @@ impl<'a, D: Space> Space for &'a D {
 
     fn card(&self) -> Card { (**self).card() }
 
-    fn sample(&self, rng: &mut ThreadRng) -> Self::Value { (**self).sample(rng) }
+    fn sample<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Self::Value {
+        (**self).sample(rng)
+    }
 }
 
 /// Space type with saturating upper/lower bounds.

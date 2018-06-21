@@ -1,7 +1,6 @@
 use dimensions::{Continuous, Partitioned};
+use rand::Rng;
 use {Space, Card, Surjection};
-
-use rand::ThreadRng;
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -30,7 +29,7 @@ impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
 
     fn card(&self) -> Card { self.0.card() * self.1.card() }
 
-    fn sample(&self, rng: &mut ThreadRng) -> (D1::Value, D2::Value) {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> (D1::Value, D2::Value) {
         (self.0.sample(rng), self.1.sample(rng))
     }
 }
