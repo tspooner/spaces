@@ -12,6 +12,9 @@ pub use self::continuous::Continuous;
 mod partitioned;
 pub use self::partitioned::Partitioned;
 
+mod natural;
+pub use self::natural::Natural;
+
 mod discrete;
 pub use self::discrete::Discrete;
 
