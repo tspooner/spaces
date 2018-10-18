@@ -1,6 +1,6 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection};
-use discrete::Partitioned;
+use discrete::Partition;
 use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
@@ -44,14 +44,14 @@ impl<D: Space> NamedSpace<D> {
 }
 
 impl NamedSpace<Interval> {
-    pub fn partitioned(self, density: usize) -> NamedSpace<Partitioned> {
+    pub fn partitioned(self, density: usize) -> NamedSpace<Partition> {
         self.into_iter()
-            .map(|(name, d)| (name, Partitioned::from_continuous(d, density)))
+            .map(|(name, d)| (name, Partition::from_continuous(d, density)))
             .collect()
     }
 }
 
-impl NamedSpace<Partitioned> {
+impl NamedSpace<Partition> {
     pub fn centres(&self) -> HashMap<String, Vec<f64>> {
         self.dimensions
             .iter()

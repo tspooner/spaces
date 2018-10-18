@@ -1,6 +1,6 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection};
-use discrete::Partitioned;
+use discrete::Partition;
 use rand::Rng;
 use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
 
@@ -40,14 +40,14 @@ impl<D: Space> RegularSpace<D> {
 }
 
 impl RegularSpace<Interval> {
-    pub fn partitioned(self, density: usize) -> RegularSpace<Partitioned> {
+    pub fn partitioned(self, density: usize) -> RegularSpace<Partition> {
         self.into_iter()
-            .map(|d| Partitioned::from_continuous(d, density))
+            .map(|d| Partition::from_continuous(d, density))
             .collect()
     }
 }
 
-impl RegularSpace<Partitioned> {
+impl RegularSpace<Partition> {
     pub fn centres(&self) -> Vec<Vec<f64>> { self.dimensions.iter().map(|d| d.centres()).collect() }
 }
 

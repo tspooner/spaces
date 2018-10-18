@@ -1,6 +1,6 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection};
-use discrete::Partitioned;
+use discrete::Partition;
 use rand::Rng;
 
 /// 2-dimensional homogeneous space.
@@ -15,10 +15,10 @@ impl<D1: Space, D2: Space> PairSpace<D1, D2> {
 }
 
 impl PairSpace<Interval, Interval> {
-    pub fn partitioned(self, density: usize) -> PairSpace<Partitioned, Partitioned> {
+    pub fn partitioned(self, density: usize) -> PairSpace<Partition, Partition> {
         PairSpace(
-            Partitioned::from_continuous(self.0, density),
-            Partitioned::from_continuous(self.1, density),
+            Partition::from_continuous(self.0, density),
+            Partition::from_continuous(self.1, density),
         )
     }
 }
@@ -51,7 +51,7 @@ mod tests {
 
     use continuous::Interval;
     use core::{Space, Card, Surjection};
-    use discrete::{Discrete, Partitioned};
+    use discrete::{Discrete, Partition};
     use product::PairSpace;
     use rand::thread_rng;
     use self::ndarray::arr1;
@@ -96,8 +96,8 @@ mod tests {
         let ps = PairSpace::new(Interval::new(0.0, 5.0), Interval::new(1.0, 2.0));
         let ps = ps.partitioned(5);
 
-        assert_eq!(ps.0, Partitioned::new(0.0, 5.0, 5));
-        assert_eq!(ps.1, Partitioned::new(1.0, 2.0, 5));
+        assert_eq!(ps.0, Partition::new(0.0, 5.0, 5));
+        assert_eq!(ps.1, Partition::new(1.0, 2.0, 5));
     }
 
     #[test]
