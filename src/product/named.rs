@@ -1,11 +1,12 @@
-use dimensions::{Continuous, Partitioned};
+use continuous::Continuous;
+use core::{Space, Card, Surjection};
+use discrete::Partitioned;
 use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
     iter::FromIterator,
     ops::{Add, Index},
 };
-use {Space, Card, Surjection};
 
 /// Named, N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -125,12 +126,16 @@ impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
 
 #[cfg(test)]
 mod tests {
-    use dimensions::{Continuous, Discrete};
-    use ndarray::arr1;
+    extern crate ndarray;
+
+    use continuous::Continuous;
+    use core::{Space, Card, Surjection};
+    use discrete::Discrete;
+    use product::NamedSpace;
     use rand::thread_rng;
+    use self::ndarray::arr1;
     use std::collections::HashMap;
     use std::iter::FromIterator;
-    use {NamedSpace, Space, Card, Surjection};
 
     #[test]
     fn test_dim() {

@@ -1,6 +1,6 @@
-use dimensions::Continuous;
+use continuous::Continuous;
+use core::{Space, Card, Surjection};
 use rand::Rng;
-use {Space, Card, Surjection};
 
 /// An infinite dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]

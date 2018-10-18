@@ -7,8 +7,9 @@ use std::ops::Mul;
 /// dimensions, each with a finite set of values, we have:
 ///
 /// ```
-/// use spaces::{PairSpace, Space, Card};
-/// use spaces::dimensions::Discrete;
+/// use spaces::{Space, Card};
+/// use spaces::product::PairSpace;
+/// use spaces::discrete::Discrete;
 ///
 /// let d1 = Discrete::new(5);
 /// let d2 = Discrete::new(10);

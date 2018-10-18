@@ -1,6 +1,7 @@
-use dimensions::{Continuous, Partitioned};
+use continuous::Continuous;
+use core::{Space, Card, Surjection};
+use discrete::Partitioned;
 use rand::Rng;
-use {Space, Card, Surjection};
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -46,10 +47,14 @@ where
 
 #[cfg(test)]
 mod tests {
-    use dimensions::{Continuous, Discrete, Partitioned};
-    use ndarray::arr1;
+    extern crate ndarray;
+
+    use continuous::Continuous;
+    use core::{Space, Card, Surjection};
+    use discrete::{Discrete, Partitioned};
+    use product::PairSpace;
     use rand::thread_rng;
-    use {PairSpace, Space, Card, Surjection};
+    use self::ndarray::arr1;
 
     #[test]
     fn test_dim() {

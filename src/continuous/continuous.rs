@@ -6,11 +6,11 @@ use {BoundedSpace, Space, Card, Surjection};
 /// A continous dimension.
 #[derive(Clone, Copy, Serialize)]
 pub struct Continuous {
-    pub(super) lb: f64,
-    pub(super) ub: f64,
+    pub(crate) lb: f64,
+    pub(crate) ub: f64,
 
     #[serde(skip_serializing)]
-    pub(super) range: RngRange<f64>,
+    pub(crate) range: RngRange<f64>,
 }
 
 impl Continuous {

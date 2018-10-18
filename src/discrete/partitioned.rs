@@ -1,8 +1,8 @@
-use dimensions::Continuous;
+use continuous::Continuous;
+use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
 use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 /// A finite, uniformly partitioned continous dimension.
 #[derive(Clone, Copy, Serialize)]
