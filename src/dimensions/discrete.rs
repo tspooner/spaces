@@ -40,9 +40,9 @@ impl Space for Discrete {
 impl BoundedSpace for Discrete {
     type BoundValue = usize;
 
-    fn inf(&self) -> usize { 0 }
+    fn inf(&self) -> Option<usize> { Some(0) }
 
-    fn sup(&self) -> usize { self.ub }
+    fn sup(&self) -> Option<usize> { Some(self.ub) }
 
     fn contains(&self, val: Self::Value) -> bool { val < self.size }
 }
@@ -187,8 +187,8 @@ mod tests {
         fn check(size: usize) {
             let d = Discrete::new(size);
 
-            assert_eq!(d.inf(), 0);
-            assert_eq!(d.sup(), size - 1);
+            assert_eq!(d.inf().unwrap(), 0);
+            assert_eq!(d.sup().unwrap(), size - 1);
 
             assert!(d.contains(0));
             assert!(d.contains(size - 1));

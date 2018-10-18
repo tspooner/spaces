@@ -72,10 +72,10 @@ where Self::Value: PartialOrd
     type BoundValue: PartialOrd + Copy;
 
     /// Returns the value of the dimension's infimum.
-    fn inf(&self) -> Self::BoundValue;
+    fn inf(&self) -> Option<Self::BoundValue>;
 
     /// Returns the value of the dimension's supremum.
-    fn sup(&self) -> Self::BoundValue;
+    fn sup(&self) -> Option<Self::BoundValue>;
 
     /// Returns true iff `val` is within the dimension's bounds.
     fn contains(&self, val: Self::BoundValue) -> bool;
