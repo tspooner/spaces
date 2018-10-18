@@ -1,4 +1,4 @@
-use continuous::Continuous;
+use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partitioned;
 use rand::Rng;
@@ -39,7 +39,7 @@ impl<D: Space> RegularSpace<D> {
     pub fn iter(&self) -> SliceIter<D> { self.dimensions.iter() }
 }
 
-impl RegularSpace<Continuous> {
+impl RegularSpace<Interval> {
     pub fn partitioned(self, density: usize) -> RegularSpace<Partitioned> {
         self.into_iter()
             .map(|d| Partitioned::from_continuous(d, density))
@@ -112,7 +112,7 @@ impl<D: Space> Add<RegularSpace<D>> for RegularSpace<D> {
 mod tests {
     extern crate ndarray;
 
-    use continuous::Continuous;
+    use continuous::Interval;
     use core::{Space, Card, Surjection};
     use discrete::Discrete;
     use product::RegularSpace;
@@ -158,7 +158,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let space = RegularSpace::new(vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)]);
+        let space = RegularSpace::new(vec![Interval::new(0.0, 5.0), Interval::new(1.0, 2.0)]);
 
         assert_eq!(space.map(vec![6.0, 0.0]), vec![5.0, 1.0]);
         assert_eq!(space.map(vec![2.5, 1.5]), vec![2.5, 1.5]);
@@ -167,7 +167,7 @@ mod tests {
 
     #[test]
     fn test_indexing() {
-        let dimensions = vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)];
+        let dimensions = vec![Interval::new(0.0, 5.0), Interval::new(1.0, 2.0)];
         let space = RegularSpace::from_iter(dimensions.iter().cloned());
 
         assert_eq!(space[0], dimensions[0]);
@@ -176,10 +176,10 @@ mod tests {
 
     #[test]
     fn test_iteration() {
-        let dimensions = vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)];
+        let dimensions = vec![Interval::new(0.0, 5.0), Interval::new(1.0, 2.0)];
         let space = RegularSpace::from_iter(dimensions.iter().cloned());
 
-        assert_eq!(space.into_iter().collect::<Vec<Continuous>>(), dimensions);
+        assert_eq!(space.into_iter().collect::<Vec<Interval>>(), dimensions);
     }
 
     #[test]

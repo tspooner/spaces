@@ -1,4 +1,4 @@
-use continuous::Continuous;
+use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partitioned;
 use rand::Rng;
@@ -14,7 +14,7 @@ impl<D1: Space, D2: Space> PairSpace<D1, D2> {
     pub fn new(d1: D1, d2: D2) -> Self { PairSpace(d1, d2) }
 }
 
-impl PairSpace<Continuous, Continuous> {
+impl PairSpace<Interval, Interval> {
     pub fn partitioned(self, density: usize) -> PairSpace<Partitioned, Partitioned> {
         PairSpace(
             Partitioned::from_continuous(self.0, density),
@@ -49,7 +49,7 @@ where
 mod tests {
     extern crate ndarray;
 
-    use continuous::Continuous;
+    use continuous::Interval;
     use core::{Space, Card, Surjection};
     use discrete::{Discrete, Partitioned};
     use product::PairSpace;
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn test_partitioned() {
-        let ps = PairSpace::new(Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0));
+        let ps = PairSpace::new(Interval::new(0.0, 5.0), Interval::new(1.0, 2.0));
         let ps = ps.partitioned(5);
 
         assert_eq!(ps.0, Partitioned::new(0.0, 5.0, 5));
@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let ps = PairSpace::new(Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0));
+        let ps = PairSpace::new(Interval::new(0.0, 5.0), Interval::new(1.0, 2.0));
 
         assert_eq!(ps.map((6.0, 0.0)), (5.0, 1.0));
         assert_eq!(ps.map((2.5, 1.5)), (2.5, 1.5));

@@ -5,7 +5,7 @@ use {BoundedSpace, Space, Card, Surjection};
 
 /// A continous dimension.
 #[derive(Clone, Copy, Serialize)]
-pub struct Continuous {
+pub struct Interval {
     pub(crate) lb: f64,
     pub(crate) ub: f64,
 
@@ -13,9 +13,9 @@ pub struct Continuous {
     pub(crate) range: RngRange<f64>,
 }
 
-impl Continuous {
-    pub fn new(lb: f64, ub: f64) -> Continuous {
-        Continuous {
+impl Interval {
+    pub fn new(lb: f64, ub: f64) -> Interval {
+        Interval {
             lb: lb,
             ub: ub,
             range: RngRange::new(lb, ub),
@@ -23,7 +23,7 @@ impl Continuous {
     }
 }
 
-impl Space for Continuous {
+impl Space for Interval {
     type Value = f64;
 
     fn dim(&self) -> usize { 1 }
@@ -35,7 +35,7 @@ impl Space for Continuous {
     }
 }
 
-impl BoundedSpace for Continuous {
+impl BoundedSpace for Interval {
     type BoundValue = Self::Value;
 
     fn inf(&self) -> Option<f64> { Some(self.lb) }
@@ -45,11 +45,11 @@ impl BoundedSpace for Continuous {
     fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
 }
 
-impl Surjection<f64, f64> for Continuous {
+impl Surjection<f64, f64> for Interval {
     fn map(&self, val: f64) -> f64 { clip!(self.lb, val, self.ub) }
 }
 
-impl<'de> Deserialize<'de> for Continuous {
+impl<'de> Deserialize<'de> for Interval {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where D: Deserializer<'de> {
         enum Field {
@@ -84,26 +84,26 @@ impl<'de> Deserialize<'de> for Continuous {
             }
         }
 
-        struct ContinuousVisitor;
+        struct IntervalVisitor;
 
-        impl<'de> Visitor<'de> for ContinuousVisitor {
-            type Value = Continuous;
+        impl<'de> Visitor<'de> for IntervalVisitor {
+            type Value = Interval;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("struct Continuous")
+                formatter.write_str("struct Interval")
             }
 
-            fn visit_seq<V>(self, mut seq: V) -> Result<Continuous, V::Error>
+            fn visit_seq<V>(self, mut seq: V) -> Result<Interval, V::Error>
             where V: de::SeqAccess<'de> {
                 let lb = seq.next_element()?
                     .ok_or_else(|| de::Error::invalid_length(0, &self))?;
                 let ub = seq.next_element()?
                     .ok_or_else(|| de::Error::invalid_length(1, &self))?;
 
-                Ok(Continuous::new(lb, ub))
+                Ok(Interval::new(lb, ub))
             }
 
-            fn visit_map<V>(self, mut map: V) -> Result<Continuous, V::Error>
+            fn visit_map<V>(self, mut map: V) -> Result<Interval, V::Error>
             where V: de::MapAccess<'de> {
                 let mut lb = None;
                 let mut ub = None;
@@ -130,21 +130,21 @@ impl<'de> Deserialize<'de> for Continuous {
                 let lb = lb.ok_or_else(|| de::Error::missing_field("lb"))?;
                 let ub = ub.ok_or_else(|| de::Error::missing_field("ub"))?;
 
-                Ok(Continuous::new(lb, ub))
+                Ok(Interval::new(lb, ub))
             }
         }
 
-        deserializer.deserialize_struct("Continuous", FIELDS, ContinuousVisitor)
+        deserializer.deserialize_struct("Interval", FIELDS, IntervalVisitor)
     }
 }
 
-impl cmp::PartialEq for Continuous {
-    fn eq(&self, other: &Continuous) -> bool { self.lb.eq(&other.lb) && self.ub.eq(&other.ub) }
+impl cmp::PartialEq for Interval {
+    fn eq(&self, other: &Interval) -> bool { self.lb.eq(&other.lb) && self.ub.eq(&other.ub) }
 }
 
-impl fmt::Debug for Continuous {
+impl fmt::Debug for Interval {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Continuous")
+        f.debug_struct("Interval")
             .field("lb", &self.lb)
             .field("ub", &self.ub)
             .finish()
@@ -162,7 +162,7 @@ mod tests {
     #[test]
     fn test_card() {
         fn check(lb: f64, ub: f64) {
-            let d = Continuous::new(lb, ub);
+            let d = Interval::new(lb, ub);
 
             assert_eq!(d.card(), Card::Infinite);
         }
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn test_sampling() {
         fn check(lb: f64, ub: f64) {
-            let d = Continuous::new(lb, ub);
+            let d = Interval::new(lb, ub);
             let mut rng = thread_rng();
 
             for _ in 0..100 {
@@ -190,7 +190,7 @@ mod tests {
                 &d,
                 &[
                     Token::Struct {
-                        name: "Continuous",
+                        name: "Interval",
                         len: 2,
                     },
                     Token::Str("lb"),
@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn test_bounds() {
         fn check(lb: f64, ub: f64) {
-            let d = Continuous::new(lb, ub);
+            let d = Interval::new(lb, ub);
 
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
@@ -227,7 +227,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let d = Continuous::new(0.0, 5.0);
+        let d = Interval::new(0.0, 5.0);
 
         assert_eq!(d.map(-5.0), 0.0);
         assert_eq!(d.map(0.0), 0.0);
@@ -239,13 +239,13 @@ mod tests {
     #[test]
     fn test_serialisation() {
         fn check(lb: f64, ub: f64) {
-            let d = Continuous::new(lb, ub);
+            let d = Interval::new(lb, ub);
 
             assert_tokens(
                 &d,
                 &[
                     Token::Struct {
-                        name: "Continuous",
+                        name: "Interval",
                         len: 2,
                     },
                     Token::Str("lb"),

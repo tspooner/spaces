@@ -1,4 +1,4 @@
-use continuous::Continuous;
+use continuous::Interval;
 use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
 use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
@@ -26,7 +26,7 @@ impl Partitioned {
         }
     }
 
-    pub fn from_continuous(d: Continuous, density: usize) -> Partitioned {
+    pub fn from_continuous(d: Interval, density: usize) -> Partitioned {
         Partitioned {
             lb: d.lb,
             ub: d.ub,
@@ -231,7 +231,7 @@ mod tests {
     fn test_from_continuous() {
         assert_eq!(
             Partitioned::new(0.0, 5.0, 5),
-            Partitioned::from_continuous(Continuous::new(0.0, 5.0), 5)
+            Partitioned::from_continuous(Interval::new(0.0, 5.0), 5)
         );
     }
 

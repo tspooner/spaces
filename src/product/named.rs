@@ -1,4 +1,4 @@
-use continuous::Continuous;
+use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partitioned;
 use rand::Rng;
@@ -43,7 +43,7 @@ impl<D: Space> NamedSpace<D> {
     pub fn iter(&self) -> HashMapIter<String, D> { self.dimensions.iter() }
 }
 
-impl NamedSpace<Continuous> {
+impl NamedSpace<Interval> {
     pub fn partitioned(self, density: usize) -> NamedSpace<Partitioned> {
         self.into_iter()
             .map(|(name, d)| (name, Partitioned::from_continuous(d, density)))
@@ -128,7 +128,7 @@ impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
 mod tests {
     extern crate ndarray;
 
-    use continuous::Continuous;
+    use continuous::Interval;
     use core::{Space, Card, Surjection};
     use discrete::Discrete;
     use product::NamedSpace;
@@ -178,8 +178,8 @@ mod tests {
     #[test]
     fn test_surjection() {
         let space = NamedSpace::new(vec![
-            ("D1", Continuous::new(0.0, 5.0)),
-            ("D2", Continuous::new(1.0, 2.0)),
+            ("D1", Interval::new(0.0, 5.0)),
+            ("D2", Interval::new(1.0, 2.0)),
         ]);
 
         fn make(vals: Vec<f64>) -> HashMap<String, f64> {
@@ -198,8 +198,8 @@ mod tests {
 
     #[test]
     fn test_indexing() {
-        let d1 = Continuous::new(0.0, 5.0);
-        let d2 = Continuous::new(1.0, 2.0);
+        let d1 = Interval::new(0.0, 5.0);
+        let d2 = Interval::new(1.0, 2.0);
 
         let space = NamedSpace::from_iter(vec![("D1", d1.clone()), ("D2", d2.clone())]);
 
@@ -210,13 +210,13 @@ mod tests {
     #[test]
     fn test_iteration() {
         let dimensions = vec![
-            ("D1".to_string(), Continuous::new(0.0, 5.0)),
-            ("D2".to_string(), Continuous::new(1.0, 2.0)),
+            ("D1".to_string(), Interval::new(0.0, 5.0)),
+            ("D2".to_string(), Interval::new(1.0, 2.0)),
         ];
         let space = NamedSpace::new(dimensions.clone());
 
         assert_eq!(
-            space.into_iter().collect::<HashMap<String, Continuous>>(),
+            space.into_iter().collect::<HashMap<String, Interval>>(),
             HashMap::from_iter(dimensions)
         );
     }

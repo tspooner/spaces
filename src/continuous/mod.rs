@@ -1,2 +1,2 @@
-import_all!(continuous);
-import_all!(infinite);
+import_all!(reals);
+import_all!(interval);
