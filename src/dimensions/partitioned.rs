@@ -82,9 +82,9 @@ impl Space for Partitioned {
 impl BoundedSpace for Partitioned {
     type BoundValue = f64;
 
-    fn lb(&self) -> &f64 { &self.lb }
+    fn inf(&self) -> f64 { self.lb }
 
-    fn ub(&self) -> &f64 { &self.ub }
+    fn sup(&self) -> f64 { self.ub }
 
     fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
 }
@@ -319,8 +319,8 @@ mod tests {
         fn check(lb: f64, ub: f64, density: usize) {
             let d = Partitioned::new(lb, ub, density);
 
-            assert_eq!(d.lb(), &lb);
-            assert_eq!(d.ub(), &ub);
+            assert_eq!(d.inf(), lb);
+            assert_eq!(d.sup(), ub);
 
             assert!(!d.contains(ub));
             assert!(d.contains(lb));

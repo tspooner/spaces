@@ -38,9 +38,9 @@ impl Space for Continuous {
 impl BoundedSpace for Continuous {
     type BoundValue = Self::Value;
 
-    fn lb(&self) -> &f64 { &self.lb }
+    fn inf(&self) -> f64 { self.lb }
 
-    fn ub(&self) -> &f64 { &self.ub }
+    fn sup(&self) -> f64 { self.ub }
 
     fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
 }
@@ -212,8 +212,8 @@ mod tests {
         fn check(lb: f64, ub: f64) {
             let d = Continuous::new(lb, ub);
 
-            assert_eq!(d.lb(), &lb);
-            assert_eq!(d.ub(), &ub);
+            assert_eq!(d.inf(), lb);
+            assert_eq!(d.sup(), ub);
 
             assert!(!d.contains(ub));
             assert!(d.contains(lb));

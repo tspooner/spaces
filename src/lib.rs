@@ -33,7 +33,7 @@ pub trait Space {
     /// Return the number of dimensions in the space.
     fn dim(&self) -> usize;
 
-    /// Return the number of linear combinations of values in the space.
+    /// Return the number of elements in the set composing the space.
     fn card(&self) -> Card;
 
     /// Generate a random sample from the space.
@@ -64,18 +64,18 @@ impl<'a, D: Space> Space for &'a D {
     }
 }
 
-/// Space type with saturating upper/lower bounds.
+/// Space type bounded on a compact interval I.
 pub trait BoundedSpace: Space
 where Self::Value: PartialOrd
 {
     /// The upper/lower bound type; not necessarily equal to `Space::Value`.
     type BoundValue: PartialOrd + Copy;
 
-    /// Returns a reference to the dimension's lower value bound (inclusive).
-    fn lb(&self) -> &Self::BoundValue;
+    /// Returns the value of the dimension's infimum.
+    fn inf(&self) -> Self::BoundValue;
 
-    /// Returns a reference to the dimension's upper value bound (exclusive).
-    fn ub(&self) -> &Self::BoundValue;
+    /// Returns the value of the dimension's supremum.
+    fn sup(&self) -> Self::BoundValue;
 
     /// Returns true iff `val` is within the dimension's bounds.
     fn contains(&self, val: Self::BoundValue) -> bool;

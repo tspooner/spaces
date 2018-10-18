@@ -18,9 +18,9 @@ impl Space for Natural {
 impl BoundedSpace for Natural {
     type BoundValue = Self::Value;
 
-    fn lb(&self) -> &u64 { &0 }
+    fn inf(&self) -> u64 { 0 }
 
-    fn ub(&self) -> &u64 { unimplemented!() }
+    fn sup(&self) -> u64 { unimplemented!() }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { val >= 0 }
+    fn contains(&self, _: Self::BoundValue) -> bool { true }
 }
