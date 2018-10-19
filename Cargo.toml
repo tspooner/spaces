@@ -2,7 +2,7 @@
 name = "spaces"
 description = "Vector space primitives for machine learning problems."
 
-version = "3.0.0"
+version = "3.1.0"
 authors = ["Tom Spooner <t.spooner@liverpool.ac.uk>"]
 
 license = "MIT"
