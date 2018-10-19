@@ -14,7 +14,7 @@ pub struct Interval {
 }
 
 impl Interval {
-    pub fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
+    fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
         Interval {
             range: match (lb, ub) {
                 (Some(lb), Some(ub)) => Some(RngRange::new(lb, ub)),
