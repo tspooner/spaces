@@ -30,11 +30,11 @@ impl Partition {
         let interval = d.into();
 
         Partition {
-            lb: interval.lb.expect("Must be a closed interval."),
-            ub: interval.ub.expect("Must be a closed interval."),
+            lb: interval.lb.expect("Must be a bounded interval."),
+            ub: interval.ub.expect("Must be a bounded interval."),
             density: density,
 
-            range: interval.range.expect("Must be a closed interval."),
+            range: interval.range.expect("Must be a bounded interval."),
         }
     }
 
@@ -233,7 +233,7 @@ mod tests {
     fn test_from_continuous() {
         assert_eq!(
             Partition::new(0.0, 5.0, 5),
-            Partition::from_continuous(Interval::closed(0.0, 5.0), 5)
+            Partition::from_continuous(Interval::bounded(0.0, 5.0), 5)
         );
     }
 

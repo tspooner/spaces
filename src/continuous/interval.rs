@@ -51,7 +51,7 @@ impl Space for Interval {
     fn card(&self) -> Card { Card::Infinite }
 
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
-        self.range.expect("Must be a closed interval to sample.").sample(rng)
+        self.range.expect("Must be a bounded interval to sample.").sample(rng)
     }
 }
 
@@ -189,7 +189,7 @@ mod tests {
     #[test]
     fn test_card() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::closed(lb, ub);
+            let d = Interval::bounded(lb, ub);
 
             assert_eq!(d.card(), Card::Infinite);
         }
@@ -202,7 +202,7 @@ mod tests {
     #[test]
     fn test_sampling() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::closed(lb, ub);
+            let d = Interval::bounded(lb, ub);
             let mut rng = thread_rng();
 
             for _ in 0..100 {
@@ -239,7 +239,7 @@ mod tests {
     #[test]
     fn test_bounds() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::closed(lb, ub);
+            let d = Interval::bounded(lb, ub);
 
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
@@ -256,7 +256,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let d = Interval::closed(0.0, 5.0);
+        let d = Interval::bounded(0.0, 5.0);
 
         assert_eq!(d.map(-5.0), 0.0);
         assert_eq!(d.map(0.0), 0.0);
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn test_serialisation() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::closed(lb, ub);
+            let d = Interval::bounded(lb, ub);
 
             assert_tokens(
                 &d,

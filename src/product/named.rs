@@ -178,8 +178,8 @@ mod tests {
     #[test]
     fn test_surjection() {
         let space = NamedSpace::new(vec![
-            ("D1", Interval::closed(0.0, 5.0)),
-            ("D2", Interval::closed(1.0, 2.0)),
+            ("D1", Interval::bounded(0.0, 5.0)),
+            ("D2", Interval::bounded(1.0, 2.0)),
         ]);
 
         fn make(vals: Vec<f64>) -> HashMap<String, f64> {
@@ -198,8 +198,8 @@ mod tests {
 
     #[test]
     fn test_indexing() {
-        let d1 = Interval::closed(0.0, 5.0);
-        let d2 = Interval::closed(1.0, 2.0);
+        let d1 = Interval::bounded(0.0, 5.0);
+        let d2 = Interval::bounded(1.0, 2.0);
 
         let space = NamedSpace::from_iter(vec![("D1", d1.clone()), ("D2", d2.clone())]);
 
@@ -210,8 +210,8 @@ mod tests {
     #[test]
     fn test_iteration() {
         let dimensions = vec![
-            ("D1".to_string(), Interval::closed(0.0, 5.0)),
-            ("D2".to_string(), Interval::closed(1.0, 2.0)),
+            ("D1".to_string(), Interval::bounded(0.0, 5.0)),
+            ("D2".to_string(), Interval::bounded(1.0, 2.0)),
         ];
         let space = NamedSpace::new(dimensions.clone());
 

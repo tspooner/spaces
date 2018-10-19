@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn test_partitioned() {
-        let ps = PairSpace::new(Interval::closed(0.0, 5.0), Interval::closed(1.0, 2.0));
+        let ps = PairSpace::new(Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0));
         let ps = ps.partitioned(5);
 
         assert_eq!(ps.0, Partition::new(0.0, 5.0, 5));
@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let ps = PairSpace::new(Interval::closed(0.0, 5.0), Interval::closed(1.0, 2.0));
+        let ps = PairSpace::new(Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0));
 
         assert_eq!(ps.map((6.0, 0.0)), (5.0, 1.0));
         assert_eq!(ps.map((2.5, 1.5)), (2.5, 1.5));

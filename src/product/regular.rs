@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let space = RegularSpace::new(vec![Interval::closed(0.0, 5.0), Interval::closed(1.0, 2.0)]);
+        let space = RegularSpace::new(vec![Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0)]);
 
         assert_eq!(space.map(vec![6.0, 0.0]), vec![5.0, 1.0]);
         assert_eq!(space.map(vec![2.5, 1.5]), vec![2.5, 1.5]);
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_indexing() {
-        let dimensions = vec![Interval::closed(0.0, 5.0), Interval::closed(1.0, 2.0)];
+        let dimensions = vec![Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0)];
         let space = RegularSpace::from_iter(dimensions.iter().cloned());
 
         assert_eq!(space[0], dimensions[0]);
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn test_iteration() {
-        let dimensions = vec![Interval::closed(0.0, 5.0), Interval::closed(1.0, 2.0)];
+        let dimensions = vec![Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0)];
         let space = RegularSpace::from_iter(dimensions.iter().cloned());
 
         assert_eq!(space.into_iter().collect::<Vec<Interval>>(), dimensions);

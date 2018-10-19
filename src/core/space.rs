@@ -45,8 +45,9 @@ impl<'a, D: Space> Space for &'a D {
 
 /// Trait for defining spaces bounded to lie on an interval I.
 ///
-/// Note: If both `inf` and `sup` are well defined (i.e. are not None), then the interval is closed
-/// and you have defined a compact space.
+/// Note: If both `inf` and `sup` are well defined (i.e. are not None), then the interval is
+/// bounded and you have defined a compact space; this is true in `spaces` as the Interval type is
+/// closed.
 pub trait BoundedSpace: Space
 where Self::Value: PartialOrd
 {
