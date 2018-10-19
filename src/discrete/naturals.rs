@@ -3,9 +3,9 @@ use {BoundedSpace, Space, Card};
 
 /// The set of all natural numbers.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct Natural;
+pub struct Naturals;
 
-impl Space for Natural {
+impl Space for Naturals {
     type Value = u64;
 
     fn dim(&self) -> usize { 1 }
@@ -15,12 +15,12 @@ impl Space for Natural {
     fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> u64 { unimplemented!() }
 }
 
-impl BoundedSpace for Natural {
+impl BoundedSpace for Naturals {
     type BoundValue = Self::Value;
 
-    fn lb(&self) -> &u64 { &0 }
+    fn inf(&self) -> Option<u64> { Some(0) }
 
-    fn ub(&self) -> &u64 { unimplemented!() }
+    fn sup(&self) -> Option<u64> { None }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { val >= 0 }
+    fn contains(&self, _: Self::BoundValue) -> bool { true }
 }

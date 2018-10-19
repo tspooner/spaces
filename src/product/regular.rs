@@ -1,7 +1,8 @@
-use dimensions::{Continuous, Partitioned};
+use continuous::Interval;
+use core::{Space, Card, Surjection};
+use discrete::Partition;
 use rand::Rng;
 use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
-use {Space, Card, Surjection};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -38,15 +39,15 @@ impl<D: Space> RegularSpace<D> {
     pub fn iter(&self) -> SliceIter<D> { self.dimensions.iter() }
 }
 
-impl RegularSpace<Continuous> {
-    pub fn partitioned(self, density: usize) -> RegularSpace<Partitioned> {
+impl RegularSpace<Interval> {
+    pub fn partitioned(self, density: usize) -> RegularSpace<Partition> {
         self.into_iter()
-            .map(|d| Partitioned::from_continuous(d, density))
+            .map(|d| Partition::from_continuous(d, density))
             .collect()
     }
 }
 
-impl RegularSpace<Partitioned> {
+impl RegularSpace<Partition> {
     pub fn centres(&self) -> Vec<Vec<f64>> { self.dimensions.iter().map(|d| d.centres()).collect() }
 }
 
@@ -109,11 +110,16 @@ impl<D: Space> Add<RegularSpace<D>> for RegularSpace<D> {
 
 #[cfg(test)]
 mod tests {
-    use dimensions::{Continuous, Discrete};
-    use ndarray::arr1;
+    extern crate ndarray;
+
+    use continuous::Interval;
+    use core::{Space, Card, Surjection};
+    use discrete::Discrete;
+    use product::RegularSpace;
     use rand::thread_rng;
+    use self::ndarray::arr1;
+    use std::collections::HashMap;
     use std::iter::FromIterator;
-    use {RegularSpace, Space, Card, Surjection};
 
     #[test]
     fn test_dim() {
@@ -152,7 +158,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let space = RegularSpace::new(vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)]);
+        let space = RegularSpace::new(vec![Interval::new(0.0, 5.0), Interval::new(1.0, 2.0)]);
 
         assert_eq!(space.map(vec![6.0, 0.0]), vec![5.0, 1.0]);
         assert_eq!(space.map(vec![2.5, 1.5]), vec![2.5, 1.5]);
@@ -161,7 +167,7 @@ mod tests {
 
     #[test]
     fn test_indexing() {
-        let dimensions = vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)];
+        let dimensions = vec![Interval::new(0.0, 5.0), Interval::new(1.0, 2.0)];
         let space = RegularSpace::from_iter(dimensions.iter().cloned());
 
         assert_eq!(space[0], dimensions[0]);
@@ -170,10 +176,10 @@ mod tests {
 
     #[test]
     fn test_iteration() {
-        let dimensions = vec![Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0)];
+        let dimensions = vec![Interval::new(0.0, 5.0), Interval::new(1.0, 2.0)];
         let space = RegularSpace::from_iter(dimensions.iter().cloned());
 
-        assert_eq!(space.into_iter().collect::<Vec<Continuous>>(), dimensions);
+        assert_eq!(space.into_iter().collect::<Vec<Interval>>(), dimensions);
     }
 
     #[test]

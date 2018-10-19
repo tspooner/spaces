@@ -23,9 +23,9 @@ impl Space for Binary {
 impl BoundedSpace for Binary {
     type BoundValue = bool;
 
-    fn lb(&self) -> &bool { &false }
+    fn inf(&self) -> Option<bool> { Some(false) }
 
-    fn ub(&self) -> &bool { &true }
+    fn sup(&self) -> Option<bool> { Some(true) }
 
     fn contains(&self, _: Self::Value) -> bool { true }
 }
@@ -74,8 +74,8 @@ mod tests {
     fn test_bounds() {
         let d = Binary::new();
 
-        assert_eq!(d.lb(), &false);
-        assert_eq!(d.ub(), &true);
+        assert_eq!(d.inf().unwrap(), false);
+        assert_eq!(d.sup().unwrap(), true);
 
         assert!(d.contains(false));
         assert!(d.contains(true));

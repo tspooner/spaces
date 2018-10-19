@@ -1,11 +1,12 @@
-use dimensions::{Continuous, Partitioned};
+use continuous::Interval;
+use core::{Space, Card, Surjection};
+use discrete::Partition;
 use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
     iter::FromIterator,
     ops::{Add, Index},
 };
-use {Space, Card, Surjection};
 
 /// Named, N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -42,15 +43,15 @@ impl<D: Space> NamedSpace<D> {
     pub fn iter(&self) -> HashMapIter<String, D> { self.dimensions.iter() }
 }
 
-impl NamedSpace<Continuous> {
-    pub fn partitioned(self, density: usize) -> NamedSpace<Partitioned> {
+impl NamedSpace<Interval> {
+    pub fn partitioned(self, density: usize) -> NamedSpace<Partition> {
         self.into_iter()
-            .map(|(name, d)| (name, Partitioned::from_continuous(d, density)))
+            .map(|(name, d)| (name, Partition::from_continuous(d, density)))
             .collect()
     }
 }
 
-impl NamedSpace<Partitioned> {
+impl NamedSpace<Partition> {
     pub fn centres(&self) -> HashMap<String, Vec<f64>> {
         self.dimensions
             .iter()
@@ -125,12 +126,16 @@ impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
 
 #[cfg(test)]
 mod tests {
-    use dimensions::{Continuous, Discrete};
-    use ndarray::arr1;
+    extern crate ndarray;
+
+    use continuous::Interval;
+    use core::{Space, Card, Surjection};
+    use discrete::Discrete;
+    use product::NamedSpace;
     use rand::thread_rng;
+    use self::ndarray::arr1;
     use std::collections::HashMap;
     use std::iter::FromIterator;
-    use {NamedSpace, Space, Card, Surjection};
 
     #[test]
     fn test_dim() {
@@ -173,8 +178,8 @@ mod tests {
     #[test]
     fn test_surjection() {
         let space = NamedSpace::new(vec![
-            ("D1", Continuous::new(0.0, 5.0)),
-            ("D2", Continuous::new(1.0, 2.0)),
+            ("D1", Interval::new(0.0, 5.0)),
+            ("D2", Interval::new(1.0, 2.0)),
         ]);
 
         fn make(vals: Vec<f64>) -> HashMap<String, f64> {
@@ -193,8 +198,8 @@ mod tests {
 
     #[test]
     fn test_indexing() {
-        let d1 = Continuous::new(0.0, 5.0);
-        let d2 = Continuous::new(1.0, 2.0);
+        let d1 = Interval::new(0.0, 5.0);
+        let d2 = Interval::new(1.0, 2.0);
 
         let space = NamedSpace::from_iter(vec![("D1", d1.clone()), ("D2", d2.clone())]);
 
@@ -205,13 +210,13 @@ mod tests {
     #[test]
     fn test_iteration() {
         let dimensions = vec![
-            ("D1".to_string(), Continuous::new(0.0, 5.0)),
-            ("D2".to_string(), Continuous::new(1.0, 2.0)),
+            ("D1".to_string(), Interval::new(0.0, 5.0)),
+            ("D2".to_string(), Interval::new(1.0, 2.0)),
         ];
         let space = NamedSpace::new(dimensions.clone());
 
         assert_eq!(
-            space.into_iter().collect::<HashMap<String, Continuous>>(),
+            space.into_iter().collect::<HashMap<String, Interval>>(),
             HashMap::from_iter(dimensions)
         );
     }

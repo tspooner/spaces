@@ -1,6 +1,7 @@
-use dimensions::{Continuous, Partitioned};
+use continuous::Interval;
+use core::{Space, Card, Surjection};
+use discrete::Partition;
 use rand::Rng;
-use {Space, Card, Surjection};
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -13,11 +14,11 @@ impl<D1: Space, D2: Space> PairSpace<D1, D2> {
     pub fn new(d1: D1, d2: D2) -> Self { PairSpace(d1, d2) }
 }
 
-impl PairSpace<Continuous, Continuous> {
-    pub fn partitioned(self, density: usize) -> PairSpace<Partitioned, Partitioned> {
+impl PairSpace<Interval, Interval> {
+    pub fn partitioned(self, density: usize) -> PairSpace<Partition, Partition> {
         PairSpace(
-            Partitioned::from_continuous(self.0, density),
-            Partitioned::from_continuous(self.1, density),
+            Partition::from_continuous(self.0, density),
+            Partition::from_continuous(self.1, density),
         )
     }
 }
@@ -46,10 +47,14 @@ where
 
 #[cfg(test)]
 mod tests {
-    use dimensions::{Continuous, Discrete, Partitioned};
-    use ndarray::arr1;
+    extern crate ndarray;
+
+    use continuous::Interval;
+    use core::{Space, Card, Surjection};
+    use discrete::{Discrete, Partition};
+    use product::PairSpace;
     use rand::thread_rng;
-    use {PairSpace, Space, Card, Surjection};
+    use self::ndarray::arr1;
 
     #[test]
     fn test_dim() {
@@ -88,16 +93,16 @@ mod tests {
 
     #[test]
     fn test_partitioned() {
-        let ps = PairSpace::new(Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0));
+        let ps = PairSpace::new(Interval::new(0.0, 5.0), Interval::new(1.0, 2.0));
         let ps = ps.partitioned(5);
 
-        assert_eq!(ps.0, Partitioned::new(0.0, 5.0, 5));
-        assert_eq!(ps.1, Partitioned::new(1.0, 2.0, 5));
+        assert_eq!(ps.0, Partition::new(0.0, 5.0, 5));
+        assert_eq!(ps.1, Partition::new(1.0, 2.0, 5));
     }
 
     #[test]
     fn test_surjection() {
-        let ps = PairSpace::new(Continuous::new(0.0, 5.0), Continuous::new(1.0, 2.0));
+        let ps = PairSpace::new(Interval::new(0.0, 5.0), Interval::new(1.0, 2.0));
 
         assert_eq!(ps.map((6.0, 0.0)), (5.0, 1.0));
         assert_eq!(ps.map((2.5, 1.5)), (2.5, 1.5));

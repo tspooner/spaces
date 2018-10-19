@@ -1,16 +1,16 @@
-use dimensions::Continuous;
+use continuous::Interval;
+use core::{Space, Card, Surjection};
 use rand::Rng;
-use {Space, Card, Surjection};
 
 /// An infinite dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
-pub struct Infinite;
+pub struct Reals;
 
-impl Infinite {
-    pub fn bounded(self, lb: f64, ub: f64) -> Continuous { Continuous::new(lb, ub) }
+impl Reals {
+    pub fn bounded(self, lb: f64, ub: f64) -> Interval { Interval::new(lb, ub) }
 }
 
-impl Space for Infinite {
+impl Space for Reals {
     type Value = f64;
 
     fn dim(&self) -> usize { 1 }
@@ -20,7 +20,7 @@ impl Space for Infinite {
     fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> f64 { unimplemented!() }
 }
 
-impl Surjection<f64, f64> for Infinite {
+impl Surjection<f64, f64> for Reals {
     fn map(&self, val: f64) -> f64 { val }
 }
 
@@ -34,24 +34,24 @@ mod tests {
 
     #[test]
     fn test_bounded() {
-        let d = Infinite;
+        let d = Reals;
 
-        assert_eq!(d.bounded(0.0, 1.0), Continuous::new(0.0, 1.0));
+        assert_eq!(d.bounded(0.0, 1.0), Interval::new(0.0, 1.0));
     }
 
     #[test]
     fn test_card() {
-        let d = Infinite;
+        let d = Reals;
 
         assert_eq!(d.card(), Card::Infinite);
 
-        assert_tokens(&d, &[Token::UnitStruct { name: "Infinite" }]);
+        assert_tokens(&d, &[Token::UnitStruct { name: "Reals" }]);
     }
 
     #[test]
     #[should_panic]
     fn test_sampling() {
-        let d = Infinite;
+        let d = Reals;
         let mut rng = thread_rng();
 
         let _ = d.sample(&mut rng);
@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let d = Infinite;
+        let d = Reals;
         let mut rng = thread_rng();
 
         for _ in 0..10 {
@@ -71,8 +71,8 @@ mod tests {
 
     #[test]
     fn test_serialisation() {
-        let d = Infinite;
+        let d = Reals;
 
-        assert_tokens(&d, &[Token::UnitStruct { name: "Infinite" }]);
+        assert_tokens(&d, &[Token::UnitStruct { name: "Reals" }]);
     }
 }
