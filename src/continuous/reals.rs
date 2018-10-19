@@ -7,7 +7,11 @@ use rand::Rng;
 pub struct Reals;
 
 impl Reals {
-    pub fn bounded(self, lb: f64, ub: f64) -> Interval { Interval::new(lb, ub) }
+    pub fn bounded(self, lb: f64, ub: f64) -> Interval { Interval::closed(lb, ub) }
+
+    pub fn left_bounded(self, lb: f64) -> Interval { Interval::left_closed(lb) }
+
+    pub fn right_bounded(self, ub: f64) -> Interval { Interval::right_closed(ub) }
 }
 
 impl Space for Reals {
@@ -36,7 +40,7 @@ mod tests {
     fn test_bounded() {
         let d = Reals;
 
-        assert_eq!(d.bounded(0.0, 1.0), Interval::new(0.0, 1.0));
+        assert_eq!(d.bounded(0.0, 1.0), Interval::closed(0.0, 1.0));
     }
 
     #[test]

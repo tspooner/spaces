@@ -26,13 +26,15 @@ impl Partition {
         }
     }
 
-    pub fn from_continuous(d: Interval, density: usize) -> Partition {
+    pub fn from_continuous<I: Into<Interval>>(d: I, density: usize) -> Partition {
+        let interval = d.into();
+
         Partition {
-            lb: d.lb,
-            ub: d.ub,
+            lb: interval.lb.expect("Must be a closed interval."),
+            ub: interval.ub.expect("Must be a closed interval."),
             density: density,
 
-            range: d.range,
+            range: interval.range.expect("Must be a closed interval."),
         }
     }
 
@@ -231,7 +233,7 @@ mod tests {
     fn test_from_continuous() {
         assert_eq!(
             Partition::new(0.0, 5.0, 5),
-            Partition::from_continuous(Interval::new(0.0, 5.0), 5)
+            Partition::from_continuous(Interval::closed(0.0, 5.0), 5)
         );
     }
 

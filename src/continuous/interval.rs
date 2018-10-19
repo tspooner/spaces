@@ -6,20 +6,40 @@ use {BoundedSpace, Space, Card, Surjection};
 /// A continous dimension.
 #[derive(Clone, Copy, Serialize)]
 pub struct Interval {
-    pub(crate) lb: f64,
-    pub(crate) ub: f64,
+    pub(crate) lb: Option<f64>,
+    pub(crate) ub: Option<f64>,
 
     #[serde(skip_serializing)]
-    pub(crate) range: RngRange<f64>,
+    pub(crate) range: Option<RngRange<f64>>,
 }
 
 impl Interval {
-    pub fn new(lb: f64, ub: f64) -> Interval {
+    pub fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
         Interval {
-            lb: lb,
-            ub: ub,
-            range: RngRange::new(lb, ub),
+            range: match (lb, ub) {
+                (Some(lb), Some(ub)) => Some(RngRange::new(lb, ub)),
+                _ => None
+            },
+
+            lb, ub,
         }
+    }
+
+    pub fn closed(lb: f64, ub: f64) -> Interval {
+        Interval {
+            lb: Some(lb),
+            ub: Some(ub),
+
+            range: Some(RngRange::new(lb, ub)),
+        }
+    }
+
+    pub fn left_closed(lb: f64) -> Interval {
+        Interval::new(Some(lb), None)
+    }
+
+    pub fn right_closed(ub: f64) -> Interval {
+        Interval::new(None, Some(ub))
     }
 }
 
@@ -31,22 +51,29 @@ impl Space for Interval {
     fn card(&self) -> Card { Card::Infinite }
 
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
-        self.range.sample(rng)
+        self.range.expect("Must be a closed interval to sample.").sample(rng)
     }
 }
 
 impl BoundedSpace for Interval {
     type BoundValue = Self::Value;
 
-    fn inf(&self) -> Option<f64> { Some(self.lb) }
+    fn inf(&self) -> Option<f64> { self.lb }
 
-    fn sup(&self) -> Option<f64> { Some(self.ub) }
+    fn sup(&self) -> Option<f64> { self.ub }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
+    fn contains(&self, val: Self::BoundValue) -> bool {
+        self.lb.map_or(true, |inf| val >= inf) && self.ub.map_or(true, |sup| val <= sup)
+    }
 }
 
 impl Surjection<f64, f64> for Interval {
-    fn map(&self, val: f64) -> f64 { clip!(self.lb, val, self.ub) }
+    fn map(&self, val: f64) -> f64 {
+        let val = self.lb.map_or(val, |inf| val.max(inf));
+        let val = self.ub.map_or(val, |sup| val.min(sup));
+
+        val
+    }
 }
 
 impl<'de> Deserialize<'de> for Interval {
@@ -162,7 +189,7 @@ mod tests {
     #[test]
     fn test_card() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::new(lb, ub);
+            let d = Interval::closed(lb, ub);
 
             assert_eq!(d.card(), Card::Infinite);
         }
@@ -175,7 +202,7 @@ mod tests {
     #[test]
     fn test_sampling() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::new(lb, ub);
+            let d = Interval::closed(lb, ub);
             let mut rng = thread_rng();
 
             for _ in 0..100 {
@@ -194,8 +221,10 @@ mod tests {
                         len: 2,
                     },
                     Token::Str("lb"),
+                    Token::Some,
                     Token::F64(lb),
                     Token::Str("ub"),
+                    Token::Some,
                     Token::F64(ub),
                     Token::StructEnd,
                 ],
@@ -210,12 +239,12 @@ mod tests {
     #[test]
     fn test_bounds() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::new(lb, ub);
+            let d = Interval::closed(lb, ub);
 
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
 
-            assert!(!d.contains(ub));
+            assert!(d.contains(ub));
             assert!(d.contains(lb));
             assert!(d.contains((lb + ub) / 2.0));
         }
@@ -227,7 +256,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let d = Interval::new(0.0, 5.0);
+        let d = Interval::closed(0.0, 5.0);
 
         assert_eq!(d.map(-5.0), 0.0);
         assert_eq!(d.map(0.0), 0.0);
@@ -239,7 +268,7 @@ mod tests {
     #[test]
     fn test_serialisation() {
         fn check(lb: f64, ub: f64) {
-            let d = Interval::new(lb, ub);
+            let d = Interval::closed(lb, ub);
 
             assert_tokens(
                 &d,
@@ -249,8 +278,10 @@ mod tests {
                         len: 2,
                     },
                     Token::Str("lb"),
+                    Token::Some,
                     Token::F64(lb),
                     Token::Str("ub"),
+                    Token::Some,
                     Token::F64(ub),
                     Token::StructEnd,
                 ],
