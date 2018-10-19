@@ -25,7 +25,7 @@ impl Interval {
         }
     }
 
-    pub fn closed(lb: f64, ub: f64) -> Interval {
+    pub fn bounded(lb: f64, ub: f64) -> Interval {
         Interval {
             lb: Some(lb),
             ub: Some(ub),
@@ -34,11 +34,11 @@ impl Interval {
         }
     }
 
-    pub fn left_closed(lb: f64) -> Interval {
+    pub fn left_bounded(lb: f64) -> Interval {
         Interval::new(Some(lb), None)
     }
 
-    pub fn right_closed(ub: f64) -> Interval {
+    pub fn right_bounded(ub: f64) -> Interval {
         Interval::new(None, Some(ub))
     }
 }
