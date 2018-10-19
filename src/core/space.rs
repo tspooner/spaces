@@ -9,7 +9,7 @@ pub trait Space {
     /// The data representation of the space.
     type Value: Debug + Clone;
 
-    /// Return the number of dimensions in the space.
+    /// Return the dimensionality of the space.
     fn dim(&self) -> usize;
 
     /// Return the number of elements in the set composing the space.
@@ -43,7 +43,10 @@ impl<'a, D: Space> Space for &'a D {
     }
 }
 
-/// Space type bounded on a compact interval I.
+/// Trait for defining spaces bounded to lie on an interval I.
+///
+/// Note: If both `inf` and `sup` are well defined (i.e. are not None), then the interval is closed
+/// and you have defined a compact space.
 pub trait BoundedSpace: Space
 where Self::Value: PartialOrd
 {
@@ -56,11 +59,11 @@ where Self::Value: PartialOrd
     /// Returns the value of the dimension's supremum.
     fn sup(&self) -> Option<Self::BoundValue>;
 
-    /// Returns true iff `val` is within the dimension's bounds.
+    /// Returns true iff `val` lies within the dimension's bounds.
     fn contains(&self, val: Self::BoundValue) -> bool;
 }
 
-/// Space type with bounds and a finite set of values.
+/// Trait for defining spaces containing a finite set of values.
 pub trait FiniteSpace: BoundedSpace
 where Self::Value: PartialOrd
 {
