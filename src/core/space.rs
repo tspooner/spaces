@@ -59,7 +59,7 @@ where Self::Value: PartialOrd
     /// Returns the value of the dimension's supremum.
     fn sup(&self) -> Option<Self::BoundValue>;
 
-    /// Returns true iff `val` lies within the dimension's bounds.
+    /// Returns true iff `val` lies within the dimension's bounds (inclusive).
     fn contains(&self, val: Self::BoundValue) -> bool;
 }
 
