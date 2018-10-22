@@ -1,7 +1,7 @@
 use core::{BoundedSpace, Space, Card, Surjection};
 use rand::Rng;
 
-/// A continous dimension.
+/// Type representing the set of strictly positive real numbers, R(>0).
 #[derive(Clone, Copy, Serialize)]
 pub struct PositiveReals;
 

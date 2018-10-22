@@ -2,7 +2,7 @@ use continuous::Interval;
 use core::{Space, Card, Surjection};
 use rand::Rng;
 
-/// An infinite dimension.
+/// Type representing the set of all real numbers.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Reals;
 

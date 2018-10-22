@@ -1,4 +1,4 @@
-//! Combination space types module.
+//! Product spaces module.
 
 import_all!(pair);
 import_all!(regular);

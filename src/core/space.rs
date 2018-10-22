@@ -54,13 +54,13 @@ where Self::Value: PartialOrd
     /// The upper/lower bound type; not necessarily equal to `Space::Value`.
     type BoundValue: PartialOrd + Copy;
 
-    /// Returns the value of the dimension's infimum.
+    /// Returns the value of the dimension's infimum, if it exists.
     fn inf(&self) -> Option<Self::BoundValue>;
 
-    /// Returns the value of the dimension's supremum.
+    /// Returns the value of the dimension's supremum, if it exists.
     fn sup(&self) -> Option<Self::BoundValue>;
 
-    /// Returns true iff `val` lies within the dimension's bounds (inclusive).
+    /// Returns true iff `val` lies within the dimension's bounds (closed).
     fn contains(&self, val: Self::BoundValue) -> bool;
 }
 
@@ -68,6 +68,6 @@ where Self::Value: PartialOrd
 pub trait FiniteSpace: BoundedSpace
 where Self::Value: PartialOrd
 {
-    /// Returns the finite range of values in this dimension.
+    /// Returns the finite range of values contained by this space.
     fn range(&self) -> Range<Self::Value>;
 }

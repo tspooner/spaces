@@ -3,13 +3,10 @@ use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
-/// A finite discrete dimension.
+/// Type representing a finite, ordinal set of values.
 #[derive(Clone, Copy, Serialize)]
 pub struct Discrete {
     size: usize,
-
-    #[serde(skip_serializing)]
-    ub: usize,
 
     #[serde(skip_serializing)]
     range: RngRange<usize>,
@@ -18,7 +15,6 @@ pub struct Discrete {
 impl Discrete {
     pub fn new(size: usize) -> Discrete {
         Discrete {
-            ub: size - 1,
             size: size,
             range: RngRange::new(0, size),
         }
@@ -42,7 +38,7 @@ impl BoundedSpace for Discrete {
 
     fn inf(&self) -> Option<usize> { Some(0) }
 
-    fn sup(&self) -> Option<usize> { Some(self.ub) }
+    fn sup(&self) -> Option<usize> { Some(self.size - 1) }
 
     fn contains(&self, val: Self::Value) -> bool { val < self.size }
 }

@@ -4,7 +4,7 @@ use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 
-/// A finite, uniformly partitioned continous dimension.
+/// Type representing a finite, uniformly partitioned interval.
 #[derive(Clone, Copy, Serialize)]
 pub struct Partition {
     lb: f64,

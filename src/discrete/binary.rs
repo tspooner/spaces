@@ -2,7 +2,7 @@ use rand::Rng;
 use std::ops::Range;
 use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
-/// A binary dimension.
+/// Type representing binary values.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct Binary;
 

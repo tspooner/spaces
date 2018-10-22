@@ -1,7 +1,7 @@
 use rand::Rng;
 use {BoundedSpace, Space, Card};
 
-/// The set of all natural numbers.
+/// Type representing the set of natural numbers, N.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Naturals;
 

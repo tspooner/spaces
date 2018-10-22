@@ -1,11 +1,10 @@
 use std::ops::Mul;
 
-/// Measure of the cardinality (#) of a vector space.
+/// Measure of the cardinality (#) of a set.
 ///
-/// `Card` is typically used to compute the number of possible values that can
-/// be reached within some vector space. For example, for a space with 2
-/// dimensions, each with a finite set of values, we have:
-///
+/// `Card` is used to represent the number of possible values that are contained by a space. Take,
+/// for example, a 2-dimensional space, each with a finite set of values. In this case we have the
+/// following:
 /// ```
 /// use spaces::{Space, Card};
 /// use spaces::product::PairSpace;

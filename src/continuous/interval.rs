@@ -3,7 +3,7 @@ use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt};
 use {BoundedSpace, Space, Card, Surjection};
 
-/// A continous dimension.
+/// Type representing an interval on the real line.
 #[derive(Clone, Copy, Serialize)]
 pub struct Interval {
     pub(crate) lb: Option<f64>,
