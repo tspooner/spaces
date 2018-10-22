@@ -58,27 +58,27 @@ mod tests {
 
     use continuous::Interval;
     use core::{Space, Card, Surjection};
-    use discrete::{Discrete, Partition};
+    use discrete::{Ordinal, Partition};
     use product::PairSpace;
     use rand::thread_rng;
     use self::ndarray::arr1;
 
     #[test]
     fn test_dim() {
-        assert_eq!(PairSpace::new(Discrete::new(2), Discrete::new(2)).dim(), 2);
+        assert_eq!(PairSpace::new(Ordinal::new(2), Ordinal::new(2)).dim(), 2);
     }
 
     #[test]
     fn test_card() {
         assert_eq!(
-            PairSpace::new(Discrete::new(2), Discrete::new(2)).card(),
+            PairSpace::new(Ordinal::new(2), Ordinal::new(2)).card(),
             Card::Finite(4)
         );
     }
 
     #[test]
     fn test_sample() {
-        let ps = PairSpace::new(Discrete::new(2), Discrete::new(2));
+        let ps = PairSpace::new(Ordinal::new(2), Ordinal::new(2));
 
         let mut rng = thread_rng();
 

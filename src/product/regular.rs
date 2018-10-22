@@ -133,7 +133,7 @@ mod tests {
 
     use continuous::Interval;
     use core::{Space, Card, Surjection};
-    use discrete::Discrete;
+    use discrete::Ordinal;
     use product::RegularSpace;
     use rand::thread_rng;
     use self::ndarray::arr1;
@@ -141,20 +141,20 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        assert_eq!(RegularSpace::new(vec![Discrete::new(2); 2]).dim(), 2);
+        assert_eq!(RegularSpace::new(vec![Ordinal::new(2); 2]).dim(), 2);
     }
 
     #[test]
     fn test_card() {
         assert_eq!(
-            RegularSpace::new(vec![Discrete::new(2); 2]).card(),
+            RegularSpace::new(vec![Ordinal::new(2); 2]).card(),
             Card::Finite(4)
         );
     }
 
     #[test]
     fn test_sampling() {
-        let space = RegularSpace::new(vec![Discrete::new(2); 2]);
+        let space = RegularSpace::new(vec![Ordinal::new(2); 2]);
 
         let mut rng = thread_rng();
 
@@ -202,14 +202,14 @@ mod tests {
 
     #[test]
     fn test_add_op() {
-        let mut sa = RegularSpace::new(vec![Discrete::new(2); 2]);
-        let mut sb = RegularSpace::empty() + Discrete::new(2) + Discrete::new(2);
+        let mut sa = RegularSpace::new(vec![Ordinal::new(2); 2]);
+        let mut sb = RegularSpace::empty() + Ordinal::new(2) + Ordinal::new(2);
 
         assert_eq!(sa.dim(), sb.dim());
         assert_eq!(sa.card(), sb.card());
 
-        sa = sa + Discrete::new(3);
-        sb = sb + Discrete::new(3);
+        sa = sa + Ordinal::new(3);
+        sb = sb + Ordinal::new(3);
 
         assert_eq!(sa.dim(), 3);
         assert_eq!(sa.dim(), sb.dim());

@@ -8,10 +8,10 @@ use std::ops::Mul;
 /// ```
 /// use spaces::{Space, Card};
 /// use spaces::product::PairSpace;
-/// use spaces::discrete::Discrete;
+/// use spaces::discrete::Ordinal;
 ///
-/// let d1 = Discrete::new(5);
-/// let d2 = Discrete::new(10);
+/// let d1 = Ordinal::new(5);
+/// let d2 = Ordinal::new(10);
 /// let space = PairSpace::new(d1, d2);
 ///
 /// assert_eq!(space.card(), Card::Finite(50));
