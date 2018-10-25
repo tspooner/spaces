@@ -5,15 +5,15 @@
 [![Coverage Status](https://coveralls.io/repos/github/tspooner/spaces/badge.svg?branch=master)](https://coveralls.io/github/tspooner/spaces?branch=master)
 
 ## Overview
-`spaces` provides a set of vector space primitives for machine learning
-problems. Traits such as `Space`, and it's derivatives, may be used to define
+`spaces` provides a set of set/space primitives for machine learning problems.
+Traits such as `Space`, and it's derivatives, may be used to define
 state/action spaces, for example. Mappings between different spaces may also be
 defined which simplify many common preprocessing tasks.
 
 ## Installation
 ```toml
 [dependencies]
-spaces = "3.2"
+spaces = "3.3"
 ```
 
 ## Contributing
