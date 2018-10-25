@@ -2,7 +2,7 @@
 name = "spaces"
 description = "Set/space primitives for defining machine learning problems."
 
-version = "3.1.1"
+version = "3.2.0"
 authors = ["Tom Spooner <t.spooner@liverpool.ac.uk>"]
 
 license = "MIT"

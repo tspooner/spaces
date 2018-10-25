@@ -13,7 +13,7 @@ defined which simplify many common preprocessing tasks.
 ## Installation
 ```toml
 [dependencies]
-spaces = "3.1"
+spaces = "3.2"
 ```
 
 ## Contributing
