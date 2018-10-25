@@ -1,5 +1,5 @@
 use rand::Rng;
-use {BoundedSpace, Space, Card};
+use {BoundedSpace, Space, Card, discrete::Naturals};
 
 /// Type representing the set of integers, Z.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -72,3 +72,8 @@ impl BoundedSpace for NonNegativeIntegers {
 
     fn contains(&self, _: Self::BoundValue) -> bool { true }
 }
+
+/// Type representing the set of positive integers, Z(>0).
+///
+/// This type is equivalent to the set of natural numbers.
+pub type PositiveIntegers = Naturals;
