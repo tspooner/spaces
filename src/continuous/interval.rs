@@ -1,4 +1,4 @@
-use rand::{Rng, distributions::{Distribution, Range as RngRange}};
+use rand::{Rng, distributions::{Distribution, Uniform}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt};
 use {BoundedSpace, Space, Card, Surjection};
@@ -10,14 +10,14 @@ pub struct Interval {
     pub(crate) ub: Option<f64>,
 
     #[serde(skip_serializing)]
-    pub(crate) range: Option<RngRange<f64>>,
+    pub(crate) range: Option<Uniform<f64>>,
 }
 
 impl Interval {
     fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
         Interval {
             range: match (lb, ub) {
-                (Some(lb), Some(ub)) => Some(RngRange::new(lb, ub)),
+                (Some(lb), Some(ub)) => Some(Uniform::new_inclusive(lb, ub)),
                 _ => None
             },
 
@@ -30,7 +30,7 @@ impl Interval {
             lb: Some(lb),
             ub: Some(ub),
 
-            range: Some(RngRange::new(lb, ub)),
+            range: Some(Uniform::new_inclusive(lb, ub)),
         }
     }
 

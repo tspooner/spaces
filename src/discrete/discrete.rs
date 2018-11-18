@@ -1,4 +1,4 @@
-use rand::{Rng, distributions::{Distribution, Range as RngRange}};
+use rand::{Rng, distributions::{Distribution, Uniform}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
@@ -9,14 +9,14 @@ pub struct Discrete {
     size: usize,
 
     #[serde(skip_serializing)]
-    range: RngRange<usize>,
+    range: Uniform<usize>,
 }
 
 impl Discrete {
     pub fn new(size: usize) -> Discrete {
         Discrete {
             size: size,
-            range: RngRange::new(0, size),
+            range: Uniform::new_inclusive(0, size),
         }
     }
 }

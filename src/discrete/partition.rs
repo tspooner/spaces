@@ -1,6 +1,6 @@
 use continuous::Interval;
 use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
-use rand::{Rng, distributions::{Distribution, Range as RngRange}};
+use rand::{Rng, distributions::{Distribution, Uniform}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 
@@ -12,7 +12,7 @@ pub struct Partition {
     density: usize,
 
     #[serde(skip_serializing)]
-    range: RngRange<f64>,
+    range: Uniform<f64>,
 }
 
 impl Partition {
@@ -22,7 +22,7 @@ impl Partition {
             ub: ub,
             density: density,
 
-            range: RngRange::new(lb, ub),
+            range: Uniform::new_inclusive(lb, ub),
         }
     }
 
