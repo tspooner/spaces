@@ -5,7 +5,6 @@
 //! be used to define state/action spaces, for example. Mappings between
 //! different spaces may also be defined using traits such as `Surjection` to
 //! streamline many common preprocessing and type conversion tasks.
-extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

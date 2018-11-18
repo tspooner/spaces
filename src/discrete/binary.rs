@@ -1,4 +1,3 @@
-use rand::Rng;
 use std::ops::Range;
 use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
@@ -16,8 +15,6 @@ impl Space for Binary {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Finite(2) }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> bool { rng.gen() }
 }
 
 impl BoundedSpace for Binary {
@@ -48,26 +45,12 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use super::*;
-    use rand::thread_rng;
 
     #[test]
     fn test_card() {
         let d = Binary::new();
 
         assert_eq!(d.card(), Card::Finite(2));
-    }
-
-    #[test]
-    fn test_sampling() {
-        let d = Binary::new();
-        let mut rng = thread_rng();
-
-        for _ in 0..100 {
-            let s = d.sample(&mut rng);
-
-            assert!(s == false || s == true);
-            assert!(d.contains(s));
-        }
     }
 
     #[test]

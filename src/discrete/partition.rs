@@ -1,6 +1,5 @@
 use continuous::Interval;
 use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
-use rand::{Rng, distributions::{Distribution, Uniform}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
 
@@ -10,9 +9,6 @@ pub struct Partition {
     lb: f64,
     ub: f64,
     density: usize,
-
-    #[serde(skip_serializing)]
-    range: Uniform<f64>,
 }
 
 impl Partition {
@@ -21,20 +17,16 @@ impl Partition {
             lb: lb,
             ub: ub,
             density: density,
-
-            range: Uniform::new_inclusive(lb, ub),
         }
     }
 
-    pub fn from_continuous<I: Into<Interval>>(d: I, density: usize) -> Partition {
+    pub fn from_interval<I: Into<Interval>>(d: I, density: usize) -> Partition {
         let interval = d.into();
 
         Partition {
             lb: interval.lb.expect("Must be a bounded interval."),
             ub: interval.ub.expect("Must be a bounded interval."),
             density: density,
-
-            range: interval.range.expect("Must be a bounded interval."),
         }
     }
 
@@ -75,10 +67,6 @@ impl Space for Partition {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Finite(self.density) }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
-        self.to_partition(self.range.sample(rng))
-    }
 }
 
 impl BoundedSpace for Partition {
@@ -227,13 +215,12 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use super::*;
-    use rand::thread_rng;
 
     #[test]
-    fn test_from_continuous() {
+    fn test_from_interval() {
         assert_eq!(
             Partition::new(0.0, 5.0, 5),
-            Partition::from_continuous(Interval::bounded(0.0, 5.0), 5)
+            Partition::from_interval(Interval::bounded(0.0, 5.0), 5)
         );
     }
 
@@ -291,24 +278,6 @@ mod tests {
             let d = Partition::new(lb, ub, density);
 
             assert_eq!(d.card(), Card::Finite(density));
-        }
-
-        check(0.0, 5.0, 5);
-        check(-5.0, 5.0, 10);
-        check(-5.0, 0.0, 5);
-    }
-
-    #[test]
-    fn test_sampling() {
-        fn check(lb: f64, ub: f64, density: usize) {
-            let d = Partition::new(lb, ub, density);
-            let mut rng = thread_rng();
-
-            for _ in 0..100 {
-                let s = d.sample(&mut rng);
-
-                assert!(s < density);
-            }
         }
 
         check(0.0, 5.0, 5);

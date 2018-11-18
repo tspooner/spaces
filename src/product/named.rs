@@ -1,7 +1,6 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partition;
-use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
     iter::FromIterator,
@@ -46,7 +45,7 @@ impl<D: Space> NamedSpace<D> {
 impl NamedSpace<Interval> {
     pub fn partitioned(self, density: usize) -> NamedSpace<Partition> {
         self.into_iter()
-            .map(|(name, d)| (name, Partition::from_continuous(d, density)))
+            .map(|(name, d)| (name, Partition::from_interval(d, density)))
             .collect()
     }
 }
@@ -66,13 +65,6 @@ impl<D: Space> Space for NamedSpace<D> {
     fn dim(&self) -> usize { self.dimensions.len() }
 
     fn card(&self) -> Card { self.card }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> HashMap<String, D::Value> {
-        self.dimensions
-            .iter()
-            .map(|(k, d)| (k.clone(), d.sample(rng)))
-            .collect()
-    }
 }
 
 impl<D, X> Surjection<Vec<X>, HashMap<String, D::Value>> for NamedSpace<D>
@@ -132,8 +124,6 @@ mod tests {
     use core::{Space, Card, Surjection};
     use discrete::Discrete;
     use product::NamedSpace;
-    use rand::thread_rng;
-    use self::ndarray::arr1;
     use std::collections::HashMap;
     use std::iter::FromIterator;
 
@@ -151,28 +141,6 @@ mod tests {
             NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).card(),
             Card::Finite(4)
         );
-    }
-
-    #[test]
-    fn test_sampling() {
-        let space = NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]);
-
-        let mut rng = thread_rng();
-
-        let mut c1 = arr1(&vec![0.0; 2]);
-        let mut c2 = arr1(&vec![0.0; 2]);
-        for _ in 0..5000 {
-            let sample = space.sample(&mut rng);
-
-            c1[sample["D1"]] += 1.0;
-            c2[sample["D2"]] += 1.0;
-
-            assert!(sample["D1"] == 0 || sample["D1"] == 1);
-            assert!(sample["D2"] == 0 || sample["D2"] == 1);
-        }
-
-        assert!((c1 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
-        assert!((c2 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
     }
 
     #[test]

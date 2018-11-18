@@ -1,6 +1,5 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection};
-use rand::Rng;
 
 /// Type representing the set of all real numbers.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -20,8 +19,6 @@ impl Space for Reals {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Infinite }
-
-    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> f64 { unimplemented!() }
 }
 
 impl Surjection<f64, f64> for Reals {
@@ -34,7 +31,6 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use super::*;
-    use rand::{thread_rng, Rng};
 
     #[test]
     fn test_bounded() {
@@ -53,21 +49,11 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
-    fn test_sampling() {
-        let d = Reals;
-        let mut rng = thread_rng();
-
-        let _ = d.sample(&mut rng);
-    }
-
-    #[test]
     fn test_surjection() {
         let d = Reals;
-        let mut rng = thread_rng();
 
-        for _ in 0..10 {
-            let v = rng.gen::<f64>();
+        for i in -10..10 {
+            let v = i as f64;
 
             assert_eq!(d.map(v), v);
         }

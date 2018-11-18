@@ -18,7 +18,6 @@ travis-ci = { repository = "tspooner/spaces", branch = "master" }
 coveralls = { repository = "tspooner/spaces", branch = "master", service = "github" }
 
 [dependencies]
-rand = "0.6"
 ndarray = { version = "0.12", features = ["serde-1"] }
 
 serde = "1.0"

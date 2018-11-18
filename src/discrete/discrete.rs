@@ -1,22 +1,17 @@
-use rand::{Rng, distributions::{Distribution, Uniform}};
+use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{cmp, fmt, ops::Range};
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
 
 /// Type representing a finite, ordinal set of values.
 #[derive(Clone, Copy, Serialize)]
 pub struct Discrete {
     size: usize,
-
-    #[serde(skip_serializing)]
-    range: Uniform<usize>,
 }
 
 impl Discrete {
     pub fn new(size: usize) -> Discrete {
         Discrete {
             size: size,
-            range: Uniform::new_inclusive(0, size),
         }
     }
 }
@@ -27,10 +22,6 @@ impl Space for Discrete {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Finite(self.size) }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
-        self.range.sample(rng)
-    }
 }
 
 impl BoundedSpace for Discrete {
@@ -145,7 +136,6 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use super::*;
-    use rand::thread_rng;
 
     #[test]
     fn test_card() {
@@ -153,24 +143,6 @@ mod tests {
             let d = Discrete::new(size);
 
             assert_eq!(d.card(), Card::Finite(size));
-        }
-
-        check(5);
-        check(10);
-        check(100);
-    }
-
-    #[test]
-    fn test_sampling() {
-        fn check(size: usize) {
-            let d = Discrete::new(size);
-            let mut rng = thread_rng();
-
-            for _ in 0..100 {
-                let s = d.sample(&mut rng);
-
-                assert!(s < size);
-            }
         }
 
         check(5);
