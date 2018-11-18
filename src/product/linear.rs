@@ -54,13 +54,13 @@ impl LinearSpace<Partition> {
 }
 
 impl<D: Space> Space for LinearSpace<D> {
-    type Value = Vec<D::Value>;
+    type Value = Vector<D::Value>;
 
     fn dim(&self) -> usize { self.dimensions.len() }
 
     fn card(&self) -> Card { self.card }
 
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Vec<D::Value> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Vector<D::Value> {
         self.dimensions.iter().map(|d| d.sample(rng)).collect()
     }
 }
