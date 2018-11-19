@@ -145,7 +145,7 @@ mod tests {
 
     use continuous::Interval;
     use core::{Space, Card, Surjection};
-    use discrete::Discrete;
+    use discrete::Ordinal;
     use product::NamedSpace;
     use rand::thread_rng;
     use self::ndarray::arr1;
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn test_dim() {
         assert_eq!(
-            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).dim(),
+            NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]).dim(),
             2
         );
     }
@@ -163,14 +163,14 @@ mod tests {
     #[test]
     fn test_card() {
         assert_eq!(
-            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).card(),
+            NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]).card(),
             Card::Finite(4)
         );
     }
 
     #[test]
     fn test_sampling() {
-        let space = NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]);
+        let space = NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]);
 
         let mut rng = thread_rng();
 
