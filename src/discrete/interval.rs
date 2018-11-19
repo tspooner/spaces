@@ -1,40 +1,34 @@
-use core::{BoundedSpace, Space, Card, Surjection};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
-use std::{
-    cmp,
-    fmt,
-    f64::{INFINITY, NEG_INFINITY},
-};
+use std::{cmp, fmt};
+use {BoundedSpace, Space, Card, Surjection};
 
 /// Type representing an interval on the real line.
 #[derive(Clone, Copy, Serialize)]
 pub struct Interval {
-    pub(crate) lb: Option<f64>,
-    pub(crate) ub: Option<f64>,
+    pub(crate) lb: Option<i64>,
+    pub(crate) ub: Option<i64>,
 }
 
 impl Interval {
-    fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
-        Interval {
-            lb, ub,
-        }
+    fn new(lb: Option<i64>, ub: Option<i64>) -> Interval {
+        Interval { lb, ub }
     }
 
-    pub fn bounded(lb: f64, ub: f64) -> Interval {
-        Interval::new(Some(lb), Some(ub))
+    pub fn bounded(lb: i64, ub: i64) -> Interval {
+        Self::new(Some(lb), Some(ub))
     }
 
-    pub fn left_bounded(lb: f64) -> Interval {
+    pub fn left_bounded(lb: i64) -> Interval {
         Interval::new(Some(lb), None)
     }
 
-    pub fn right_bounded(ub: f64) -> Interval {
+    pub fn right_bounded(ub: i64) -> Interval {
         Interval::new(None, Some(ub))
     }
 }
 
 impl Space for Interval {
-    type Value = f64;
+    type Value = i64;
 
     fn dim(&self) -> usize { 1 }
 
@@ -44,17 +38,17 @@ impl Space for Interval {
 impl BoundedSpace for Interval {
     type BoundValue = Self::Value;
 
-    fn inf(&self) -> Option<f64> { self.lb }
+    fn inf(&self) -> Option<i64> { self.lb }
 
-    fn sup(&self) -> Option<f64> { self.ub }
+    fn sup(&self) -> Option<i64> { self.ub }
 
     fn contains(&self, val: Self::BoundValue) -> bool {
         self.lb.map_or(true, |inf| val >= inf) && self.ub.map_or(true, |sup| val <= sup)
     }
 }
 
-impl Surjection<f64, f64> for Interval {
-    fn map(&self, val: f64) -> f64 {
+impl Surjection<i64, i64> for Interval {
+    fn map(&self, val: i64) -> i64 {
         let val = self.lb.map_or(val, |inf| val.max(inf));
         let val = self.ub.map_or(val, |sup| val.min(sup));
 
@@ -164,12 +158,6 @@ impl fmt::Debug for Interval {
     }
 }
 
-impl fmt::Display for Interval {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}]", self.lb.unwrap_or(NEG_INFINITY), self.ub.unwrap_or(INFINITY))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
@@ -179,20 +167,20 @@ mod tests {
 
     #[test]
     fn test_card() {
-        fn check(lb: f64, ub: f64) {
+        fn check(lb: i64, ub: i64) {
             let d = Interval::bounded(lb, ub);
 
             assert_eq!(d.card(), Card::Infinite);
         }
 
-        check(0.0, 5.0);
-        check(-5.0, 5.0);
-        check(-5.0, 0.0);
+        check(0, 5);
+        check(-5, 5);
+        check(-5, 0);
     }
 
     #[test]
     fn test_bounds() {
-        fn check(lb: f64, ub: f64) {
+        fn check(lb: i64, ub: i64) {
             let d = Interval::bounded(lb, ub);
 
             assert_eq!(d.inf().unwrap(), lb);
@@ -200,28 +188,28 @@ mod tests {
 
             assert!(d.contains(ub));
             assert!(d.contains(lb));
-            assert!(d.contains((lb + ub) / 2.0));
+            assert!(d.contains((lb + ub) / 2));
         }
 
-        check(0.0, 5.0);
-        check(-5.0, 5.0);
-        check(-5.0, 0.0);
+        check(0, 5);
+        check(-5, 5);
+        check(-5, 0);
     }
 
     #[test]
     fn test_surjection() {
-        let d = Interval::bounded(0.0, 5.0);
+        let d = Interval::bounded(0, 5);
 
-        assert_eq!(d.map(-5.0), 0.0);
-        assert_eq!(d.map(0.0), 0.0);
-        assert_eq!(d.map(2.5), 2.5);
-        assert_eq!(d.map(5.0), 5.0);
-        assert_eq!(d.map(10.0), 5.0);
+        assert_eq!(d.map(-5), 0);
+        assert_eq!(d.map(0), 0);
+        assert_eq!(d.map(2), 2);
+        assert_eq!(d.map(5), 5);
+        assert_eq!(d.map(10), 5);
     }
 
     #[test]
     fn test_serialisation() {
-        fn check(lb: f64, ub: f64) {
+        fn check(lb: i64, ub: i64) {
             let d = Interval::bounded(lb, ub);
 
             assert_tokens(
@@ -233,17 +221,17 @@ mod tests {
                     },
                     Token::Str("lb"),
                     Token::Some,
-                    Token::F64(lb),
+                    Token::I64(lb),
                     Token::Str("ub"),
                     Token::Some,
-                    Token::F64(ub),
+                    Token::I64(ub),
                     Token::StructEnd,
                 ],
             );
         }
 
-        check(0.0, 5.0);
-        check(-5.0, 5.0);
-        check(-5.0, 0.0);
+        check(0, 5);
+        check(-5, 5);
+        check(-5, 0);
     }
 }

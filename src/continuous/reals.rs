@@ -1,5 +1,6 @@
 use continuous::Interval;
-use core::{Space, Card, Surjection};
+use core::{BoundedSpace, Space, Card, Surjection};
+use std::fmt;
 
 /// Type representing the set of all real numbers.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -23,6 +24,76 @@ impl Space for Reals {
 
 impl Surjection<f64, f64> for Reals {
     fn map(&self, val: f64) -> f64 { val }
+}
+
+impl fmt::Display for Reals {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{211d}")
+    }
+}
+
+/// Type representing the set of non-negative real numbers, R(≥0).
+#[derive(Clone, Copy, Serialize)]
+pub struct NonNegativeReals;
+
+impl Space for NonNegativeReals {
+    type Value = f64;
+
+    fn dim(&self) -> usize { 1 }
+
+    fn card(&self) -> Card { Card::Infinite }
+}
+
+impl BoundedSpace for NonNegativeReals {
+    type BoundValue = Self::Value;
+
+    fn inf(&self) -> Option<f64> { Some(0.0) }
+
+    fn sup(&self) -> Option<f64> { None }
+
+    fn contains(&self, val: Self::BoundValue) -> bool { val >= 0.0 }
+}
+
+impl Surjection<f64, f64> for NonNegativeReals {
+    fn map(&self, val: f64) -> f64 { val.max(0.0) }
+}
+
+impl fmt::Display for NonNegativeReals {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{211d}(>0)")
+    }
+}
+
+/// Type representing the set of strictly positive real numbers, R(>0).
+#[derive(Clone, Copy, Serialize)]
+pub struct PositiveReals;
+
+impl Space for PositiveReals {
+    type Value = f64;
+
+    fn dim(&self) -> usize { 1 }
+
+    fn card(&self) -> Card { Card::Infinite }
+}
+
+impl BoundedSpace for PositiveReals {
+    type BoundValue = Self::Value;
+
+    fn inf(&self) -> Option<f64> { Some(1e-5) }
+
+    fn sup(&self) -> Option<f64> { None }
+
+    fn contains(&self, val: Self::BoundValue) -> bool { val > 0.0 }
+}
+
+impl Surjection<f64, f64> for PositiveReals {
+    fn map(&self, val: f64) -> f64 { val.max(1e-5) }
+}
+
+impl fmt::Display for PositiveReals {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{211d}(≥0)")
+    }
 }
 
 #[cfg(test)]

@@ -1,5 +1,6 @@
+use core::{Space, Card, Surjection};
 use rand::Rng;
-use {Space, Card, Surjection};
+use std::fmt;
 
 /// A null dimension.
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
@@ -17,6 +18,12 @@ impl Space for Null {
 
 impl<T> Surjection<T, ()> for Null {
     fn map(&self, _: T) -> () { () }
+}
+
+impl fmt::Display for Interval {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{2205}")
+    }
 }
 
 #[cfg(test)]

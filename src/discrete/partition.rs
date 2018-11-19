@@ -13,6 +13,10 @@ pub struct Partition {
 
 impl Partition {
     pub fn new(lb: f64, ub: f64, density: usize) -> Partition {
+        if density == 0 {
+            panic!("A partition must have a density of 1 or greater.")
+        }
+
         Partition {
             lb: lb,
             ub: ub,
@@ -206,6 +210,19 @@ impl fmt::Debug for Partition {
             .field("ub", &self.ub)
             .field("density", &self.density)
             .finish()
+    }
+}
+
+impl fmt::Display for Partition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.density {
+            d if d == 1 =>
+                write!(f, "{{{} = x0, x1 = {}}}", self.lb, self.ub),
+            d if d == 2 =>
+                write!(f, "{{{} = x0, x1, x2 = {}}}", self.lb, self.ub),
+            d =>
+                write!(f, "{{{} = x0, x1, ..., x{} = {}}}", self.lb, d, self.ub),
+        }
     }
 }
 

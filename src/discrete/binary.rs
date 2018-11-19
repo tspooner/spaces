@@ -1,5 +1,8 @@
-use std::ops::Range;
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
+use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
+use std::{
+    fmt,
+    ops::Range,
+};
 
 /// Type representing binary values.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
@@ -37,6 +40,12 @@ impl Surjection<bool, bool> for Binary {
 
 impl Surjection<f64, bool> for Binary {
     fn map(&self, val: f64) -> bool { val > 0.0 }
+}
+
+impl fmt::Display for Binary {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{0, 1}}")
+    }
 }
 
 #[cfg(test)]

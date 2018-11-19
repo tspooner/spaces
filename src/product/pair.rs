@@ -1,6 +1,7 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partition;
+use std::fmt::{self, Display};
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -40,24 +41,30 @@ where
     }
 }
 
+impl<D1: Space + Display, D2: Space + Display> fmt::Display for PairSpace<D1, D2> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.0, self.1)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     extern crate ndarray;
 
     use core::{Space, Card, Surjection};
     use continuous::Interval;
-    use discrete::{Discrete, Partition};
+    use discrete::{Ordinal, Partition};
     use product::PairSpace;
 
     #[test]
     fn test_dim() {
-        assert_eq!(PairSpace::new(Discrete::new(2), Discrete::new(2)).dim(), 2);
+        assert_eq!(PairSpace::new(Ordinal::new(2), Ordinal::new(2)).dim(), 2);
     }
 
     #[test]
     fn test_card() {
         assert_eq!(
-            PairSpace::new(Discrete::new(2), Discrete::new(2)).card(),
+            PairSpace::new(Ordinal::new(2), Ordinal::new(2)).card(),
             Card::Finite(4)
         );
     }

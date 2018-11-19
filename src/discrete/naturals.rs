@@ -1,4 +1,5 @@
 use core::{BoundedSpace, Space, Card};
+use std::fmt;
 
 /// Type representing the set of natural numbers, N.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -20,4 +21,10 @@ impl BoundedSpace for Naturals {
     fn sup(&self) -> Option<u64> { None }
 
     fn contains(&self, val: Self::BoundValue) -> bool { val > 0 }
+}
+
+impl fmt::Display for Naturals {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{2115}")
+    }
 }
