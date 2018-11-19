@@ -1,8 +1,6 @@
 use core::Card;
-use rand::Rng;
 use std::fmt::Debug;
 use std::ops::Range;
-
 
 /// Trait for defining geometric spaces.
 pub trait Space {
@@ -14,9 +12,6 @@ pub trait Space {
 
     /// Return the number of elements in the set composing the space.
     fn card(&self) -> Card;
-
-    /// Generate a random sample from the space.
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Self::Value;
 }
 
 impl<D: Space> Space for Box<D> {
@@ -25,10 +20,6 @@ impl<D: Space> Space for Box<D> {
     fn dim(&self) -> usize { (**self).dim() }
 
     fn card(&self) -> Card { (**self).card() }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Self::Value {
-        (**self).sample(rng)
-    }
 }
 
 impl<'a, D: Space> Space for &'a D {
@@ -37,10 +28,6 @@ impl<'a, D: Space> Space for &'a D {
     fn dim(&self) -> usize { (**self).dim() }
 
     fn card(&self) -> Card { (**self).card() }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Self::Value {
-        (**self).sample(rng)
-    }
 }
 
 /// Trait for defining spaces bounded to lie on an interval I.

@@ -1,6 +1,5 @@
 use core::{BoundedSpace, Space, Card};
 use discrete::Naturals;
-use rand::Rng;
 use std::fmt;
 
 /// Type representing the set of integers, Z.
@@ -13,8 +12,6 @@ impl Space for Integers {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Infinite }
-
-    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> i64 { unimplemented!() }
 }
 
 impl BoundedSpace for Integers {
@@ -43,8 +40,6 @@ impl Space for NonZeroIntegers {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Infinite }
-
-    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> i64 { unimplemented!() }
 }
 
 impl BoundedSpace for NonZeroIntegers {
@@ -73,8 +68,6 @@ impl Space for NonNegativeIntegers {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Infinite }
-
-    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> u64 { unimplemented!() }
 }
 
 impl BoundedSpace for NonNegativeIntegers {

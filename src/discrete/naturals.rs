@@ -1,5 +1,4 @@
 use core::{BoundedSpace, Space, Card};
-use rand::Rng;
 use std::fmt;
 
 /// Type representing the set of natural numbers, N.
@@ -12,8 +11,6 @@ impl Space for Naturals {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Infinite }
-
-    fn sample<R: Rng + ?Sized>(&self, _: &mut R) -> u64 { unimplemented!() }
 }
 
 impl BoundedSpace for Naturals {
