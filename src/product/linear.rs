@@ -1,7 +1,6 @@
 use continuous::Interval;
 use core::{Space, Card, Surjection, Vector};
 use discrete::Partition;
-use rand::Rng;
 use std::{
     fmt::{self, Display},
     iter::FromIterator,
@@ -47,7 +46,7 @@ impl<D: Space> LinearSpace<D> {
 impl LinearSpace<Interval> {
     pub fn partitioned(self, density: usize) -> LinearSpace<Partition> {
         self.into_iter()
-            .map(|d| Partition::from_continuous(d, density))
+            .map(|d| Partition::from_interval(d, density))
             .collect()
     }
 }
@@ -64,10 +63,6 @@ impl<D: Space> Space for LinearSpace<D> {
     fn dim(&self) -> usize { self.dimensions.len() }
 
     fn card(&self) -> Card { self.card }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Vector<D::Value> {
-        self.dimensions.iter().map(|d| d.sample(rng)).collect()
-    }
 }
 
 impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for LinearSpace<D>
@@ -150,8 +145,6 @@ mod tests {
     use core::{Space, Card, Surjection};
     use discrete::Ordinal;
     use product::LinearSpace;
-    use rand::thread_rng;
-    use self::ndarray::arr1;
     use std::iter::FromIterator;
 
     #[test]
@@ -165,28 +158,6 @@ mod tests {
             LinearSpace::new(vec![Ordinal::new(2); 2]).card(),
             Card::Finite(4)
         );
-    }
-
-    #[test]
-    fn test_sampling() {
-        let space = LinearSpace::new(vec![Ordinal::new(2); 2]);
-
-        let mut rng = thread_rng();
-
-        let mut c1 = arr1(&vec![0.0; 2]);
-        let mut c2 = arr1(&vec![0.0; 2]);
-        for _ in 0..5000 {
-            let sample = space.sample(&mut rng);
-
-            c1[sample[0]] += 1.0;
-            c2[sample[1]] += 1.0;
-
-            assert!(sample[0] == 0 || sample[0] == 1);
-            assert!(sample[1] == 0 || sample[1] == 1);
-        }
-
-        assert!((c1 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
-        assert!((c2 / 5000.0).all_close(&arr1(&vec![0.5; 2]), 1e-1));
     }
 
     #[test]

@@ -1,5 +1,4 @@
 use core::{BoundedSpace, Space, Card, Surjection};
-use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
 use std::{
     cmp,
@@ -12,30 +11,17 @@ use std::{
 pub struct Interval {
     pub(crate) lb: Option<f64>,
     pub(crate) ub: Option<f64>,
-
-    #[serde(skip_serializing)]
-    pub(crate) range: Option<RngRange<f64>>,
 }
 
 impl Interval {
     fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
         Interval {
-            range: match (lb, ub) {
-                (Some(lb), Some(ub)) => Some(RngRange::new(lb, ub)),
-                _ => None
-            },
-
             lb, ub,
         }
     }
 
     pub fn bounded(lb: f64, ub: f64) -> Interval {
-        Interval {
-            lb: Some(lb),
-            ub: Some(ub),
-
-            range: Some(RngRange::new(lb, ub)),
-        }
+        Interval::new(Some(lb), Some(ub))
     }
 
     pub fn left_bounded(lb: f64) -> Interval {
@@ -53,10 +39,6 @@ impl Space for Interval {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Infinite }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
-        self.range.expect("Must be a bounded interval to sample.").sample(rng)
-    }
 }
 
 impl BoundedSpace for Interval {
@@ -194,7 +176,6 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use super::*;
-    use rand::thread_rng;
 
     #[test]
     fn test_card() {
@@ -202,43 +183,6 @@ mod tests {
             let d = Interval::bounded(lb, ub);
 
             assert_eq!(d.card(), Card::Infinite);
-        }
-
-        check(0.0, 5.0);
-        check(-5.0, 5.0);
-        check(-5.0, 0.0);
-    }
-
-    #[test]
-    fn test_sampling() {
-        fn check(lb: f64, ub: f64) {
-            let d = Interval::bounded(lb, ub);
-            let mut rng = thread_rng();
-
-            for _ in 0..100 {
-                let s = d.sample(&mut rng);
-
-                assert!(s < ub);
-                assert!(s >= lb);
-                assert!(d.contains(s));
-            }
-
-            assert_tokens(
-                &d,
-                &[
-                    Token::Struct {
-                        name: "Interval",
-                        len: 2,
-                    },
-                    Token::Str("lb"),
-                    Token::Some,
-                    Token::F64(lb),
-                    Token::Str("ub"),
-                    Token::Some,
-                    Token::F64(ub),
-                    Token::StructEnd,
-                ],
-            );
         }
 
         check(0.0, 5.0);

@@ -1,26 +1,17 @@
 use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
-use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
-use std::{
-    cmp,
-    fmt,
-    ops::Range
-};
+use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, ordinal set of values.
 #[derive(Clone, Copy, Serialize)]
 pub struct Ordinal {
     size: usize,
-
-    #[serde(skip_serializing)]
-    range: RngRange<usize>,
 }
 
 impl Ordinal {
     pub fn new(size: usize) -> Ordinal {
         Ordinal {
             size: size,
-            range: RngRange::new(0, size),
         }
     }
 }
@@ -31,10 +22,6 @@ impl Space for Ordinal {
     fn dim(&self) -> usize { 1 }
 
     fn card(&self) -> Card { Card::Finite(self.size) }
-
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
-        self.range.sample(rng)
-    }
 }
 
 impl BoundedSpace for Ordinal {
@@ -155,7 +142,6 @@ mod tests {
 
     use self::serde_test::{assert_tokens, Token};
     use super::*;
-    use rand::thread_rng;
 
     #[test]
     fn test_card() {
@@ -163,24 +149,6 @@ mod tests {
             let d = Ordinal::new(size);
 
             assert_eq!(d.card(), Card::Finite(size));
-        }
-
-        check(5);
-        check(10);
-        check(100);
-    }
-
-    #[test]
-    fn test_sampling() {
-        fn check(size: usize) {
-            let d = Ordinal::new(size);
-            let mut rng = thread_rng();
-
-            for _ in 0..100 {
-                let s = d.sample(&mut rng);
-
-                assert!(s < size);
-            }
         }
 
         check(5);
