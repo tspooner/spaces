@@ -2,7 +2,12 @@ use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partition;
 use rand::Rng;
-use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
+use std::{
+    fmt::{self, Display},
+    iter::FromIterator,
+    ops::{Add, Index},
+    slice::Iter as SliceIter
+};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -105,6 +110,20 @@ impl<D: Space> Add<RegularSpace<D>> for RegularSpace<D> {
 
     fn add(self, rhs: RegularSpace<D>) -> Self::Output {
         FromIterator::from_iter(self.into_iter().chain(rhs.into_iter()))
+    }
+}
+
+impl<D: Space + Display> fmt::Display for RegularSpace<D> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[")?;
+
+        for (i, v) in self.dimensions.iter().enumerate() {
+            if i != 0 { write!(f, ", ")?; }
+
+            write!(f, "{}", v)?;
+        }
+
+        write!(f, "]")
     }
 }
 

@@ -2,6 +2,7 @@ use continuous::Interval;
 use core::{Space, Card, Surjection};
 use discrete::Partition;
 use rand::Rng;
+use std::fmt::{self, Display};
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
@@ -42,6 +43,12 @@ where
 {
     fn map(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
         (self.0.map(val.0), self.1.map(val.1))
+    }
+}
+
+impl<D1: Space + Display, D2: Space + Display> fmt::Display for PairSpace<D1, D2> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.0, self.1)
     }
 }
 
