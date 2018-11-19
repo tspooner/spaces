@@ -1,7 +1,11 @@
+use core::{BoundedSpace, Space, Card, Surjection};
 use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
-use std::{cmp, fmt};
-use {BoundedSpace, Space, Card, Surjection};
+use std::{
+    cmp,
+    fmt,
+    f64::{INFINITY, NEG_INFINITY},
+};
 
 /// Type representing an interval on the real line.
 #[derive(Clone, Copy, Serialize)]
@@ -175,6 +179,12 @@ impl fmt::Debug for Interval {
             .field("lb", &self.lb)
             .field("ub", &self.ub)
             .finish()
+    }
+}
+
+impl fmt::Display for Interval {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}, {}]", self.lb.unwrap_or(NEG_INFINITY), self.ub.unwrap_or(INFINITY))
     }
 }
 

@@ -4,6 +4,7 @@ use discrete::Partition;
 use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
+    fmt::{self, Display},
     iter::FromIterator,
     ops::{Add, Index},
 };
@@ -121,6 +122,20 @@ impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
 
     fn add(self, rhs: NamedSpace<D>) -> Self::Output {
         FromIterator::from_iter(self.into_iter().chain(rhs.into_iter()))
+    }
+}
+
+impl<D: Space + Display> fmt::Display for NamedSpace<D> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{")?;
+
+        for (i, (k, v)) in self.dimensions.iter().enumerate() {
+            if i != 0 { write!(f, ", ")?; }
+
+            write!(f, "{}: {}", k, v)?;
+        }
+
+        write!(f, "}}")
     }
 }
 
