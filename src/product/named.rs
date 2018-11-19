@@ -4,6 +4,7 @@ use discrete::Partition;
 use rand::Rng;
 use std::{
     collections::hash_map::{HashMap, Iter as HashMapIter},
+    fmt::{self, Display},
     iter::FromIterator,
     ops::{Add, Index},
 };
@@ -124,13 +125,27 @@ impl<D: Space> Add<NamedSpace<D>> for NamedSpace<D> {
     }
 }
 
+impl<D: Space + Display> fmt::Display for NamedSpace<D> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{")?;
+
+        for (i, (k, v)) in self.dimensions.iter().enumerate() {
+            if i != 0 { write!(f, ", ")?; }
+
+            write!(f, "{}: {}", k, v)?;
+        }
+
+        write!(f, "}}")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     extern crate ndarray;
 
     use continuous::Interval;
     use core::{Space, Card, Surjection};
-    use discrete::Discrete;
+    use discrete::Ordinal;
     use product::NamedSpace;
     use rand::thread_rng;
     use self::ndarray::arr1;
@@ -140,7 +155,7 @@ mod tests {
     #[test]
     fn test_dim() {
         assert_eq!(
-            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).dim(),
+            NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]).dim(),
             2
         );
     }
@@ -148,14 +163,14 @@ mod tests {
     #[test]
     fn test_card() {
         assert_eq!(
-            NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]).card(),
+            NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]).card(),
             Card::Finite(4)
         );
     }
 
     #[test]
     fn test_sampling() {
-        let space = NamedSpace::new(vec![("D1", Discrete::new(2)), ("D2", Discrete::new(2))]);
+        let space = NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]);
 
         let mut rng = thread_rng();
 

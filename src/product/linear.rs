@@ -2,7 +2,12 @@ use continuous::Interval;
 use core::{Space, Card, Surjection, Vector};
 use discrete::Partition;
 use rand::Rng;
-use std::{iter::FromIterator, ops::{Add, Index}, slice::Iter as SliceIter};
+use std::{
+    fmt::{self, Display},
+    iter::FromIterator,
+    ops::{Add, Index},
+    slice::Iter as SliceIter
+};
 
 /// N-dimensional homogeneous space.
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -123,13 +128,27 @@ impl<D: Space> Add<LinearSpace<D>> for LinearSpace<D> {
     }
 }
 
+impl<D: Space + Display> fmt::Display for LinearSpace<D> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[")?;
+
+        for (i, v) in self.dimensions.iter().enumerate() {
+            if i != 0 { write!(f, ", ")?; }
+
+            write!(f, "{}", v)?;
+        }
+
+        write!(f, "]")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     extern crate ndarray;
 
     use continuous::Interval;
     use core::{Space, Card, Surjection};
-    use discrete::Discrete;
+    use discrete::Ordinal;
     use product::LinearSpace;
     use rand::thread_rng;
     use self::ndarray::arr1;
@@ -137,20 +156,20 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        assert_eq!(LinearSpace::new(vec![Discrete::new(2); 2]).dim(), 2);
+        assert_eq!(LinearSpace::new(vec![Ordinal::new(2); 2]).dim(), 2);
     }
 
     #[test]
     fn test_card() {
         assert_eq!(
-            LinearSpace::new(vec![Discrete::new(2); 2]).card(),
+            LinearSpace::new(vec![Ordinal::new(2); 2]).card(),
             Card::Finite(4)
         );
     }
 
     #[test]
     fn test_sampling() {
-        let space = LinearSpace::new(vec![Discrete::new(2); 2]);
+        let space = LinearSpace::new(vec![Ordinal::new(2); 2]);
 
         let mut rng = thread_rng();
 
@@ -198,14 +217,14 @@ mod tests {
 
     #[test]
     fn test_add_op() {
-        let mut sa = LinearSpace::new(vec![Discrete::new(2); 2]);
-        let mut sb = LinearSpace::empty() + Discrete::new(2) + Discrete::new(2);
+        let mut sa = LinearSpace::new(vec![Ordinal::new(2); 2]);
+        let mut sb = LinearSpace::empty() + Ordinal::new(2) + Ordinal::new(2);
 
         assert_eq!(sa.dim(), sb.dim());
         assert_eq!(sa.card(), sb.card());
 
-        sa = sa + Discrete::new(3);
-        sb = sb + Discrete::new(3);
+        sa = sa + Ordinal::new(3);
+        sb = sb + Ordinal::new(3);
 
         assert_eq!(sa.dim(), 3);
         assert_eq!(sa.dim(), sb.dim());
