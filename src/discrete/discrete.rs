@@ -1,7 +1,11 @@
+use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
 use rand::{Rng, distributions::{Distribution, Range as RngRange}};
 use serde::{Deserialize, Deserializer, de::{self, Visitor}};
-use std::{cmp, fmt, ops::Range};
-use {BoundedSpace, FiniteSpace, Space, Card, Surjection};
+use std::{
+    cmp,
+    fmt,
+    ops::Range
+};
 
 /// Type representing a finite, ordinal set of values.
 #[derive(Clone, Copy, Serialize)]
@@ -136,6 +140,12 @@ impl fmt::Debug for Discrete {
         f.debug_struct("Discrete")
             .field("size", &self.size)
             .finish()
+    }
+}
+
+impl fmt::Display for Discrete {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[0..{}]", self.size-1)
     }
 }
 

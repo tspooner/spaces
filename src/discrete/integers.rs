@@ -1,5 +1,7 @@
+use core::{BoundedSpace, Space, Card};
+use discrete::Naturals;
 use rand::Rng;
-use {BoundedSpace, Space, Card, discrete::Naturals};
+use std::fmt;
 
 /// Type representing the set of integers, Z.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -23,6 +25,12 @@ impl BoundedSpace for Integers {
     fn sup(&self) -> Option<i64> { None }
 
     fn contains(&self, _: Self::BoundValue) -> bool { true }
+}
+
+impl fmt::Display for Integers {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{2124}")
+    }
 }
 
 /// Type representing the set of non-zero integers, Z*.
@@ -49,6 +57,12 @@ impl BoundedSpace for NonZeroIntegers {
     fn contains(&self, val: Self::BoundValue) -> bool { val != 0 }
 }
 
+impl fmt::Display for NonZeroIntegers {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{2124}(>0)")
+    }
+}
+
 /// Type representing the set of non-negative integers, Z(≥0).
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct NonNegativeIntegers;
@@ -71,6 +85,12 @@ impl BoundedSpace for NonNegativeIntegers {
     fn sup(&self) -> Option<u64> { None }
 
     fn contains(&self, _: Self::BoundValue) -> bool { true }
+}
+
+impl fmt::Display for NonNegativeIntegers {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\u{2124}(≥0)")
+    }
 }
 
 /// Type representing the set of positive integers, Z(>0).
