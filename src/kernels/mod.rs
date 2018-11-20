@@ -5,3 +5,4 @@ pub trait Kernel<I: ?Sized>: Clone {
 }
 
 import_all!(stationary);
+import_all!(rational_quadratic);
