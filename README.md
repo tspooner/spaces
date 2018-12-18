@@ -1,3 +1,5 @@
+<img align="left" width="120" title="Spaces logo" src="https://github.com/tspooner/spaces/raw/master/logo.png">
+
 # spaces ([api](https://docs.rs/spaces))
 
 [![Crates.io](https://img.shields.io/crates/v/spaces.svg)](https://crates.io/crates/spaces)
