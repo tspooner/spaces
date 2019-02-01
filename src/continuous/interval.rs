@@ -14,10 +14,14 @@ pub struct Interval {
 }
 
 impl Interval {
-    fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
+    pub fn new(lb: Option<f64>, ub: Option<f64>) -> Interval {
         Interval {
             lb, ub,
         }
+    }
+
+    pub fn unbounded() -> Interval {
+        Interval::new(None, None)
     }
 
     pub fn bounded(lb: f64, ub: f64) -> Interval {
@@ -30,6 +34,10 @@ impl Interval {
 
     pub fn right_bounded(ub: f64) -> Interval {
         Interval::new(None, Some(ub))
+    }
+
+    pub fn unit() -> Interval {
+        Interval::bounded(0.0, 1.0)
     }
 }
 
