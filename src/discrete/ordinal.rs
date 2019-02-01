@@ -136,6 +136,12 @@ impl fmt::Display for Ordinal {
     }
 }
 
+impl From<usize> for Ordinal {
+    fn from(t: usize) -> Ordinal {
+        Ordinal::new(t)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     extern crate serde_test;
