@@ -1,5 +1,3 @@
-extern crate ndarray;
-
 mod card;
 pub use self::card::Card;
 
