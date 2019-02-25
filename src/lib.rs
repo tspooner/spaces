@@ -6,6 +6,7 @@
 //! different spaces may also be defined using traits such as `Surjection` to
 //! streamline many common preprocessing and type conversion tasks.
 extern crate ndarray;
+extern crate num_traits;
 
 extern crate serde;
 #[macro_use]
@@ -17,6 +18,7 @@ import_all!(core);
 
 pub mod continuous;
 pub mod discrete;
+pub mod misc;
 pub mod norms;
 pub mod product;
 pub mod kernels;
