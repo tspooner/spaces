@@ -1,10 +1,9 @@
 use continuous::Interval;
-use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
-use serde::{Deserialize, Deserializer, de::{self, Visitor}};
+use core::*;
 use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, uniformly partitioned interval.
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Partition {
     lb: f64,
     ub: f64,
@@ -87,114 +86,22 @@ impl FiniteSpace for Partition {
     fn range(&self) -> Range<Self::Value> { 0..self.density }
 }
 
+impl Enclose for Partition {
+    fn enclose(self, other: &Partition) -> Partition {
+        Partition::new(
+            self.lb.max(other.lb),
+            self.ub.max(other.ub),
+            self.density.max(other.density),
+        )
+    }
+}
+
 impl Surjection<f64, usize> for Partition {
     fn map(&self, val: f64) -> usize { self.to_partition(val) }
 }
 
 impl Surjection<usize, usize> for Partition {
     fn map(&self, val: usize) -> usize { clip!(0, val, self.density - 1) }
-}
-
-impl<'de> Deserialize<'de> for Partition {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
-        enum Field {
-            Lb,
-            Ub,
-            Density,
-        };
-        const FIELDS: &'static [&'static str] = &["lb", "ub", "density"];
-
-        impl<'de> Deserialize<'de> for Field {
-            fn deserialize<D>(deserializer: D) -> Result<Field, D::Error>
-            where D: Deserializer<'de> {
-                struct FieldVisitor;
-
-                impl<'de> Visitor<'de> for FieldVisitor {
-                    type Value = Field;
-
-                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                        formatter.write_str("`lb`, `ub` or `density`")
-                    }
-
-                    fn visit_str<E>(self, value: &str) -> Result<Field, E>
-                    where E: de::Error {
-                        match value {
-                            "lb" => Ok(Field::Lb),
-                            "ub" => Ok(Field::Ub),
-                            "density" => Ok(Field::Density),
-                            _ => Err(de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-
-                deserializer.deserialize_identifier(FieldVisitor)
-            }
-        }
-
-        struct PartitionVisitor;
-
-        impl<'de> Visitor<'de> for PartitionVisitor {
-            type Value = Partition;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("struct Partition")
-            }
-
-            fn visit_seq<V>(self, mut seq: V) -> Result<Partition, V::Error>
-            where V: de::SeqAccess<'de> {
-                let lb = seq.next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-                let ub = seq.next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(1, &self))?;
-                let density = seq.next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-
-                Ok(Partition::new(lb, ub, density))
-            }
-
-            fn visit_map<V>(self, mut map: V) -> Result<Partition, V::Error>
-            where V: de::MapAccess<'de> {
-                let mut lb = None;
-                let mut ub = None;
-                let mut density = None;
-
-                while let Some(key) = map.next_key()? {
-                    match key {
-                        Field::Lb => {
-                            if lb.is_some() {
-                                return Err(de::Error::duplicate_field("lb"));
-                            }
-
-                            lb = Some(map.next_value()?);
-                        },
-                        Field::Ub => {
-                            if ub.is_some() {
-                                return Err(de::Error::duplicate_field("ub"));
-                            }
-
-                            ub = Some(map.next_value()?);
-                        },
-                        Field::Density => {
-                            if density.is_some() {
-                                return Err(de::Error::duplicate_field("density"));
-                            }
-
-                            density = Some(map.next_value()?);
-                        },
-                    }
-                }
-
-                let lb = lb.ok_or_else(|| de::Error::missing_field("lb"))?;
-                let ub = ub.ok_or_else(|| de::Error::missing_field("ub"))?;
-                let density = density.ok_or_else(|| de::Error::missing_field("density"))?;
-
-                Ok(Partition::new(lb, ub, density))
-            }
-        }
-
-        deserializer.deserialize_struct("Partition", FIELDS, PartitionVisitor)
-    }
 }
 
 impl cmp::PartialEq for Partition {

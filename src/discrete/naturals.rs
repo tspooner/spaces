@@ -1,4 +1,4 @@
-use core::{BoundedSpace, Space, Card};
+use core::*;
 use std::fmt;
 
 /// Type representing the set of natural numbers, N.
@@ -22,6 +22,8 @@ impl BoundedSpace for Naturals {
 
     fn contains(&self, val: Self::BoundValue) -> bool { val > 0 }
 }
+
+impl_auto_enclose!(Naturals, Naturals);
 
 impl fmt::Display for Naturals {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

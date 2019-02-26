@@ -1,4 +1,4 @@
-use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
+use core::*;
 use std::{
     fmt,
     ops::Range,
@@ -33,6 +33,8 @@ impl BoundedSpace for Binary {
 impl FiniteSpace for Binary {
     fn range(&self) -> Range<Self::Value> { false..true }
 }
+
+impl_auto_enclose!(Binary, Binary);
 
 impl Surjection<bool, bool> for Binary {
     fn map(&self, val: bool) -> bool { val }

@@ -1,4 +1,4 @@
-use core::{BoundedSpace, Space, Card};
+use core::*;
 use discrete::Naturals;
 use std::fmt;
 
@@ -23,6 +23,8 @@ impl BoundedSpace for Integers {
 
     fn contains(&self, _: Self::BoundValue) -> bool { true }
 }
+
+impl_auto_enclose!(Integers, Integers);
 
 impl fmt::Display for Integers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -52,6 +54,8 @@ impl BoundedSpace for NonZeroIntegers {
     fn contains(&self, val: Self::BoundValue) -> bool { val != 0 }
 }
 
+impl_auto_enclose!(NonZeroIntegers, NonZeroIntegers);
+
 impl fmt::Display for NonZeroIntegers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\u{2124}(>0)")
@@ -79,6 +83,8 @@ impl BoundedSpace for NonNegativeIntegers {
 
     fn contains(&self, _: Self::BoundValue) -> bool { true }
 }
+
+impl_auto_enclose!(NonNegativeIntegers, NonNegativeIntegers);
 
 impl fmt::Display for NonNegativeIntegers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

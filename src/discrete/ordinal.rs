@@ -1,9 +1,8 @@
-use core::{BoundedSpace, FiniteSpace, Space, Card, Surjection};
-use serde::{Deserialize, Deserializer, de::{self, Visitor}};
+use core::*;
 use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, ordinal set of values.
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Ordinal {
     size: usize,
 }
@@ -13,6 +12,12 @@ impl Ordinal {
         Ordinal {
             size: size,
         }
+    }
+}
+
+impl From<usize> for Ordinal {
+    fn from(t: usize) -> Ordinal {
+        Ordinal::new(t)
     }
 }
 
@@ -38,84 +43,14 @@ impl FiniteSpace for Ordinal {
     fn range(&self) -> Range<Self::Value> { 0..self.size }
 }
 
-impl Surjection<usize, usize> for Ordinal {
-    fn map(&self, val: usize) -> usize { val as usize }
+impl Enclose for Ordinal {
+    fn enclose(self, other: &Ordinal) -> Ordinal {
+        Ordinal::new(self.size.max(other.size))
+    }
 }
 
-impl<'de> Deserialize<'de> for Ordinal {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
-        enum Field {
-            Size,
-        };
-        const FIELDS: &'static [&'static str] = &["size"];
-
-        impl<'de> Deserialize<'de> for Field {
-            fn deserialize<D>(deserializer: D) -> Result<Field, D::Error>
-            where D: Deserializer<'de> {
-                struct FieldVisitor;
-
-                impl<'de> Visitor<'de> for FieldVisitor {
-                    type Value = Field;
-
-                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                        formatter.write_str("`size`")
-                    }
-
-                    fn visit_str<E>(self, value: &str) -> Result<Field, E>
-                    where E: de::Error {
-                        match value {
-                            "size" => Ok(Field::Size),
-                            _ => Err(de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-
-                deserializer.deserialize_identifier(FieldVisitor)
-            }
-        }
-
-        struct OrdinalVisitor;
-
-        impl<'de> Visitor<'de> for OrdinalVisitor {
-            type Value = Ordinal;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("struct Ordinal")
-            }
-
-            fn visit_seq<V>(self, mut seq: V) -> Result<Ordinal, V::Error>
-            where V: de::SeqAccess<'de> {
-                let size = seq.next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-
-                Ok(Ordinal::new(size))
-            }
-
-            fn visit_map<V>(self, mut map: V) -> Result<Ordinal, V::Error>
-            where V: de::MapAccess<'de> {
-                let mut size = None;
-
-                while let Some(key) = map.next_key()? {
-                    match key {
-                        Field::Size => {
-                            if size.is_some() {
-                                return Err(de::Error::duplicate_field("size"));
-                            }
-
-                            size = Some(map.next_value()?);
-                        },
-                    }
-                }
-
-                Ok(Ordinal::new(size.ok_or_else(|| {
-                    de::Error::missing_field("size")
-                })?))
-            }
-        }
-
-        deserializer.deserialize_struct("Ordinal", FIELDS, OrdinalVisitor)
-    }
+impl Surjection<usize, usize> for Ordinal {
+    fn map(&self, val: usize) -> usize { val as usize }
 }
 
 impl cmp::PartialEq for Ordinal {
@@ -133,12 +68,6 @@ impl fmt::Debug for Ordinal {
 impl fmt::Display for Ordinal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[0..{}]", self.size-1)
-    }
-}
-
-impl From<usize> for Ordinal {
-    fn from(t: usize) -> Ordinal {
-        Ordinal::new(t)
     }
 }
 
