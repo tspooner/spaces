@@ -1,10 +1,17 @@
-use core::{BoundedSpace, Space, Card, Surjection};
+use core::{BoundedSpace, Space, Card, Enclose, Surjection};
 use num_traits::{Zero, One};
 use std::{
     cmp,
     fmt,
     f64::{INFINITY, NEG_INFINITY},
 };
+
+fn both<T>(opta: Option<T>, optb: Option<T>) -> Option<(T, T)> {
+    match (opta, optb) {
+        (Some(a), Some(b)) => Some((a, b)),
+        _ => None,
+    }
+}
 
 /// Type representing an interval on the real line.
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -101,6 +108,19 @@ impl Surjection<i64, i64> for Interval<i64> {
         let val = self.ub.map_or(val, |sup| val.min(sup));
 
         val
+    }
+}
+
+impl<T: Clone + cmp::PartialOrd> Enclose for Interval<T> {
+    fn enclose(self, other: &Self) -> Self {
+        Interval::new(
+            both(self.lb, other.lb.clone()).map(|(a, b)| {
+                if a < b { a } else { b }
+            }),
+            both(self.ub, other.ub.clone()).map(|(a, b)| {
+                if a > b { a } else { b }
+            }),
+        )
     }
 }
 
