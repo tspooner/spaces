@@ -19,6 +19,8 @@ coveralls = { repository = "tspooner/spaces", branch = "master", service = "gith
 
 [dependencies]
 ndarray = { version = "0.12", features = ["serde-1"] }
+itertools = "0.8"
+num-traits = "0.2"
 
 serde = "1.0"
 serde_derive = "1.0"

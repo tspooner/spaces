@@ -1,5 +1,5 @@
 use continuous::Interval;
-use core::{BoundedSpace, Space, Card, Surjection};
+use core::*;
 use std::fmt;
 
 /// Type representing the set of all real numbers.
@@ -21,6 +21,8 @@ impl Space for Reals {
 
     fn card(&self) -> Card { Card::Infinite }
 }
+
+impl_auto_enclose!(Reals, Reals);
 
 impl Surjection<f64, f64> for Reals {
     fn map(&self, val: f64) -> f64 { val }
@@ -54,6 +56,8 @@ impl BoundedSpace for NonNegativeReals {
     fn contains(&self, val: Self::BoundValue) -> bool { val >= 0.0 }
 }
 
+impl_auto_enclose!(NonNegativeReals, NonNegativeReals);
+
 impl Surjection<f64, f64> for NonNegativeReals {
     fn map(&self, val: f64) -> f64 { val.max(0.0) }
 }
@@ -86,8 +90,10 @@ impl BoundedSpace for PositiveReals {
     fn contains(&self, val: Self::BoundValue) -> bool { val > 0.0 }
 }
 
+impl_auto_enclose!(PositiveReals, PositiveReals);
+
 impl Surjection<f64, f64> for PositiveReals {
-    fn map(&self, val: f64) -> f64 { val.max(1e-5) }
+    fn map(&self, val: f64) -> f64 { val.max(1e-7) }
 }
 
 impl fmt::Display for PositiveReals {

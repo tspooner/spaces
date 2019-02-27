@@ -1,16 +1,13 @@
 use continuous::Interval;
-use core::{Space, Card, Surjection};
+use core::*;
 use discrete::Partition;
 use std::fmt::{self, Display};
 
 /// 2-dimensional homogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
-pub struct PairSpace<D1, D2>(pub D1, pub D2)
-where
-    D1: Space,
-    D2: Space;
+pub struct PairSpace<D1, D2>(pub D1, pub D2);
 
-impl<D1: Space, D2: Space> PairSpace<D1, D2> {
+impl<D1, D2> PairSpace<D1, D2> {
     pub fn new(d1: D1, d2: D2) -> Self { PairSpace(d1, d2) }
 }
 
@@ -23,12 +20,24 @@ impl PairSpace<Interval, Interval> {
     }
 }
 
+impl<D1, D2> From<(D1, D2)> for PairSpace<D1, D2> {
+    fn from(pair: (D1, D2)) -> PairSpace<D1, D2> {
+        PairSpace::new(pair.0, pair.1)
+    }
+}
+
 impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
     type Value = (D1::Value, D2::Value);
 
     fn dim(&self) -> usize { 2 }
 
     fn card(&self) -> Card { self.0.card() * self.1.card() }
+}
+
+impl<D1: Enclose, D2: Enclose> Enclose for PairSpace<D1, D2> {
+    fn enclose(self, other: &Self) -> Self {
+        (self.0.enclose(&other.0), self.1.enclose(&other.1)).into()
+    }
 }
 
 impl<D1, X1, D2, X2> Surjection<(X1, X2), (D1::Value, D2::Value)> for PairSpace<D1, D2>

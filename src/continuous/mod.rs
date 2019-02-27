@@ -1,4 +1,5 @@
 //! Continuous spaces module.
 
 import_all!(reals);
-import_all!(interval);
+
+pub type Interval = crate::core::Interval<f64>;
