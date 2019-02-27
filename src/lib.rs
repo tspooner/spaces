@@ -6,6 +6,7 @@
 //! different spaces may also be defined using traits such as `Surjection` to
 //! streamline many common preprocessing and type conversion tasks.
 extern crate ndarray;
+extern crate itertools;
 extern crate num_traits;
 
 extern crate serde;

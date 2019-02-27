@@ -1,16 +1,18 @@
 use continuous::Interval;
-use core::{Space, Card, Surjection, Vector};
+use core::{Space, Card, Surjection, Enclose, Vector};
 use discrete::Partition;
+use itertools::{Itertools, EitherOrBoth};
 use std::{
     fmt::{self, Display},
     iter::FromIterator,
     ops::{Add, Index},
-    slice::Iter as SliceIter
+    slice::{Iter as SliceIter},
+    vec::{IntoIter as VecIntoIter},
 };
 
 /// N-dimensional homogeneous space.
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct LinearSpace<D: Space> {
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LinearSpace<D> {
     dimensions: Vec<D>,
     card: Card,
 }
@@ -26,6 +28,15 @@ impl<D: Space> LinearSpace<D> {
         s
     }
 
+    pub fn push(mut self, d: D) -> Self {
+        self.card = self.card * d.card();
+        self.dimensions.push(d);
+
+        self
+    }
+}
+
+impl<D> LinearSpace<D> {
     pub fn empty() -> Self {
         LinearSpace {
             dimensions: vec![],
@@ -33,14 +44,9 @@ impl<D: Space> LinearSpace<D> {
         }
     }
 
-    pub fn push(mut self, d: D) -> Self {
-        self.card = self.card * d.card();
-        self.dimensions.push(d);
-
-        self
-    }
-
     pub fn iter(&self) -> SliceIter<D> { self.dimensions.iter() }
+
+    pub fn into_iter(self) -> VecIntoIter<D> { self.dimensions.into_iter() }
 }
 
 impl LinearSpace<Interval> {
@@ -63,6 +69,21 @@ impl<D: Space> Space for LinearSpace<D> {
     fn dim(&self) -> usize { self.dimensions.len() }
 
     fn card(&self) -> Card { self.card }
+}
+
+impl<D: Space + Enclose + Clone> Enclose for LinearSpace<D> {
+    fn enclose(self, other: &Self) -> Self {
+        use self::EitherOrBoth::*;
+
+        self.into_iter()
+            .zip_longest(other.iter())
+            .map(|el| match el {
+                Both(l, r) => l.enclose(r),
+                Left(l) => l,
+                Right(r) => r.clone(),
+            })
+            .collect()
+    }
 }
 
 impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for LinearSpace<D>
@@ -142,7 +163,7 @@ mod tests {
     extern crate ndarray;
 
     use continuous::Interval;
-    use core::{Space, Card, Surjection};
+    use core::*;
     use discrete::Ordinal;
     use product::LinearSpace;
     use std::iter::FromIterator;
@@ -158,6 +179,17 @@ mod tests {
             LinearSpace::new(vec![Ordinal::new(2); 2]).card(),
             Card::Finite(4)
         );
+    }
+
+    #[test]
+    fn test_enclose() {
+        let s1 = LinearSpace::new(vec![Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 3.0)]);
+        let s2 = LinearSpace::new(vec![Interval::bounded(-5.0, 0.0), Interval::bounded(1.0, 2.0)]);
+
+        assert_eq!(s1.enclose(&s2), LinearSpace::new(vec![
+            Interval::bounded(-5.0, 5.0),
+            Interval::bounded(1.0, 3.0)
+        ]));
     }
 
     #[test]

@@ -1,16 +1,22 @@
 use continuous::Interval;
-use core::{Space, Card, Surjection};
+use core::*;
 use discrete::Partition;
+use itertools::Itertools;
 use std::{
-    collections::hash_map::{HashMap, Iter as HashMapIter},
+    collections::hash_map::{
+        HashMap,
+        Keys as HashMapKeys,
+        Iter as HashMapIter,
+        IntoIter as HashMapIntoIter
+    },
     fmt::{self, Display},
     iter::FromIterator,
     ops::{Add, Index},
 };
 
 /// Named, N-dimensional homogeneous space.
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct NamedSpace<D: Space> {
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NamedSpace<D> {
     dimensions: HashMap<String, D>,
     card: Card,
 }
@@ -26,6 +32,15 @@ impl<D: Space> NamedSpace<D> {
         s
     }
 
+    pub fn push<S: Into<String>>(mut self, name: S, d: D) -> Self {
+        self.card = self.card * d.card();
+        self.dimensions.insert(name.into(), d);
+
+        self
+    }
+}
+
+impl<D: Space> NamedSpace<D> {
     pub fn empty() -> Self {
         NamedSpace {
             dimensions: HashMap::new(),
@@ -33,14 +48,11 @@ impl<D: Space> NamedSpace<D> {
         }
     }
 
-    pub fn push<S: Into<String>>(mut self, name: S, d: D) -> Self {
-        self.card = self.card * d.card();
-        self.dimensions.insert(name.into(), d);
-
-        self
-    }
-
     pub fn iter(&self) -> HashMapIter<String, D> { self.dimensions.iter() }
+
+    pub fn into_iter(self) -> HashMapIntoIter<String, D> { self.dimensions.into_iter() }
+
+    pub fn keys(&self) -> HashMapKeys<'_, String, D> { self.dimensions.keys() }
 }
 
 impl NamedSpace<Interval> {
@@ -66,6 +78,25 @@ impl<D: Space> Space for NamedSpace<D> {
     fn dim(&self) -> usize { self.dimensions.len() }
 
     fn card(&self) -> Card { self.card }
+}
+
+impl<D: Space + Enclose + Clone + fmt::Debug> Enclose for NamedSpace<D> {
+    fn enclose(self, other: &Self) -> Self {
+        let mut ns = Self::empty();
+        let grouped = self.iter()
+            .chain(other.iter())
+            .sorted_by(|(kr, _), (kl, _)| kl.cmp(kr))
+            .group_by(|(k, _)| k.clone());
+
+        for (k, g) in &grouped {
+            let mut it = g.map(|(_, d)| d);
+            let d = it.next().map(|d| it.fold(d.clone(), |l, r| dbg!(l.enclose(r)))).unwrap();
+
+            ns = ns.push(k.clone(), d);
+        }
+
+        ns
+    }
 }
 
 impl<D, X> Surjection<Vec<X>, HashMap<String, D::Value>> for NamedSpace<D>
@@ -136,7 +167,7 @@ mod tests {
     extern crate ndarray;
 
     use continuous::Interval;
-    use core::{Space, Card, Surjection};
+    use core::*;
     use discrete::Ordinal;
     use product::NamedSpace;
     use std::collections::HashMap;
@@ -156,6 +187,25 @@ mod tests {
             NamedSpace::new(vec![("D1", Ordinal::new(2)), ("D2", Ordinal::new(2))]).card(),
             Card::Finite(4)
         );
+    }
+
+    #[test]
+    fn test_enclose() {
+        let s1 = NamedSpace::new(vec![
+            ("D1", Interval::bounded(0.0, 5.0)),
+            ("D2", Interval::bounded(1.0, 3.0)),
+        ]);
+        let s2 = NamedSpace::new(vec![
+            ("D2", Interval::bounded(1.0, 2.0)),
+            ("D1", Interval::bounded(-5.0, 0.0)),
+            ("D3", Interval::bounded(-10.0, 1.0)),
+        ]);
+
+        assert_eq!(s1.enclose(&s2), NamedSpace::new(vec![
+            ("D1", Interval::bounded(-5.0, 5.0)),
+            ("D2", Interval::bounded(1.0, 3.0)),
+            ("D3", Interval::bounded(-10.0, 1.0)),
+        ]));
     }
 
     #[test]
