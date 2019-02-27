@@ -1,7 +1,5 @@
 #![macro_use]
-use crate::core::Space;
-
-pub trait Enclose<S: Space = Self>: Space {
+pub trait Enclose<S = Self> {
     /// Return the smallest space enclosing `self` and `other` of type `Self`.
     fn enclose(self, other: &S) -> Self;
 
