@@ -3,7 +3,7 @@ use core::*;
 use discrete::Partition;
 use std::fmt::{self, Display};
 
-/// 2-dimensional homogeneous space.
+/// 2-dimensional heterogeneous space.
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub struct PairSpace<D1, D2>(pub D1, pub D2);
 
