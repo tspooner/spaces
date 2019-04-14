@@ -44,6 +44,12 @@ macro_rules! stationary_kernel {
             }
         }
 
+        impl $crate::kernels::Kernel<Vec<f64>> for $name {
+            fn kernel(&$self, x: &Vec<f64>, y: &Vec<f64>) -> f64 {
+                $crate::kernels::Kernel::<[f64]>::kernel($self, x, y)
+            }
+        }
+
         impl $crate::kernels::Kernel<$crate::Vector<f64>> for $name {
             fn kernel(&$self, x: &$crate::Vector<f64>, y: &$crate::Vector<f64>) -> f64 {
                 let scaled_diff = (x - y) / &$self.lengthscales;

@@ -45,6 +45,11 @@ impl crate::kernels::Kernel<[f64]> for RationalQuadratic {
     }
 }
 
+impl crate::kernels::Kernel<Vec<f64>> for RationalQuadratic {
+    fn kernel(&self, x: &Vec<f64>, y: &Vec<f64>) -> f64 {
+        crate::kernels::Kernel::<[f64]>::kernel(self, x, y)
+    }
+}
 
 impl crate::kernels::Kernel<crate::Vector<f64>> for RationalQuadratic {
     fn kernel(&self, x: &crate::Vector<f64>, y: &crate::Vector<f64>) -> f64 {
