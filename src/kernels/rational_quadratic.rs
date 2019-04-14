@@ -32,6 +32,20 @@ impl crate::kernels::Kernel<f64> for RationalQuadratic {
     }
 }
 
+impl crate::kernels::Kernel<[f64]> for RationalQuadratic {
+    fn kernel(&self, x: &[f64], y: &[f64]) -> f64 {
+        self.kernel_stationary(x
+            .into_iter()
+            .zip(y.into_iter())
+            .map(|(x, y)| x - y)
+            .zip(self.lengthscales.iter())
+            .map(|(d, l)| d / l)
+            .fold(0.0, |acc, z| acc + z * z)
+            .sqrt())
+    }
+}
+
+
 impl crate::kernels::Kernel<crate::Vector<f64>> for RationalQuadratic {
     fn kernel(&self, x: &crate::Vector<f64>, y: &crate::Vector<f64>) -> f64 {
         let scaled_diff = (x - y) / &self.lengthscales;
