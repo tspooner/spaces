@@ -1,10 +1,9 @@
-use continuous::Interval;
-use core::*;
-use discrete::Partition;
+use crate::{Space, Dim, Card, Union, Surjection, Interval, Partition};
 use std::fmt::{self, Display};
 
 /// 2-dimensional heterogeneous space.
-#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
+#[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct PairSpace<D1, D2>(pub D1, pub D2);
 
 impl<D1, D2> PairSpace<D1, D2> {
@@ -29,14 +28,14 @@ impl<D1, D2> From<(D1, D2)> for PairSpace<D1, D2> {
 impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
     type Value = (D1::Value, D2::Value);
 
-    fn dim(&self) -> usize { 2 }
+    fn dim(&self) -> Dim { self.0.dim() + self.1.dim() }
 
     fn card(&self) -> Card { self.0.card() * self.1.card() }
 }
 
-impl<D1: Enclose, D2: Enclose> Enclose for PairSpace<D1, D2> {
-    fn enclose(self, other: &Self) -> Self {
-        (self.0.enclose(&other.0), self.1.enclose(&other.1)).into()
+impl<D1: Union, D2: Union> Union for PairSpace<D1, D2> {
+    fn union(self, other: &Self) -> Self {
+        (self.0.union(&other.0), self.1.union(&other.1)).into()
     }
 }
 
@@ -58,16 +57,12 @@ impl<D1: Space + Display, D2: Space + Display> fmt::Display for PairSpace<D1, D2
 
 #[cfg(test)]
 mod tests {
-    extern crate ndarray;
-
-    use core::{Space, Card, Surjection};
-    use continuous::Interval;
-    use discrete::{Ordinal, Partition};
-    use product::PairSpace;
+    use crate::discrete::Ordinal;
+    use super::*;
 
     #[test]
     fn test_dim() {
-        assert_eq!(PairSpace::new(Ordinal::new(2), Ordinal::new(2)).dim(), 2);
+        assert_eq!(PairSpace::new(Ordinal::new(2), Ordinal::new(2)).dim(), Dim::Finite(2));
     }
 
     #[test]

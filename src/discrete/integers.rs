@@ -1,15 +1,19 @@
-use core::*;
-use discrete::Naturals;
+use crate::{
+    Space, BoundedSpace,
+    core::*,
+    discrete::Naturals,
+};
 use std::fmt;
 
 /// Type representing the set of integers, Z.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Integers;
 
 impl Space for Integers {
     type Value = i64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -24,7 +28,7 @@ impl BoundedSpace for Integers {
     fn contains(&self, _: Self::BoundValue) -> bool { true }
 }
 
-impl_auto_enclose!(Integers, Integers);
+impl_auto_union!(Integers, Integers);
 
 impl fmt::Display for Integers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -33,13 +37,14 @@ impl fmt::Display for Integers {
 }
 
 /// Type representing the set of non-zero integers, Z*.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct NonZeroIntegers;
 
 impl Space for NonZeroIntegers {
     type Value = i64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -54,7 +59,7 @@ impl BoundedSpace for NonZeroIntegers {
     fn contains(&self, val: Self::BoundValue) -> bool { val != 0 }
 }
 
-impl_auto_enclose!(NonZeroIntegers, NonZeroIntegers);
+impl_auto_union!(NonZeroIntegers, NonZeroIntegers);
 
 impl fmt::Display for NonZeroIntegers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -63,13 +68,14 @@ impl fmt::Display for NonZeroIntegers {
 }
 
 /// Type representing the set of non-negative integers, Z(≥0).
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct NonNegativeIntegers;
 
 impl Space for NonNegativeIntegers {
     type Value = u64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -84,7 +90,7 @@ impl BoundedSpace for NonNegativeIntegers {
     fn contains(&self, _: Self::BoundValue) -> bool { true }
 }
 
-impl_auto_enclose!(NonNegativeIntegers, NonNegativeIntegers);
+impl_auto_union!(NonNegativeIntegers, NonNegativeIntegers);
 
 impl fmt::Display for NonNegativeIntegers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -1,9 +1,15 @@
-use continuous::Interval;
-use core::*;
+//! Real spaces module.
+use crate::{
+    Space, BoundedSpace,
+    core::*,
+};
 use std::fmt;
 
+pub type Interval = crate::Interval<f64>;
+
 /// Type representing the set of all real numbers.
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Reals;
 
 impl Reals {
@@ -17,12 +23,12 @@ impl Reals {
 impl Space for Reals {
     type Value = f64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
 
-impl_auto_enclose!(Reals, Reals);
+impl_auto_union!(Reals, Reals);
 
 impl Surjection<f64, f64> for Reals {
     fn map(&self, val: f64) -> f64 { val }
@@ -35,13 +41,14 @@ impl fmt::Display for Reals {
 }
 
 /// Type representing the set of non-negative real numbers, R(≥0).
-#[derive(Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct NonNegativeReals;
 
 impl Space for NonNegativeReals {
     type Value = f64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -56,7 +63,7 @@ impl BoundedSpace for NonNegativeReals {
     fn contains(&self, val: Self::BoundValue) -> bool { val >= 0.0 }
 }
 
-impl_auto_enclose!(NonNegativeReals, NonNegativeReals);
+impl_auto_union!(NonNegativeReals, NonNegativeReals);
 
 impl Surjection<f64, f64> for NonNegativeReals {
     fn map(&self, val: f64) -> f64 { val.max(0.0) }
@@ -69,13 +76,14 @@ impl fmt::Display for NonNegativeReals {
 }
 
 /// Type representing the set of strictly positive real numbers, R(>0).
-#[derive(Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct PositiveReals;
 
 impl Space for PositiveReals {
     type Value = f64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -90,7 +98,7 @@ impl BoundedSpace for PositiveReals {
     fn contains(&self, val: Self::BoundValue) -> bool { val > 0.0 }
 }
 
-impl_auto_enclose!(PositiveReals, PositiveReals);
+impl_auto_union!(PositiveReals, PositiveReals);
 
 impl Surjection<f64, f64> for PositiveReals {
     fn map(&self, val: f64) -> f64 { val.max(1e-7) }
@@ -104,10 +112,12 @@ impl fmt::Display for PositiveReals {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde_test;
-
-    use self::serde_test::{assert_tokens, Token};
     use super::*;
+
+    #[cfg(feature = "serialize")]
+    extern crate serde_test;
+    #[cfg(feature = "serialize")]
+    use self::serde_test::{assert_tokens, Token};
 
     #[test]
     fn test_bounded() {
@@ -121,8 +131,6 @@ mod tests {
         let d = Reals;
 
         assert_eq!(d.card(), Card::Infinite);
-
-        assert_tokens(&d, &[Token::UnitStruct { name: "Reals" }]);
     }
 
     #[test]
@@ -136,6 +144,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
         let d = Reals;

@@ -1,14 +1,18 @@
-use core::*;
+use crate::{
+    Space, BoundedSpace,
+    core::*,
+};
 use std::fmt;
 
 /// Type representing the set of natural numbers, N.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Naturals;
 
 impl Space for Naturals {
     type Value = u64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -23,7 +27,7 @@ impl BoundedSpace for Naturals {
     fn contains(&self, val: Self::BoundValue) -> bool { val > 0 }
 }
 
-impl_auto_enclose!(Naturals, Naturals);
+impl_auto_union!(Naturals, Naturals);
 
 impl fmt::Display for Naturals {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

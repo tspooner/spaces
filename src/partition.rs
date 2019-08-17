@@ -1,50 +1,58 @@
-use continuous::Interval;
-use core::*;
+use crate::{
+    Space, BoundedSpace, FiniteSpace,
+    real::Interval,
+    core::*,
+};
 use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, uniformly partitioned interval.
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Partition {
     lb: f64,
     ub: f64,
-    density: usize,
+    n_partitions: usize,
 }
 
 impl Partition {
-    pub fn new(lb: f64, ub: f64, density: usize) -> Partition {
-        if density == 0 {
-            panic!("A partition must have a density of 1 or greater.")
+    pub fn new(lb: f64, ub: f64, n_partitions: usize) -> Partition {
+        if n_partitions == 0 {
+            panic!("A partition must have a number partitions of 1 or greater.")
         }
 
-        Partition {
-            lb: lb,
-            ub: ub,
-            density: density,
-        }
+        Partition { lb, ub, n_partitions, }
     }
 
-    pub fn from_interval<I: Into<Interval>>(d: I, density: usize) -> Partition {
+    pub fn from_interval<I: Into<Interval>>(d: I, n_partitions: usize) -> Partition {
         let interval = d.into();
 
         Partition {
             lb: interval.lb.expect("Must be a bounded interval."),
             ub: interval.ub.expect("Must be a bounded interval."),
-            density: density,
+            n_partitions,
         }
     }
 
     #[inline]
-    pub fn density(&self) -> usize { self.density }
+    pub fn n_partitions(&self) -> usize { self.n_partitions }
 
     #[inline]
-    pub fn partition_width(&self) -> f64 { (self.ub - self.lb) / self.density as f64 }
+    pub fn partition_width(&self) -> f64 { (self.ub - self.lb) / self.n_partitions as f64 }
 
     pub fn centres(&self) -> Vec<f64> {
         let w = self.partition_width();
         let hw = w / 2.0;
 
-        (0..self.density)
+        (0..self.n_partitions)
             .map(|i| self.lb + w * ((i + 1) as f64) - hw)
+            .collect()
+    }
+
+    pub fn edges(&self) -> Vec<f64> {
+        let w = self.partition_width();
+
+        (0..=self.n_partitions)
+            .map(|i| self.lb + w * (i as f64))
             .collect()
     }
 
@@ -54,9 +62,9 @@ impl Partition {
         let diff = clipped - self.lb;
         let range = self.ub - self.lb;
 
-        let i = ((self.density as f64) * diff / range).floor() as usize;
+        let i = ((self.n_partitions as f64) * diff / range).floor() as usize;
 
-        if i == self.density {
+        if i == self.n_partitions {
             i - 1
         } else {
             i
@@ -67,9 +75,9 @@ impl Partition {
 impl Space for Partition {
     type Value = usize;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
-    fn card(&self) -> Card { Card::Finite(self.density) }
+    fn card(&self) -> Card { Card::Finite(self.n_partitions) }
 }
 
 impl BoundedSpace for Partition {
@@ -83,17 +91,7 @@ impl BoundedSpace for Partition {
 }
 
 impl FiniteSpace for Partition {
-    fn range(&self) -> Range<Self::Value> { 0..self.density }
-}
-
-impl Enclose for Partition {
-    fn enclose(self, other: &Partition) -> Partition {
-        Partition::new(
-            self.lb.max(other.lb),
-            self.ub.max(other.ub),
-            self.density.max(other.density),
-        )
-    }
+    fn range(&self) -> Range<Self::Value> { 0..self.n_partitions }
 }
 
 impl Surjection<f64, usize> for Partition {
@@ -101,28 +99,18 @@ impl Surjection<f64, usize> for Partition {
 }
 
 impl Surjection<usize, usize> for Partition {
-    fn map(&self, val: usize) -> usize { clip!(0, val, self.density - 1) }
+    fn map(&self, val: usize) -> usize { clip!(0, val, self.n_partitions - 1) }
 }
 
 impl cmp::PartialEq for Partition {
     fn eq(&self, other: &Partition) -> bool {
-        self.lb.eq(&other.lb) && self.ub.eq(&other.ub) && self.density.eq(&other.density)
-    }
-}
-
-impl fmt::Debug for Partition {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Partition")
-            .field("lb", &self.lb)
-            .field("ub", &self.ub)
-            .field("density", &self.density)
-            .finish()
+        self.lb.eq(&other.lb) && self.ub.eq(&other.ub) && self.n_partitions.eq(&other.n_partitions)
     }
 }
 
 impl fmt::Display for Partition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.density {
+        match self.n_partitions {
             d if d == 1 =>
                 write!(f, "{{{} = x0, x1 = {}}}", self.lb, self.ub),
             d if d == 2 =>
@@ -135,10 +123,12 @@ impl fmt::Display for Partition {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde_test;
-
-    use self::serde_test::{assert_tokens, Token};
     use super::*;
+
+    #[cfg(feature = "serialize")]
+    extern crate serde_test;
+    #[cfg(feature = "serialize")]
+    use self::serde_test::{assert_tokens, Token};
 
     #[test]
     fn test_from_interval() {
@@ -150,9 +140,9 @@ mod tests {
 
     #[test]
     fn test_density() {
-        assert_eq!(Partition::new(0.0, 5.0, 5).density(), 5);
-        assert_eq!(Partition::new(0.0, 5.0, 10).density(), 10);
-        assert_eq!(Partition::new(-5.0, 5.0, 100).density(), 100);
+        assert_eq!(Partition::new(0.0, 5.0, 5).n_partitions(), 5);
+        assert_eq!(Partition::new(0.0, 5.0, 10).n_partitions(), 10);
+        assert_eq!(Partition::new(-5.0, 5.0, 100).n_partitions(), 100);
     }
 
     #[test]
@@ -191,17 +181,17 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        assert_eq!(Partition::new(0.0, 5.0, 5).dim(), 1);
-        assert_eq!(Partition::new(0.0, 5.0, 10).dim(), 1);
-        assert_eq!(Partition::new(-5.0, 5.0, 10).dim(), 1);
+        assert_eq!(Partition::new(0.0, 5.0, 5).dim(), Dim::one());
+        assert_eq!(Partition::new(0.0, 5.0, 10).dim(), Dim::one());
+        assert_eq!(Partition::new(-5.0, 5.0, 10).dim(), Dim::one());
     }
 
     #[test]
     fn test_card() {
-        fn check(lb: f64, ub: f64, density: usize) {
-            let d = Partition::new(lb, ub, density);
+        fn check(lb: f64, ub: f64, n_partitions: usize) {
+            let d = Partition::new(lb, ub, n_partitions);
 
-            assert_eq!(d.card(), Card::Finite(density));
+            assert_eq!(d.card(), Card::Finite(n_partitions));
         }
 
         check(0.0, 5.0, 5);
@@ -211,8 +201,8 @@ mod tests {
 
     #[test]
     fn test_bounds() {
-        fn check(lb: f64, ub: f64, density: usize) {
-            let d = Partition::new(lb, ub, density);
+        fn check(lb: f64, ub: f64, n_partitions: usize) {
+            let d = Partition::new(lb, ub, n_partitions);
 
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
@@ -229,10 +219,10 @@ mod tests {
 
     #[test]
     fn test_range() {
-        fn check(lb: f64, ub: f64, density: usize) {
-            let d = Partition::new(lb, ub, density);
+        fn check(lb: f64, ub: f64, n_partitions: usize) {
+            let d = Partition::new(lb, ub, n_partitions);
 
-            assert_eq!(d.range(), 0..density);
+            assert_eq!(d.range(), 0..n_partitions);
         }
 
         check(0.0, 5.0, 5);
@@ -263,10 +253,11 @@ mod tests {
         assert_eq!(d.map(2), 1);
     }
 
+    #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
-        fn check(lb: f64, ub: f64, density: usize) {
-            let d = Partition::new(lb, ub, density);
+        fn check(lb: f64, ub: f64, n_partitions: usize) {
+            let d = Partition::new(lb, ub, n_partitions);
 
             assert_tokens(
                 &d,
@@ -279,8 +270,8 @@ mod tests {
                     Token::F64(lb),
                     Token::Str("ub"),
                     Token::F64(ub),
-                    Token::Str("density"),
-                    Token::U64(density as u64),
+                    Token::Str("n_partitions"),
+                    Token::U64(n_partitions as u64),
                     Token::StructEnd,
                 ],
             );

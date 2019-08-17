@@ -1,17 +1,18 @@
-use core::*;
+use crate::{
+    Space, BoundedSpace, FiniteSpace,
+    core::*,
+};
 use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, ordinal set of values.
-#[derive(Clone, Copy, Serialize, Deserialize)]
-pub struct Ordinal {
-    size: usize,
-}
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+pub struct Ordinal(usize);
 
 impl Ordinal {
+
     pub fn new(size: usize) -> Ordinal {
-        Ordinal {
-            size: size,
-        }
+        Ordinal(size)
     }
 }
 
@@ -24,9 +25,9 @@ impl From<usize> for Ordinal {
 impl Space for Ordinal {
     type Value = usize;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
-    fn card(&self) -> Card { Card::Finite(self.size) }
+    fn card(&self) -> Card { Card::Finite(self.0) }
 }
 
 impl BoundedSpace for Ordinal {
@@ -34,18 +35,18 @@ impl BoundedSpace for Ordinal {
 
     fn inf(&self) -> Option<usize> { Some(0) }
 
-    fn sup(&self) -> Option<usize> { Some(self.size - 1) }
+    fn sup(&self) -> Option<usize> { Some(self.0 - 1) }
 
-    fn contains(&self, val: Self::Value) -> bool { val < self.size }
+    fn contains(&self, val: Self::Value) -> bool { val < self.0 }
 }
 
 impl FiniteSpace for Ordinal {
-    fn range(&self) -> Range<Self::Value> { 0..self.size }
+    fn range(&self) -> Range<Self::Value> { 0..self.0 }
 }
 
-impl Enclose for Ordinal {
-    fn enclose(self, other: &Ordinal) -> Ordinal {
-        Ordinal::new(self.size.max(other.size))
+impl Union for Ordinal {
+    fn union(self, other: &Ordinal) -> Ordinal {
+        Ordinal::new(self.0.max(other.0))
     }
 }
 
@@ -54,29 +55,23 @@ impl Surjection<usize, usize> for Ordinal {
 }
 
 impl cmp::PartialEq for Ordinal {
-    fn eq(&self, other: &Ordinal) -> bool { self.size.eq(&other.size) }
-}
-
-impl fmt::Debug for Ordinal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Ordinal")
-            .field("size", &self.size)
-            .finish()
-    }
+    fn eq(&self, other: &Ordinal) -> bool { self.0.eq(&other.0) }
 }
 
 impl fmt::Display for Ordinal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[0..{}]", self.size-1)
+        write!(f, "[0..{}]", self.sup().unwrap())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    extern crate serde_test;
-
-    use self::serde_test::{assert_tokens, Token};
     use super::*;
+
+    #[cfg(feature = "serialize")]
+    extern crate serde_test;
+    #[cfg(feature = "serialize")]
+    use self::serde_test::{assert_tokens, Token};
 
     #[test]
     fn test_card() {
@@ -132,6 +127,7 @@ mod tests {
         assert_eq!(d.map(9), 9);
     }
 
+    #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
         fn check(size: usize) {
@@ -140,13 +136,8 @@ mod tests {
             assert_tokens(
                 &d,
                 &[
-                    Token::Struct {
-                        name: "Ordinal",
-                        len: 1,
-                    },
-                    Token::Str("size"),
+                    Token::NewtypeStruct { name: "Ordinal", },
                     Token::U64(size as u64),
-                    Token::StructEnd,
                 ],
             );
         }

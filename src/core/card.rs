@@ -6,9 +6,10 @@ use std::ops::Mul;
 /// for example, a 2-dimensional space, each with a finite set of values. In this case we have the
 /// following:
 /// ```
-/// use spaces::{Space, Card};
-/// use spaces::product::PairSpace;
-/// use spaces::discrete::Ordinal;
+/// use spaces::{
+///     Space, Card, PairSpace,
+///     discrete::Ordinal,
+/// };
 ///
 /// let d1 = Ordinal::new(5);
 /// let d2 = Ordinal::new(10);
@@ -25,11 +26,11 @@ use std::ops::Mul;
 /// let s1 = Card::Finite(5);
 /// let s2 = Card::Finite(10);
 ///
-/// assert_eq!(s1*s2, Card::Finite(50));
+/// assert_eq!(s1 * s2, Card::Finite(50));
 /// ```
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Card {
-    Null,
     Finite(usize),
     Infinite,
 }
@@ -38,14 +39,11 @@ impl Mul for Card {
     type Output = Card;
 
     fn mul(self, rhs: Card) -> Card {
-        match self {
-            Card::Null => rhs,
-            Card::Infinite => self,
-            Card::Finite(ls) => match rhs {
-                Card::Null => self,
-                Card::Infinite => rhs,
-                Card::Finite(rs) => Card::Finite(ls * rs),
-            },
+        match (self, rhs) {
+            (Card::Infinite, _) | (_, Card::Infinite) => Card::Infinite,
+            (Card::Finite(0), Card::Finite(a)) | (Card::Finite(a), Card::Finite(0)) =>
+                Card::Finite(a),
+            (Card::Finite(ls), Card::Finite(rs)) => Card::Finite(ls * rs),
         }
     }
 }
@@ -65,9 +63,9 @@ mod tests {
 
     #[test]
     fn test_equality() {
-        assert_eq!(Card::Null, Card::Null);
         assert_eq!(Card::Infinite, Card::Infinite);
 
+        assert_eq!(Card::Finite(0), Card::Finite(0));
         assert_eq!(Card::Finite(1), Card::Finite(1));
         assert_eq!(Card::Finite(5), Card::Finite(5));
         assert_eq!(Card::Finite(10), Card::Finite(10));
@@ -75,24 +73,24 @@ mod tests {
 
     #[test]
     fn test_inequality() {
-        assert_ne!(Card::Null, Card::Infinite);
-        assert_ne!(Card::Null, Card::Finite(1));
+        assert_ne!(Card::Finite(0), Card::Infinite);
 
-        assert_ne!(Card::Infinite, Card::Null);
+        assert_ne!(Card::Infinite, Card::Finite(0));
         assert_ne!(Card::Infinite, Card::Finite(1));
 
-        assert_ne!(Card::Finite(1), Card::Null);
+        assert_ne!(Card::Finite(0), Card::Finite(1));
+        assert_ne!(Card::Finite(1), Card::Finite(0));
         assert_ne!(Card::Finite(1), Card::Infinite);
         assert_ne!(Card::Finite(1), Card::Finite(10));
     }
 
     #[test]
     fn test_mul() {
-        assert_eq!(Card::Null * Card::Null, Card::Null);
+        assert_eq!(Card::Finite(0), Card::Finite(0));
         assert_eq!(Card::Infinite * Card::Infinite, Card::Infinite);
 
-        assert_eq!(Card::Null * Card::Infinite, Card::Infinite);
-        assert_eq!(Card::Infinite * Card::Null, Card::Infinite);
+        assert_eq!(Card::Finite(0) * Card::Infinite, Card::Infinite);
+        assert_eq!(Card::Infinite * Card::Finite(0), Card::Infinite);
 
         assert_eq!(Card::Finite(1) * Card::Infinite, Card::Infinite);
         assert_eq!(Card::Finite(5) * Card::Infinite, Card::Infinite);
@@ -105,13 +103,6 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_into_null() {
-        let s = Card::Null;
-        let _: usize = s.into();
-    }
-
-    #[test]
-    #[should_panic]
     fn test_into_infinite() {
         let s = Card::Infinite;
         let _: usize = s.into();
@@ -119,7 +110,7 @@ mod tests {
 
     #[test]
     fn test_into_finite() {
-        for i in vec![1, 5, 10] {
+        for i in vec![0, 1, 5, 10] {
             let d = Card::Finite(i);
             let v: usize = d.into();
 

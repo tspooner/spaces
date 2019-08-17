@@ -1,11 +1,15 @@
-use core::*;
+use crate::{
+    Space, BoundedSpace, FiniteSpace,
+    core::*,
+};
 use std::{
     fmt,
     ops::Range,
 };
 
 /// Type representing binary values.
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Binary;
 
 impl Binary {
@@ -15,7 +19,7 @@ impl Binary {
 impl Space for Binary {
     type Value = bool;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Finite(2) }
 }
@@ -34,7 +38,7 @@ impl FiniteSpace for Binary {
     fn range(&self) -> Range<Self::Value> { false..true }
 }
 
-impl_auto_enclose!(Binary, Binary);
+impl_auto_union!(Binary, Binary);
 
 impl Surjection<bool, bool> for Binary {
     fn map(&self, val: bool) -> bool { val }
@@ -52,10 +56,12 @@ impl fmt::Display for Binary {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde_test;
-
-    use self::serde_test::{assert_tokens, Token};
     use super::*;
+
+    #[cfg(feature = "serialize")]
+    extern crate serde_test;
+    #[cfg(feature = "serialize")]
+    use self::serde_test::{assert_tokens, Token};
 
     #[test]
     fn test_card() {
@@ -94,6 +100,7 @@ mod tests {
         assert_eq!(d.map(0.0), false);
     }
 
+    #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
         let d = Binary::new();

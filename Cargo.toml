@@ -17,13 +17,16 @@ documentation = "https://docs.rs/spaces"
 travis-ci = { repository = "tspooner/spaces", branch = "master" }
 coveralls = { repository = "tspooner/spaces", branch = "master", service = "github" }
 
+[features]
+default = []
+
+serialize = ["serde"]
+
 [dependencies]
-ndarray = { version = "0.12", features = ["serde-1"] }
 itertools = "0.8"
 num-traits = "0.2"
 
-serde = "1.0"
-serde_derive = "1.0"
+serde = { version = "1.0", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 serde_test = "1.0"

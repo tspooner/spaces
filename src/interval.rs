@@ -1,4 +1,4 @@
-use core::{BoundedSpace, Space, Card, Enclose, Surjection};
+use crate::{BoundedSpace, Dim, Space, Card, Union, Surjection};
 use num_traits::{Zero, One};
 use std::{
     cmp,
@@ -13,9 +13,10 @@ fn both<T>(opta: Option<T>, optb: Option<T>) -> Option<(T, T)> {
     }
 }
 
-/// Type representing an interval on the real line.
-#[derive(Clone, Copy, Serialize, Deserialize)]
-pub struct Interval<T> {
+/// Generalisation of a interval.
+#[derive(Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+pub struct Interval<T = f64> {
     pub(crate) lb: Option<T>,
     pub(crate) ub: Option<T>,
 }
@@ -51,7 +52,7 @@ impl<T> Interval<T> {
 impl Space for Interval<f64> {
     type Value = f64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
 }
@@ -80,7 +81,7 @@ impl Surjection<f64, f64> for Interval<f64> {
 impl Space for Interval<i64> {
     type Value = i64;
 
-    fn dim(&self) -> usize { 1 }
+    fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card {
         match (self.lb, self.ub) {
@@ -111,8 +112,8 @@ impl Surjection<i64, i64> for Interval<i64> {
     }
 }
 
-impl<T: Clone + cmp::PartialOrd> Enclose for Interval<T> {
-    fn enclose(self, other: &Self) -> Self {
+impl<T: Clone + cmp::PartialOrd> Union for Interval<T> {
+    fn union(self, other: &Self) -> Self {
         Interval::new(
             both(self.lb, other.lb.clone()).map(|(a, b)| {
                 if a < b { a } else { b }
@@ -150,10 +151,12 @@ impl<T: fmt::Display> fmt::Display for Interval<T> {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde_test;
-
-    use self::serde_test::{assert_tokens, Token};
     use super::*;
+
+    #[cfg(feature = "serialize")]
+    extern crate serde_test;
+    #[cfg(feature = "serialize")]
+    use self::serde_test::{assert_tokens, Token};
 
     #[test]
     fn test_card() {
@@ -228,6 +231,7 @@ mod tests {
         assert_eq!(d.map(10), 5);
     }
 
+    #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
         fn check(lb: f64, ub: f64) {
