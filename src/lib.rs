@@ -19,7 +19,6 @@ import_all!(core);
 
 pub mod continuous;
 pub mod discrete;
-pub mod misc;
 pub mod norms;
 pub mod product;
 pub mod kernels;
