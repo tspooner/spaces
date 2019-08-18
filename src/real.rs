@@ -8,7 +8,7 @@ use std::fmt;
 pub type Interval = crate::Interval<f64>;
 
 /// Type representing the set of all real numbers.
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Reals;
 
@@ -41,7 +41,7 @@ impl fmt::Display for Reals {
 }
 
 /// Type representing the set of non-negative real numbers, R(≥0).
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct NonNegativeReals;
 
@@ -54,13 +54,11 @@ impl Space for NonNegativeReals {
 }
 
 impl BoundedSpace for NonNegativeReals {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<f64> { Some(0.0) }
 
     fn sup(&self) -> Option<f64> { None }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { val >= 0.0 }
+    fn contains(&self, val: f64) -> bool { val >= 0.0 }
 }
 
 impl_auto_union!(NonNegativeReals, NonNegativeReals);
@@ -76,7 +74,7 @@ impl fmt::Display for NonNegativeReals {
 }
 
 /// Type representing the set of strictly positive real numbers, R(>0).
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct PositiveReals;
 
@@ -89,13 +87,11 @@ impl Space for PositiveReals {
 }
 
 impl BoundedSpace for PositiveReals {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<f64> { Some(1e-5) }
 
     fn sup(&self) -> Option<f64> { None }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { val > 0.0 }
+    fn contains(&self, val: f64) -> bool { val > 0.0 }
 }
 
 impl_auto_union!(PositiveReals, PositiveReals);

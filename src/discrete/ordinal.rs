@@ -31,13 +31,11 @@ impl Space for Ordinal {
 }
 
 impl BoundedSpace for Ordinal {
-    type BoundValue = usize;
-
     fn inf(&self) -> Option<usize> { Some(0) }
 
     fn sup(&self) -> Option<usize> { Some(self.0 - 1) }
 
-    fn contains(&self, val: Self::Value) -> bool { val < self.0 }
+    fn contains(&self, val: usize) -> bool { val < self.0 }
 }
 
 impl FiniteSpace for Ordinal {

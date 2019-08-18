@@ -61,17 +61,14 @@ impl<'a, D: Space> Space for &'a D {
 /// bounded and you have defined a compact space; this is true in `spaces` as the Interval type is
 /// closed.
 pub trait BoundedSpace: Space where Self::Value: PartialOrd {
-    /// The upper/lower bound type; not necessarily equal to `Space::Value`.
-    type BoundValue: PartialOrd + Copy;
-
     /// Returns the value of the dimension's infimum, if it exists.
-    fn inf(&self) -> Option<Self::BoundValue>;
+    fn inf(&self) -> Option<Self::Value>;
 
     /// Returns the value of the dimension's supremum, if it exists.
-    fn sup(&self) -> Option<Self::BoundValue>;
+    fn sup(&self) -> Option<Self::Value>;
 
     /// Returns true iff `val` lies within the dimension's bounds (closed).
-    fn contains(&self, val: Self::BoundValue) -> bool;
+    fn contains(&self, val: Self::Value) -> bool;
 
     fn is_left_bounded(&self) -> bool { self.inf().is_some() }
 

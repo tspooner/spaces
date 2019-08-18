@@ -18,13 +18,11 @@ impl Space for Naturals {
 }
 
 impl BoundedSpace for Naturals {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<u64> { Some(1) }
 
     fn sup(&self) -> Option<u64> { None }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { val > 0 }
+    fn contains(&self, val: u64) -> bool { val > 0 }
 }
 
 impl_auto_union!(Naturals, Naturals);

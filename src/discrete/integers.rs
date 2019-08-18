@@ -19,13 +19,11 @@ impl Space for Integers {
 }
 
 impl BoundedSpace for Integers {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<i64> { None }
 
     fn sup(&self) -> Option<i64> { None }
 
-    fn contains(&self, _: Self::BoundValue) -> bool { true }
+    fn contains(&self, _: i64) -> bool { true }
 }
 
 impl_auto_union!(Integers, Integers);
@@ -50,13 +48,11 @@ impl Space for NonZeroIntegers {
 }
 
 impl BoundedSpace for NonZeroIntegers {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<i64> { None }
 
     fn sup(&self) -> Option<i64> { None }
 
-    fn contains(&self, val: Self::BoundValue) -> bool { val != 0 }
+    fn contains(&self, val: i64) -> bool { val != 0 }
 }
 
 impl_auto_union!(NonZeroIntegers, NonZeroIntegers);
@@ -81,13 +77,11 @@ impl Space for NonNegativeIntegers {
 }
 
 impl BoundedSpace for NonNegativeIntegers {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<u64> { Some(0) }
 
     fn sup(&self) -> Option<u64> { None }
 
-    fn contains(&self, _: Self::BoundValue) -> bool { true }
+    fn contains(&self, _: u64) -> bool { true }
 }
 
 impl_auto_union!(NonNegativeIntegers, NonNegativeIntegers);

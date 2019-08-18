@@ -1,8 +1,4 @@
-use crate::{
-    Space, BoundedSpace, FiniteSpace,
-    real::Interval,
-    core::*,
-};
+use crate::{Space, BoundedSpace, FiniteSpace, Interval, core::*};
 use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, uniformly partitioned interval.
@@ -81,13 +77,11 @@ impl Space for Partition {
 }
 
 impl BoundedSpace for Partition {
-    type BoundValue = f64;
+    fn inf(&self) -> Option<usize> { Some(0) }
 
-    fn inf(&self) -> Option<f64> { Some(self.lb) }
+    fn sup(&self) -> Option<usize> { Some(self.n_partitions) }
 
-    fn sup(&self) -> Option<f64> { Some(self.ub) }
-
-    fn contains(&self, val: Self::BoundValue) -> bool { (val >= self.lb) && (val < self.ub) }
+    fn contains(&self, val: usize) -> bool { val < self.n_partitions }
 }
 
 impl FiniteSpace for Partition {

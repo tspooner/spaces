@@ -58,13 +58,11 @@ impl Space for Interval<f64> {
 }
 
 impl BoundedSpace for Interval<f64> {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<f64> { self.lb }
 
     fn sup(&self) -> Option<f64> { self.ub }
 
-    fn contains(&self, val: Self::BoundValue) -> bool {
+    fn contains(&self, val: f64) -> bool {
         self.lb.map_or(true, |inf| val >= inf) && self.ub.map_or(true, |sup| val <= sup)
     }
 }
@@ -92,13 +90,11 @@ impl Space for Interval<i64> {
 }
 
 impl BoundedSpace for Interval<i64> {
-    type BoundValue = Self::Value;
-
     fn inf(&self) -> Option<i64> { self.lb }
 
     fn sup(&self) -> Option<i64> { self.ub }
 
-    fn contains(&self, val: Self::BoundValue) -> bool {
+    fn contains(&self, val: i64) -> bool {
         self.lb.map_or(true, |inf| val >= inf) && self.ub.map_or(true, |sup| val <= sup)
     }
 }

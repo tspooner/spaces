@@ -25,13 +25,11 @@ impl Space for Binary {
 }
 
 impl BoundedSpace for Binary {
-    type BoundValue = bool;
-
     fn inf(&self) -> Option<bool> { Some(false) }
 
     fn sup(&self) -> Option<bool> { Some(true) }
 
-    fn contains(&self, _: Self::Value) -> bool { true }
+    fn contains(&self, _: bool) -> bool { true }
 }
 
 impl FiniteSpace for Binary {
