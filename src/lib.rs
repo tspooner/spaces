@@ -55,10 +55,10 @@ impl<'a, D: Space> Space for &'a D {
     fn card(&self) -> Card { (**self).card() }
 }
 
-/// Trait for defining spaces bounded to lie on an interval I.
+/// Trait for defining spaces with at least one finite bound.
 ///
 /// Note: If both `inf` and `sup` are well defined (i.e. are not None), then the interval is
-/// bounded and you have defined a compact space; this is true in `spaces` as the Interval type is
+/// totally bounded and we have a compact space; this is true in `spaces` as bounds are treated as
 /// closed.
 pub trait BoundedSpace: Space where Self::Value: PartialOrd {
     /// Returns the value of the dimension's infimum, if it exists.
@@ -70,10 +70,15 @@ pub trait BoundedSpace: Space where Self::Value: PartialOrd {
     /// Returns true iff `val` lies within the dimension's bounds (closed).
     fn contains(&self, val: Self::Value) -> bool;
 
+    /// Returns true iff `self` has a finite infimum.
     fn is_left_bounded(&self) -> bool { self.inf().is_some() }
 
+    /// Returns true iff `self` has a finite supremum.
     fn is_right_bounded(&self) -> bool { self.sup().is_some() }
 
+    /// Returns true iff `self` has finite bounds in both directions.
+    ///
+    /// Note: this trait assumed closedness, so compactness follows.
     fn is_compact(&self) -> bool { self.is_left_bounded() && self.is_right_bounded() }
 }
 

@@ -1,7 +1,7 @@
 use crate::{Space, Card, Dim, Surjection};
 use std::fmt;
 
-/// A null dimension.
+/// A space filled with... nothing.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Empty;

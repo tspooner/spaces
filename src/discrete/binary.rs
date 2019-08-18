@@ -7,7 +7,7 @@ use std::{
     ops::Range,
 };
 
-/// Type representing binary values.
+/// Type representing binary (base-2) values.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Binary;

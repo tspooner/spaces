@@ -1,7 +1,7 @@
 use crate::{Space, BoundedSpace, FiniteSpace, Interval, core::*};
 use std::{cmp, fmt, ops::Range};
 
-/// Type representing a finite, uniformly partitioned interval.
+/// Finite, uniformly partitioned interval.
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Equipartition {
