@@ -14,10 +14,16 @@ macro_rules! import_all {
     };
 }
 
-macro_rules! impl_auto_union {
+macro_rules! impl_union_intersect {
     ($type:ty, $build:expr) => {
         impl Union for $type {
             fn union(self, _: &$type) -> Self {
+                self
+            }
+        }
+
+        impl Intersection for $type {
+            fn intersect(self, _: &$type) -> Self {
                 self
             }
         }

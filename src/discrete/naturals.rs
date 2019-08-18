@@ -22,7 +22,7 @@ impl BoundedSpace for Naturals {
     fn contains(&self, val: u64) -> bool { val > 0 }
 }
 
-impl_auto_union!(Naturals, Naturals);
+impl_union_intersect!(Naturals, Naturals);
 
 impl fmt::Display for Naturals {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

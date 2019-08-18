@@ -30,7 +30,7 @@ impl FiniteSpace for Binary {
     fn range(&self) -> Range<Self::Value> { false..true }
 }
 
-impl_auto_union!(Binary, Binary);
+impl_union_intersect!(Binary, Binary);
 
 impl Surjection<bool, bool> for Binary {
     fn map_onto(&self, val: bool) -> bool { val }

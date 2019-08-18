@@ -25,7 +25,7 @@ impl BoundedSpace for Integers {
     fn contains(&self, _: i64) -> bool { true }
 }
 
-impl_auto_union!(Integers, Integers);
+impl_union_intersect!(Integers, Integers);
 
 impl fmt::Display for Integers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -54,7 +54,7 @@ impl BoundedSpace for NonZeroIntegers {
     fn contains(&self, val: i64) -> bool { val != 0 }
 }
 
-impl_auto_union!(NonZeroIntegers, NonZeroIntegers);
+impl_union_intersect!(NonZeroIntegers, NonZeroIntegers);
 
 impl fmt::Display for NonZeroIntegers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -83,7 +83,7 @@ impl BoundedSpace for NonNegativeIntegers {
     fn contains(&self, _: u64) -> bool { true }
 }
 
-impl_auto_union!(NonNegativeIntegers, NonNegativeIntegers);
+impl_union_intersect!(NonNegativeIntegers, NonNegativeIntegers);
 
 impl fmt::Display for NonNegativeIntegers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

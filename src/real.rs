@@ -25,7 +25,7 @@ impl Space for Reals {
     fn card(&self) -> Card { Card::Infinite }
 }
 
-impl_auto_union!(Reals, Reals);
+impl_union_intersect!(Reals, Reals);
 
 impl Surjection<f64, f64> for Reals {
     fn map_onto(&self, val: f64) -> f64 { val }
@@ -58,7 +58,7 @@ impl BoundedSpace for NonNegativeReals {
     fn contains(&self, val: f64) -> bool { val >= 0.0 }
 }
 
-impl_auto_union!(NonNegativeReals, NonNegativeReals);
+impl_union_intersect!(NonNegativeReals, NonNegativeReals);
 
 impl Surjection<f64, f64> for NonNegativeReals {
     fn map_onto(&self, val: f64) -> f64 { val.max(0.0) }
@@ -91,7 +91,7 @@ impl BoundedSpace for PositiveReals {
     fn contains(&self, val: f64) -> bool { val > 0.0 }
 }
 
-impl_auto_union!(PositiveReals, PositiveReals);
+impl_union_intersect!(PositiveReals, PositiveReals);
 
 impl Surjection<f64, f64> for PositiveReals {
     fn map_onto(&self, val: f64) -> f64 { val.max(1e-7) }
