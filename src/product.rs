@@ -161,9 +161,9 @@ mod tests {
     fn test_surjection() {
         let space = ProductSpace::new(vec![Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0)]);
 
-        assert_eq!(space.map(vec![6.0, 0.0]), vec![5.0, 1.0]);
-        assert_eq!(space.map(vec![2.5, 1.5]), vec![2.5, 1.5]);
-        assert_eq!(space.map(vec![-1.0, 3.0]), vec![0.0, 2.0]);
+        assert_eq!(space.map_onto(vec![6.0, 0.0]), vec![5.0, 1.0]);
+        assert_eq!(space.map_onto(vec![2.5, 1.5]), vec![2.5, 1.5]);
+        assert_eq!(space.map_onto(vec![-1.0, 3.0]), vec![0.0, 2.0]);
     }
 
     #[test]

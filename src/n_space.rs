@@ -92,10 +92,10 @@ mod tests {
         let ps = TwoSpace::new([
             Interval::bounded(0.0, 5.0),
             Interval::bounded(1.0, 2.0)
-        ]).partitioned(5);
+        ]).equipartitioned(5);
 
-        assert_eq!(ps[0], Partition::new(0.0, 5.0, 5));
-        assert_eq!(ps[1], Partition::new(1.0, 2.0, 5));
+        assert_eq!(ps[0], Equipartition::new(0.0, 5.0, 5));
+        assert_eq!(ps[1], Equipartition::new(1.0, 2.0, 5));
     }
 
     #[test]
@@ -105,8 +105,8 @@ mod tests {
             Interval::bounded(1.0, 2.0)
         ]);
 
-        assert_eq!(ps.map([6.0, 0.0]), [5.0, 1.0]);
-        assert_eq!(ps.map([2.5, 1.5]), [2.5, 1.5]);
-        assert_eq!(ps.map([-1.0, 10.0]), [0.0, 2.0]);
+        assert_eq!(ps.map_onto([6.0, 0.0]), [5.0, 1.0]);
+        assert_eq!(ps.map_onto([2.5, 1.5]), [2.5, 1.5]);
+        assert_eq!(ps.map_onto([-1.0, 10.0]), [0.0, 2.0]);
     }
 }

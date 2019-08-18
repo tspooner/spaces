@@ -42,10 +42,6 @@ impl Surjection<bool, bool> for Binary {
     fn map_onto(&self, val: bool) -> bool { val }
 }
 
-impl Surjection<f64, bool> for Binary {
-    fn map_onto(&self, val: f64) -> bool { val > 0.0 }
-}
-
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{{0, 1}}")
@@ -91,11 +87,8 @@ mod tests {
     fn test_surjection() {
         let d = Binary::new();
 
-        assert_eq!(d.map(true), true);
-        assert_eq!(d.map(false), false);
-
-        assert_eq!(d.map(1.0), true);
-        assert_eq!(d.map(0.0), false);
+        assert_eq!(d.map_onto(true), true);
+        assert_eq!(d.map_onto(false), false);
     }
 
     #[cfg(feature = "serialize")]

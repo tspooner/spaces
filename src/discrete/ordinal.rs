@@ -113,16 +113,16 @@ mod tests {
     fn test_surjection() {
         let d = Ordinal::new(10);
 
-        assert_eq!(d.map(0), 0);
-        assert_eq!(d.map(1), 1);
-        assert_eq!(d.map(2), 2);
-        assert_eq!(d.map(3), 3);
-        assert_eq!(d.map(4), 4);
-        assert_eq!(d.map(5), 5);
-        assert_eq!(d.map(6), 6);
-        assert_eq!(d.map(7), 7);
-        assert_eq!(d.map(8), 8);
-        assert_eq!(d.map(9), 9);
+        assert_eq!(d.map_onto(0), 0);
+        assert_eq!(d.map_onto(1), 1);
+        assert_eq!(d.map_onto(2), 2);
+        assert_eq!(d.map_onto(3), 3);
+        assert_eq!(d.map_onto(4), 4);
+        assert_eq!(d.map_onto(5), 5);
+        assert_eq!(d.map_onto(6), 6);
+        assert_eq!(d.map_onto(7), 7);
+        assert_eq!(d.map_onto(8), 8);
+        assert_eq!(d.map_onto(9), 9);
     }
 
     #[cfg(feature = "serialize")]

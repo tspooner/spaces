@@ -59,11 +59,7 @@ impl Equipartition {
 
         let i = ((self.n_partitions as f64) * diff / range).floor() as usize;
 
-        if i == self.n_partitions {
-            i - 1
-        } else {
-            i
-        }
+        if i >= self.n_partitions { self.n_partitions - 1 } else { i }
     }
 }
 
@@ -78,7 +74,7 @@ impl Space for Equipartition {
 impl BoundedSpace for Equipartition {
     fn inf(&self) -> Option<usize> { Some(0) }
 
-    fn sup(&self) -> Option<usize> { Some(self.n_partitions) }
+    fn sup(&self) -> Option<usize> { Some(self.n_partitions - 1) }
 
     fn contains(&self, val: usize) -> bool { val < self.n_partitions }
 }
@@ -190,12 +186,12 @@ mod tests {
         fn check(lb: f64, ub: f64, n_partitions: usize) {
             let d = Equipartition::new(lb, ub, n_partitions);
 
-            assert_eq!(d.inf().unwrap(), lb);
-            assert_eq!(d.sup().unwrap(), ub);
+            assert_eq!(d.inf().unwrap(), 0);
+            assert_eq!(d.sup().unwrap(), n_partitions - 1);
 
-            assert!(!d.contains(ub));
-            assert!(d.contains(lb));
-            assert!(d.contains((lb + ub) / 2.0));
+            assert!(d.contains(d.map_onto(ub)));
+            assert!(d.contains(d.map_onto(lb)));
+            assert!(d.contains(d.map_onto((lb + ub) / 2.0)));
         }
 
         check(0.0, 5.0, 5);
@@ -220,23 +216,14 @@ mod tests {
     fn test_surjection_f64() {
         let d = Equipartition::new(0.0, 5.0, 6);
 
-        assert_eq!(d.map(-1.0), 0);
-        assert_eq!(d.map(0.0), 0);
-        assert_eq!(d.map(1.0), 1);
-        assert_eq!(d.map(2.0), 2);
-        assert_eq!(d.map(3.0), 3);
-        assert_eq!(d.map(4.0), 4);
-        assert_eq!(d.map(5.0), 5);
-        assert_eq!(d.map(6.0), 5);
-    }
-
-    #[test]
-    fn test_surjection_usize() {
-        let d = Equipartition::new(5.0, 6.0, 2);
-
-        assert_eq!(d.map(0), 0);
-        assert_eq!(d.map(1), 1);
-        assert_eq!(d.map(2), 1);
+        assert_eq!(d.map_onto(-1.0), 0);
+        assert_eq!(d.map_onto(0.0), 0);
+        assert_eq!(d.map_onto(1.0), 1);
+        assert_eq!(d.map_onto(2.0), 2);
+        assert_eq!(d.map_onto(3.0), 3);
+        assert_eq!(d.map_onto(4.0), 4);
+        assert_eq!(d.map_onto(5.0), 5);
+        assert_eq!(d.map_onto(6.0), 5);
     }
 
     #[cfg(feature = "serialize")]
