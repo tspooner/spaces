@@ -45,6 +45,12 @@ impl Union for Ordinal {
     }
 }
 
+impl Intersection for Ordinal {
+    fn intersect(self, other: &Ordinal) -> Ordinal {
+        Ordinal::new(self.0.min(other.0))
+    }
+}
+
 impl Surjection<usize, usize> for Ordinal {
     fn map_onto(&self, val: usize) -> usize { val as usize }
 }

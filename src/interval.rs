@@ -1,4 +1,4 @@
-use crate::{BoundedSpace, Dim, Space, Card, Union, Surjection};
+use crate::prelude::*;
 use num_traits::{Zero, One};
 use std::{
     cmp,
@@ -116,6 +116,19 @@ impl<T: Clone + cmp::PartialOrd> Union for Interval<T> {
             }),
             both(self.ub, other.ub.clone()).map(|(a, b)| {
                 if a > b { a } else { b }
+            }),
+        )
+    }
+}
+
+impl<T: Clone + cmp::PartialOrd> Intersection for Interval<T> {
+    fn intersect(self, other: &Self) -> Self {
+        Interval::new(
+            both(self.lb, other.lb.clone()).map(|(a, b)| {
+                if a > b { a } else { b }
+            }),
+            both(self.ub, other.ub.clone()).map(|(a, b)| {
+                if a < b { a } else { b }
             }),
         )
     }

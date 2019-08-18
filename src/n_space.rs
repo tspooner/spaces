@@ -1,8 +1,8 @@
-use crate::{Space, Dim, Card, Union, Surjection, Interval, Equipartition};
+use crate::{Interval, Equipartition, prelude::*};
 use std::{
     fmt::{self, Display},
     ops::Index,
-    slice::{Iter as SliceIter},
+    slice::Iter as SliceIter,
 };
 
 /// 2-dimensional homogeneous space.
@@ -38,6 +38,14 @@ impl<D: Union + Clone> Union for TwoSpace<D> {
         let TwoSpace([d1, d2]) = self;
 
         [d1.union(&other[0]), d2.union(&other[1])].into()
+    }
+}
+
+impl<D: Intersection + Clone> Intersection for TwoSpace<D> {
+    fn intersect(self, other: &Self) -> Self {
+        let TwoSpace([d1, d2]) = self;
+
+        [d1.intersect(&other[0]), d2.intersect(&other[1])].into()
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{Space, Dim, Card, Union, Surjection, Interval, Equipartition};
+use crate::{Interval, Equipartition, prelude::*};
 use std::fmt::{self, Display};
 
 /// 2-dimensional heterogeneous space.
@@ -36,6 +36,12 @@ impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
 impl<D1: Union, D2: Union> Union for PairSpace<D1, D2> {
     fn union(self, other: &Self) -> Self {
         (self.0.union(&other.0), self.1.union(&other.1)).into()
+    }
+}
+
+impl<D1: Intersection, D2: Intersection> Intersection for PairSpace<D1, D2> {
+    fn intersect(self, other: &Self) -> Self {
+        (self.0.intersect(&other.0), self.1.intersect(&other.1)).into()
     }
 }
 

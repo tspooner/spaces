@@ -1,7 +1,4 @@
-use crate::{
-    Space, Dim, Card, Surjection, Union,
-    Equipartition, Interval,
-};
+use crate::{Equipartition, Interval, prelude::*};
 use itertools::{Itertools, EitherOrBoth};
 use std::{
     fmt::{self, Display},
@@ -62,6 +59,21 @@ impl<D: Space + Union + Clone> Union for ProductSpace<D> {
             .zip_longest(other.iter())
             .map(|el| match el {
                 Both(l, r) => l.union(r),
+                Left(l) => l,
+                Right(r) => r.clone(),
+            })
+            .collect()
+    }
+}
+
+impl<D: Space + Intersection + Clone> Intersection for ProductSpace<D> {
+    fn intersect(self, other: &Self) -> Self {
+        use self::EitherOrBoth::*;
+
+        self.into_iter()
+            .zip_longest(other.iter())
+            .map(|el| match el {
+                Both(l, r) => l.intersect(r),
                 Left(l) => l,
                 Right(r) => r.clone(),
             })

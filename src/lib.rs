@@ -111,10 +111,24 @@ pub trait Union<S = Self> {
     }
 }
 
-pub mod prelude {
+/// Trait for types that can be combined in the form of an intersection.
+///
+/// The intersection of a collection of sets is the set that contains only those elements present
+/// in each.
+pub trait Intersection<S = Self> {
+    /// Return the smallest space enclosing `self` and `other` of type `Self`.
+    fn intersect(self, other: &S) -> Self;
+
+    /// Return the smallest space enclosing `self` and all `other_spaces` of type `Self`.
+    fn intersect_many(self, other_spaces: &[S]) -> Self where Self: Sized {
+        other_spaces.into_iter().fold(self, |acc, other_space| acc.intersect(other_space))
+    }
+}
+
+mod prelude {
     pub use super::{
         Space, BoundedSpace, FiniteSpace,
-        Surjection, Union,
+        Surjection, Union, Intersection,
         Dim, Card,
     };
 }
