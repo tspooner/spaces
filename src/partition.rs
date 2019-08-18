@@ -4,25 +4,24 @@ use std::{cmp, fmt, ops::Range};
 /// Type representing a finite, uniformly partitioned interval.
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub struct Partition {
-    lb: f64,
-    ub: f64,
+pub struct Equipartition {
+    lb: f64, ub: f64,
     n_partitions: usize,
 }
 
-impl Partition {
-    pub fn new(lb: f64, ub: f64, n_partitions: usize) -> Partition {
+impl Equipartition {
+    pub fn new(lb: f64, ub: f64, n_partitions: usize) -> Equipartition {
         if n_partitions == 0 {
             panic!("A partition must have a number partitions of 1 or greater.")
         }
 
-        Partition { lb, ub, n_partitions, }
+        Equipartition { lb, ub, n_partitions, }
     }
 
-    pub fn from_interval<I: Into<Interval>>(d: I, n_partitions: usize) -> Partition {
+    pub fn from_interval<I: Into<Interval>>(d: I, n_partitions: usize) -> Equipartition {
         let interval = d.into();
 
-        Partition {
+        Equipartition {
             lb: interval.lb.expect("Must be a bounded interval."),
             ub: interval.ub.expect("Must be a bounded interval."),
             n_partitions,
@@ -68,7 +67,7 @@ impl Partition {
     }
 }
 
-impl Space for Partition {
+impl Space for Equipartition {
     type Value = usize;
 
     fn dim(&self) -> Dim { Dim::one() }
@@ -76,7 +75,7 @@ impl Space for Partition {
     fn card(&self) -> Card { Card::Finite(self.n_partitions) }
 }
 
-impl BoundedSpace for Partition {
+impl BoundedSpace for Equipartition {
     fn inf(&self) -> Option<usize> { Some(0) }
 
     fn sup(&self) -> Option<usize> { Some(self.n_partitions) }
@@ -84,29 +83,26 @@ impl BoundedSpace for Partition {
     fn contains(&self, val: usize) -> bool { val < self.n_partitions }
 }
 
-impl FiniteSpace for Partition {
+impl FiniteSpace for Equipartition {
     fn range(&self) -> Range<Self::Value> { 0..self.n_partitions }
 }
 
-impl Surjection<f64, usize> for Partition {
+impl Surjection<f64, usize> for Equipartition {
     fn map_onto(&self, val: f64) -> usize { self.to_partition(val) }
 }
 
-impl cmp::PartialEq for Partition {
-    fn eq(&self, other: &Partition) -> bool {
+impl cmp::PartialEq for Equipartition {
+    fn eq(&self, other: &Equipartition) -> bool {
         self.lb.eq(&other.lb) && self.ub.eq(&other.ub) && self.n_partitions.eq(&other.n_partitions)
     }
 }
 
-impl fmt::Display for Partition {
+impl fmt::Display for Equipartition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.n_partitions {
-            d if d == 1 =>
-                write!(f, "{{{} = x0, x1 = {}}}", self.lb, self.ub),
-            d if d == 2 =>
-                write!(f, "{{{} = x0, x1, x2 = {}}}", self.lb, self.ub),
-            d =>
-                write!(f, "{{{} = x0, x1, ..., x{} = {}}}", self.lb, d, self.ub),
+            d if d == 1 => write!(f, "{{{} = x0, x1 = {}}}", self.lb, self.ub),
+            d if d == 2 => write!(f, "{{{} = x0, x1, x2 = {}}}", self.lb, self.ub),
+            d => write!(f, "{{{} = x0, x1, ..., x{} = {}}}", self.lb, d, self.ub),
         }
     }
 }
@@ -123,41 +119,41 @@ mod tests {
     #[test]
     fn test_from_interval() {
         assert_eq!(
-            Partition::new(0.0, 5.0, 5),
-            Partition::from_interval(Interval::bounded(0.0, 5.0), 5)
+            Equipartition::new(0.0, 5.0, 5),
+            Equipartition::from_interval(Interval::bounded(0.0, 5.0), 5)
         );
     }
 
     #[test]
     fn test_density() {
-        assert_eq!(Partition::new(0.0, 5.0, 5).n_partitions(), 5);
-        assert_eq!(Partition::new(0.0, 5.0, 10).n_partitions(), 10);
-        assert_eq!(Partition::new(-5.0, 5.0, 100).n_partitions(), 100);
+        assert_eq!(Equipartition::new(0.0, 5.0, 5).n_partitions(), 5);
+        assert_eq!(Equipartition::new(0.0, 5.0, 10).n_partitions(), 10);
+        assert_eq!(Equipartition::new(-5.0, 5.0, 100).n_partitions(), 100);
     }
 
     #[test]
     fn test_partition_width() {
-        assert_eq!(Partition::new(0.0, 5.0, 5).partition_width(), 1.0);
-        assert_eq!(Partition::new(0.0, 5.0, 10).partition_width(), 0.5);
-        assert_eq!(Partition::new(-5.0, 5.0, 10).partition_width(), 1.0);
+        assert_eq!(Equipartition::new(0.0, 5.0, 5).partition_width(), 1.0);
+        assert_eq!(Equipartition::new(0.0, 5.0, 10).partition_width(), 0.5);
+        assert_eq!(Equipartition::new(-5.0, 5.0, 10).partition_width(), 1.0);
     }
 
     #[test]
     fn test_centres() {
         assert_eq!(
-            Partition::new(0.0, 5.0, 5).centres(),
+            Equipartition::new(0.0, 5.0, 5).centres(),
             vec![0.5, 1.5, 2.5, 3.5, 4.5]
         );
 
         assert_eq!(
-            Partition::new(-5.0, 5.0, 5).centres(),
+            Equipartition::new(-5.0, 5.0, 5).centres(),
             vec![-4.0, -2.0, 0.0, 2.0, 4.0]
         );
     }
 
     #[test]
     fn test_to_partition() {
-        let d = Partition::new(0.0, 5.0, 6);
+        let d = Equipartition::new(0.0, 5.0, 6);
 
         assert_eq!(d.to_partition(-1.0), 0);
         assert_eq!(d.to_partition(0.0), 0);
@@ -171,15 +167,15 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        assert_eq!(Partition::new(0.0, 5.0, 5).dim(), Dim::one());
-        assert_eq!(Partition::new(0.0, 5.0, 10).dim(), Dim::one());
-        assert_eq!(Partition::new(-5.0, 5.0, 10).dim(), Dim::one());
+        assert_eq!(Equipartition::new(0.0, 5.0, 5).dim(), Dim::one());
+        assert_eq!(Equipartition::new(0.0, 5.0, 10).dim(), Dim::one());
+        assert_eq!(Equipartition::new(-5.0, 5.0, 10).dim(), Dim::one());
     }
 
     #[test]
     fn test_card() {
         fn check(lb: f64, ub: f64, n_partitions: usize) {
-            let d = Partition::new(lb, ub, n_partitions);
+            let d = Equipartition::new(lb, ub, n_partitions);
 
             assert_eq!(d.card(), Card::Finite(n_partitions));
         }
@@ -192,7 +188,7 @@ mod tests {
     #[test]
     fn test_bounds() {
         fn check(lb: f64, ub: f64, n_partitions: usize) {
-            let d = Partition::new(lb, ub, n_partitions);
+            let d = Equipartition::new(lb, ub, n_partitions);
 
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
@@ -210,7 +206,7 @@ mod tests {
     #[test]
     fn test_range() {
         fn check(lb: f64, ub: f64, n_partitions: usize) {
-            let d = Partition::new(lb, ub, n_partitions);
+            let d = Equipartition::new(lb, ub, n_partitions);
 
             assert_eq!(d.range(), 0..n_partitions);
         }
@@ -222,7 +218,7 @@ mod tests {
 
     #[test]
     fn test_surjection_f64() {
-        let d = Partition::new(0.0, 5.0, 6);
+        let d = Equipartition::new(0.0, 5.0, 6);
 
         assert_eq!(d.map(-1.0), 0);
         assert_eq!(d.map(0.0), 0);
@@ -236,7 +232,7 @@ mod tests {
 
     #[test]
     fn test_surjection_usize() {
-        let d = Partition::new(5.0, 6.0, 2);
+        let d = Equipartition::new(5.0, 6.0, 2);
 
         assert_eq!(d.map(0), 0);
         assert_eq!(d.map(1), 1);
@@ -247,13 +243,13 @@ mod tests {
     #[test]
     fn test_serialisation() {
         fn check(lb: f64, ub: f64, n_partitions: usize) {
-            let d = Partition::new(lb, ub, n_partitions);
+            let d = Equipartition::new(lb, ub, n_partitions);
 
             assert_tokens(
                 &d,
                 &[
                     Token::Struct {
-                        name: "Partition",
+                        name: "Equipartition",
                         len: 3,
                     },
                     Token::Str("lb"),

@@ -1,4 +1,4 @@
-use crate::{Space, Dim, Card, Union, Surjection, Interval, Partition};
+use crate::{Space, Dim, Card, Union, Surjection, Interval, Equipartition};
 use std::{
     fmt::{self, Display},
     ops::Index,
@@ -17,10 +17,10 @@ impl<D> TwoSpace<D> {
 }
 
 impl TwoSpace<Interval> {
-    pub fn partitioned(self, density: usize) -> TwoSpace<Partition> {
+    pub fn equipartitioned(self, density: usize) -> TwoSpace<Equipartition> {
         TwoSpace([
-            Partition::from_interval(self[0], density),
-            Partition::from_interval(self[1], density),
+            Equipartition::from_interval(self[0], density),
+            Equipartition::from_interval(self[1], density),
         ])
     }
 }

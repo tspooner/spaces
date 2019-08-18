@@ -1,6 +1,6 @@
 use crate::{
     Space, Dim, Card, Surjection, Union,
-    Partition, Interval,
+    Equipartition, Interval,
 };
 use itertools::{Itertools, EitherOrBoth};
 use std::{
@@ -29,14 +29,14 @@ impl<D> ProductSpace<D> {
 }
 
 impl ProductSpace<Interval> {
-    pub fn partitioned(self, density: usize) -> ProductSpace<Partition> {
+    pub fn equipartitioned(self, density: usize) -> ProductSpace<Equipartition> {
         self.into_iter()
-            .map(|d| Partition::from_interval(d, density))
+            .map(|d| Equipartition::from_interval(d, density))
             .collect()
     }
 }
 
-impl ProductSpace<Partition> {
+impl ProductSpace<Equipartition> {
     pub fn centres(&self) -> Vec<Vec<f64>> {
         self.iter().map(|d| d.centres()).collect()
     }
@@ -86,7 +86,7 @@ impl<D: Space> Index<usize> for ProductSpace<D> {
     fn index(&self, index: usize) -> &D { self.0.index(index) }
 }
 
-impl<D: Space> FromIterator<D> for ProductSpace<D> {
+impl<D> FromIterator<D> for ProductSpace<D> {
     fn from_iter<I: IntoIterator<Item = D>>(iter: I) -> Self {
         Self::new(iter.into_iter().collect())
     }
