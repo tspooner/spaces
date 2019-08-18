@@ -6,10 +6,6 @@ use std::{fmt, ops::Range};
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Binary;
 
-impl Binary {
-    pub fn new() -> Binary { Binary }
-}
-
 impl Space for Binary {
     type Value = bool;
 
@@ -52,15 +48,22 @@ mod tests {
     use self::serde_test::{assert_tokens, Token};
 
     #[test]
+    fn test_dim() {
+        let d = Binary;
+
+        assert_eq!(d.dim(), Dim::one());
+    }
+
+    #[test]
     fn test_card() {
-        let d = Binary::new();
+        let d = Binary;
 
         assert_eq!(d.card(), Card::Finite(2));
     }
 
     #[test]
     fn test_bounds() {
-        let d = Binary::new();
+        let d = Binary;
 
         assert_eq!(d.inf().unwrap(), false);
         assert_eq!(d.sup().unwrap(), true);
@@ -71,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_range() {
-        let d = Binary::new();
+        let d = Binary;
         let r = d.range();
 
         assert!(r == (false..true) || r == (true..false));
@@ -79,7 +82,7 @@ mod tests {
 
     #[test]
     fn test_surjection() {
-        let d = Binary::new();
+        let d = Binary;
 
         assert_eq!(d.map_onto(true), true);
         assert_eq!(d.map_onto(false), false);
@@ -88,7 +91,7 @@ mod tests {
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
-        let d = Binary::new();
+        let d = Binary;
 
         assert_tokens(&d, &[Token::UnitStruct { name: "Binary" }]);
     }
