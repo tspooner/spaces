@@ -1,7 +1,4 @@
-use crate::{
-    Space, BoundedSpace, FiniteSpace,
-    core::*,
-};
+use crate::prelude::*;
 use std::{cmp, fmt, ops::Range};
 
 /// Type representing a finite, ordinal set of values.

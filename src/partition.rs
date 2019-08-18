@@ -1,4 +1,4 @@
-use crate::{Space, BoundedSpace, FiniteSpace, Interval, core::*};
+use crate::{Interval, prelude::*};
 use std::{cmp, fmt, ops::Range};
 
 /// Finite, uniformly partitioned interval.

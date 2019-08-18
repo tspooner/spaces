@@ -1,11 +1,5 @@
-use crate::{
-    Space, BoundedSpace, FiniteSpace,
-    core::*,
-};
-use std::{
-    fmt,
-    ops::Range,
-};
+use crate::prelude::*;
+use std::{fmt, ops::Range};
 
 /// Type representing binary (base-2) values.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]

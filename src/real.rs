@@ -1,8 +1,5 @@
 //! Real spaces module.
-use crate::{
-    Space, BoundedSpace,
-    core::*,
-};
+use crate::prelude::*;
 use std::fmt;
 
 pub type Interval = crate::Interval<f64>;

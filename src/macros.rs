@@ -13,3 +13,13 @@ macro_rules! import_all {
         pub use self::$module::*;
     };
 }
+
+macro_rules! impl_auto_union {
+    ($type:ty, $build:expr) => {
+        impl Union for $type {
+            fn union(self, _: &$type) -> Self {
+                self
+            }
+        }
+    }
+}

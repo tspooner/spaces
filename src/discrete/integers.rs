@@ -1,7 +1,6 @@
 use crate::{
-    Space, BoundedSpace,
-    core::*,
     discrete::Naturals,
+    prelude::*,
 };
 use std::fmt;
 

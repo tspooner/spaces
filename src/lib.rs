@@ -14,7 +14,8 @@ extern crate serde;
 
 mod macros;
 
-import_all!(core);
+import_all!(dim);
+import_all!(card);
 
 pub mod real;
 pub mod discrete;
@@ -86,4 +87,34 @@ pub trait BoundedSpace: Space where Self::Value: PartialOrd {
 pub trait FiniteSpace: BoundedSpace where Self::Value: PartialOrd {
     /// Returns the finite range of values contained by this space.
     fn range(&self) -> ::std::ops::Range<Self::Value>;
+}
+
+/// Trait for types that implement a mapping from values of one set onto another.
+///
+/// A surjective function is such that every element of the codomain corresponds to at least one
+/// element of the domain. This clearly need not be unique.
+pub trait Surjection<X, Y> {
+    /// Map value from domain onto codomain.
+    fn map_onto(&self, from: X) -> Y;
+}
+
+/// Trait for types that can be combined in the form of a union.
+///
+/// The union of a collection of sets is the set that contains all elements in the collection.
+pub trait Union<S = Self> {
+    /// Return the smallest space enclosing `self` and `other` of type `Self`.
+    fn union(self, other: &S) -> Self;
+
+    /// Return the smallest space enclosing `self` and all `other_spaces` of type `Self`.
+    fn union_many(self, other_spaces: &[S]) -> Self where Self: Sized {
+        other_spaces.into_iter().fold(self, |acc, other_space| acc.union(other_space))
+    }
+}
+
+pub mod prelude {
+    pub use super::{
+        Space, BoundedSpace, FiniteSpace,
+        Surjection, Union,
+        Dim, Card,
+    };
 }

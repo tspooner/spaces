@@ -1,7 +1,4 @@
-use crate::{
-    Space, BoundedSpace,
-    core::*,
-};
+use crate::prelude::*;
 use std::fmt;
 
 /// Type representing the set of natural numbers, N.
