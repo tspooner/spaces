@@ -44,8 +44,8 @@ where
     D1: Space + Surjection<X1, <D1 as Space>::Value>,
     D2: Space + Surjection<X2, <D2 as Space>::Value>,
 {
-    fn map(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
-        (self.0.map(val.0), self.1.map(val.1))
+    fn map_onto(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
+        (self.0.map_onto(val.0), self.1.map_onto(val.1))
     }
 }
 

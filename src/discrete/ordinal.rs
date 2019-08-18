@@ -49,7 +49,7 @@ impl Union for Ordinal {
 }
 
 impl Surjection<usize, usize> for Ordinal {
-    fn map(&self, val: usize) -> usize { val as usize }
+    fn map_onto(&self, val: usize) -> usize { val as usize }
 }
 
 impl cmp::PartialEq for Ordinal {

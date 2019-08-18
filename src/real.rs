@@ -31,7 +31,7 @@ impl Space for Reals {
 impl_auto_union!(Reals, Reals);
 
 impl Surjection<f64, f64> for Reals {
-    fn map(&self, val: f64) -> f64 { val }
+    fn map_onto(&self, val: f64) -> f64 { val }
 }
 
 impl fmt::Display for Reals {
@@ -64,7 +64,7 @@ impl BoundedSpace for NonNegativeReals {
 impl_auto_union!(NonNegativeReals, NonNegativeReals);
 
 impl Surjection<f64, f64> for NonNegativeReals {
-    fn map(&self, val: f64) -> f64 { val.max(0.0) }
+    fn map_onto(&self, val: f64) -> f64 { val.max(0.0) }
 }
 
 impl fmt::Display for NonNegativeReals {
@@ -97,7 +97,7 @@ impl BoundedSpace for PositiveReals {
 impl_auto_union!(PositiveReals, PositiveReals);
 
 impl Surjection<f64, f64> for PositiveReals {
-    fn map(&self, val: f64) -> f64 { val.max(1e-7) }
+    fn map_onto(&self, val: f64) -> f64 { val.max(1e-7) }
 }
 
 impl fmt::Display for PositiveReals {
@@ -136,7 +136,7 @@ mod tests {
         for i in -10..10 {
             let v = i as f64;
 
-            assert_eq!(d.map(v), v);
+            assert_eq!(d.map_onto(v), v);
         }
     }
 

@@ -72,10 +72,10 @@ impl<D: Space + Union + Clone> Union for ProductSpace<D> {
 impl<D, X> Surjection<Vec<X>, Vec<D::Value>> for ProductSpace<D>
 where D: Space + Surjection<X, <D as Space>::Value>
 {
-    fn map(&self, val: Vec<X>) -> Vec<D::Value> {
+    fn map_onto(&self, val: Vec<X>) -> Vec<D::Value> {
         self.iter()
             .zip(val.into_iter())
-            .map(|(d, v)| d.map(v))
+            .map(|(d, v)| d.map_onto(v))
             .collect()
     }
 }

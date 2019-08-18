@@ -46,8 +46,8 @@ where
     D: Space + Surjection<X, <D as Space>::Value>,
     X: Clone,
 {
-    fn map(&self, val: [X; 2]) -> [D::Value; 2] {
-        [self[0].map(val[0].clone()), self[1].map(val[1].clone())]
+    fn map_onto(&self, val: [X; 2]) -> [D::Value; 2] {
+        [self[0].map_onto(val[0].clone()), self[1].map_onto(val[1].clone())]
     }
 }
 

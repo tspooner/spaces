@@ -89,11 +89,7 @@ impl FiniteSpace for Partition {
 }
 
 impl Surjection<f64, usize> for Partition {
-    fn map(&self, val: f64) -> usize { self.to_partition(val) }
-}
-
-impl Surjection<usize, usize> for Partition {
-    fn map(&self, val: usize) -> usize { clip!(0, val, self.n_partitions - 1) }
+    fn map_onto(&self, val: f64) -> usize { self.to_partition(val) }
 }
 
 impl cmp::PartialEq for Partition {

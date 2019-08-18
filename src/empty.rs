@@ -15,7 +15,7 @@ impl Space for Empty {
 }
 
 impl<T> Surjection<T, ()> for Empty {
-    fn map(&self, _: T) -> () { () }
+    fn map_onto(&self, _: T) -> () { () }
 }
 
 impl fmt::Display for Empty {
@@ -45,8 +45,8 @@ mod tests {
         let d = Empty;
 
         for i in 0..10 {
-            assert_eq!(d.map(i), ());
-            assert_eq!(d.map(i), ());
+            assert_eq!(d.map_onto(i), ());
+            assert_eq!(d.map_onto(i), ());
         }
     }
 

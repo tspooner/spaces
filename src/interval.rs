@@ -68,7 +68,7 @@ impl BoundedSpace for Interval<f64> {
 }
 
 impl Surjection<f64, f64> for Interval<f64> {
-    fn map(&self, val: f64) -> f64 {
+    fn map_onto(&self, val: f64) -> f64 {
         let val = self.lb.map_or(val, |inf| val.max(inf));
         let val = self.ub.map_or(val, |sup| val.min(sup));
 
@@ -100,7 +100,7 @@ impl BoundedSpace for Interval<i64> {
 }
 
 impl Surjection<i64, i64> for Interval<i64> {
-    fn map(&self, val: i64) -> i64 {
+    fn map_onto(&self, val: i64) -> i64 {
         let val = self.lb.map_or(val, |inf| val.max(inf));
         let val = self.ub.map_or(val, |sup| val.min(sup));
 

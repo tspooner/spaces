@@ -39,11 +39,11 @@ impl FiniteSpace for Binary {
 impl_auto_union!(Binary, Binary);
 
 impl Surjection<bool, bool> for Binary {
-    fn map(&self, val: bool) -> bool { val }
+    fn map_onto(&self, val: bool) -> bool { val }
 }
 
 impl Surjection<f64, bool> for Binary {
-    fn map(&self, val: f64) -> bool { val > 0.0 }
+    fn map_onto(&self, val: f64) -> bool { val > 0.0 }
 }
 
 impl fmt::Display for Binary {
