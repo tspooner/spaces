@@ -34,9 +34,7 @@ impl Project<f64, f64> for Reals {
 }
 
 impl fmt::Display for Reals {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{211d}")
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}") }
 }
 
 /// Type representing the set of non-negative real numbers, R(≥0).
@@ -63,9 +61,7 @@ impl Project<f64, f64> for NonNegativeReals {
 }
 
 impl fmt::Display for NonNegativeReals {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{211d}(>0)")
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(>0)") }
 }
 
 /// Type representing the set of strictly positive real numbers, R(>0).
@@ -88,9 +84,7 @@ impl Space for PositiveReals {
 impl_union_intersect!(PositiveReals, PositiveReals);
 
 impl fmt::Display for PositiveReals {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{211d}(≥0)")
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(≥0)") }
 }
 
 #[cfg(test)]

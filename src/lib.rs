@@ -17,14 +17,18 @@ mod macros;
 import_all!(dim);
 import_all!(card);
 
-pub mod real;
 pub mod discrete;
+pub mod real;
 
 import_all!(interval);
 import_all!(partition);
 
-import_all!(pair);
-import_all!(nd_space);
+import_all!(arrays);
+import_all!(tuples);
+
+pub type Euclidean<const N: usize> = [real::Reals; N];
+
+pub type Intervals<const N: usize> = [Interval; N];
 
 /// Trait for defining geometric spaces.
 pub trait Space {
@@ -61,6 +65,7 @@ pub trait Space {
     /// Returns true iff `self` has a well-defined minimum and maximum.
     fn is_bounded(&self) -> bool { self.is_lower_bounded() && self.is_upper_bounded() }
 
+    /// Returns true iff `self` contains all of its limit points.
     fn is_complete(&self) -> bool { self.min().is_some() && self.max().is_some() }
 }
 
@@ -93,12 +98,15 @@ impl<'a, D: Space> Space for &'a D {
 }
 
 /// Trait for defining spaces containing a finite set of values.
-pub trait FiniteSpace: Space where Self::Value: PartialOrd {
+pub trait FiniteSpace: Space
+where Self::Value: PartialOrd
+{
     /// Returns the finite range of values contained by this space.
     fn range(&self) -> ::std::ops::Range<Self::Value>;
 }
 
-/// Trait for types that implement an idempotent mapping from values of one space onto another.
+/// Trait for types that implement an idempotent mapping from values of one
+/// space onto another.
 pub trait Project<X, Y> {
     /// Map value from domain onto codomain.
     fn project(&self, from: X) -> Y;
@@ -106,36 +114,40 @@ pub trait Project<X, Y> {
 
 /// Trait for types that can be combined in the form of a union.
 ///
-/// The union of a collection of sets is the set that contains all elements in the collection.
+/// The union of a collection of sets is the set that contains all elements in
+/// the collection.
 pub trait Union<S = Self> {
-    /// Return the smallest space enclosing `self` and `other` of type `Self`.
+    /// Return a space enclosing `self` and `other` of type `Self`.
     fn union(self, other: &S) -> Self;
 
-    /// Return the smallest space enclosing `self` and all `other_spaces` of type `Self`.
-    fn union_many(self, other_spaces: &[S]) -> Self where Self: Sized {
-        other_spaces.into_iter().fold(self, |acc, other_space| acc.union(other_space))
+    /// Return a space enclosing `self` and all `other_spaces` of
+    /// type `Self`.
+    fn union_many(self, other_spaces: &[S]) -> Self
+    where Self: Sized {
+        other_spaces
+            .into_iter()
+            .fold(self, |acc, other_space| acc.union(other_space))
     }
 }
 
 /// Trait for types that can be combined in the form of an intersection.
 ///
-/// The intersection of a collection of sets is the set that contains only those elements present
-/// in each.
+/// The intersection of a collection of sets is the set that contains only those
+/// elements present in each.
 pub trait Intersection<S = Self> {
     /// Return the smallest space enclosing `self` and `other` of type `Self`.
     fn intersect(self, other: &S) -> Self;
 
-    /// Return the smallest space enclosing `self` and all `other_spaces` of type `Self`.
-    fn intersect_many(self, other_spaces: &[S]) -> Self where Self: Sized {
-        other_spaces.into_iter().fold(self, |acc, other_space| acc.intersect(other_space))
+    /// Return the smallest space enclosing `self` and all `other_spaces` of
+    /// type `Self`.
+    fn intersect_many(self, other_spaces: &[S]) -> Self
+    where Self: Sized {
+        other_spaces
+            .into_iter()
+            .fold(self, |acc, other_space| acc.intersect(other_space))
     }
 }
 
 mod prelude {
-    pub use super::{
-        Space, FiniteSpace,
-        Project,
-        Union, Intersection,
-        Dim, Card,
-    };
+    pub use super::{Card, Dim, FiniteSpace, Intersection, Project, Space, Union};
 }
