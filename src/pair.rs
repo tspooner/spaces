@@ -11,10 +11,10 @@ impl<D1, D2> PairSpace<D1, D2> {
 }
 
 impl PairSpace<Interval, Interval> {
-    pub fn equipartitioned(self, density: usize) -> PairSpace<Equipartition, Equipartition> {
+    pub fn equipartitioned<const N: usize, const M: usize>(self) -> PairSpace<Equipartition<N>, Equipartition<M>> {
         PairSpace(
-            Equipartition::from_interval(self.0, density),
-            Equipartition::from_interval(self.1, density),
+            Equipartition::<N>::from_interval(self.0),
+            Equipartition::<M>::from_interval(self.1),
         )
     }
 }
@@ -31,6 +31,10 @@ impl<D1: Space, D2: Space> Space for PairSpace<D1, D2> {
     fn dim(&self) -> Dim { self.0.dim() + self.1.dim() }
 
     fn card(&self) -> Card { self.0.card() * self.1.card() }
+
+    fn contains(&self, val: &Self::Value) -> bool {
+        self.0.contains(&val.0) && self.1.contains(&val.1)
+    }
 }
 
 impl<D1: Union, D2: Union> Union for PairSpace<D1, D2> {
@@ -45,13 +49,13 @@ impl<D1: Intersection, D2: Intersection> Intersection for PairSpace<D1, D2> {
     }
 }
 
-impl<D1, X1, D2, X2> Surjection<(X1, X2), (D1::Value, D2::Value)> for PairSpace<D1, D2>
+impl<D1, X1, D2, X2> Projection<(X1, X2), (D1::Value, D2::Value)> for PairSpace<D1, D2>
 where
-    D1: Space + Surjection<X1, <D1 as Space>::Value>,
-    D2: Space + Surjection<X2, <D2 as Space>::Value>,
+    D1: Space + Projection<X1, <D1 as Space>::Value>,
+    D2: Space + Projection<X2, <D2 as Space>::Value>,
 {
-    fn map_onto(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
-        (self.0.map_onto(val.0), self.1.map_onto(val.1))
+    fn project(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
+        (self.0.project(val.0), self.1.project(val.1))
     }
 }
 
@@ -82,18 +86,18 @@ mod tests {
     #[test]
     fn test_partitioned() {
         let ps = PairSpace::new(Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0));
-        let ps = ps.equipartitioned(5);
+        let ps = ps.equipartitioned::<5, 5>();
 
-        assert_eq!(ps.0, Equipartition::new(0.0, 5.0, 5));
-        assert_eq!(ps.1, Equipartition::new(1.0, 2.0, 5));
+        assert_eq!(ps.0, Equipartition::<5>::new(0.0, 5.0));
+        assert_eq!(ps.1, Equipartition::<5>::new(1.0, 2.0));
     }
 
     #[test]
     fn test_surjection() {
         let ps = PairSpace::new(Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0));
 
-        assert_eq!(ps.map_onto((6.0, 0.0)), (5.0, 1.0));
-        assert_eq!(ps.map_onto((2.5, 1.5)), (2.5, 1.5));
-        assert_eq!(ps.map_onto((-1.0, 10.0)), (0.0, 2.0));
+        assert_eq!(ps.project((6.0, 0.0)), (5.0, 1.0));
+        assert_eq!(ps.project((2.5, 1.5)), (2.5, 1.5));
+        assert_eq!(ps.project((-1.0, 10.0)), (0.0, 2.0));
     }
 }

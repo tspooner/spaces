@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use std::fmt;
 
-/// Type representing the set of natural numbers, N.
+/// Type representing the set of unsigned 64-bit integers.
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Naturals;
@@ -12,25 +12,19 @@ impl Space for Naturals {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
-}
 
-impl BoundedSpace for Naturals {
-    fn inf(&self) -> Option<u64> { Some(1) }
+    fn contains(&self, _: &u64) -> bool { true }
 
-    fn sup(&self) -> Option<u64> { None }
+    fn min(&self) -> Option<u64> { Some(0) }
 
-    fn contains(&self, val: u64) -> bool { val > 0 }
-}
-
-impl Surjection<u64, u64> for Naturals {
-    fn map_onto(&self, val: u64) -> u64 { val.max(1) }
+    fn max(&self) -> Option<u64> { None }
 }
 
 impl_union_intersect!(Naturals, Naturals);
 
 impl fmt::Display for Naturals {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{2115}")
+        write!(f, "\u{2124}(≥0)")
     }
 }
 
@@ -61,19 +55,11 @@ mod tests {
     fn test_bounds() {
         let d = Naturals;
 
-        assert_eq!(d.inf().unwrap(), 1);
+        assert_eq!(d.inf().unwrap(), 0);
         assert!(d.sup().is_none());
 
-        assert!(d.contains(1));
-        assert!(!d.contains(0));
-    }
-
-    #[test]
-    fn test_surjection() {
-        let d = Naturals;
-
-        assert_eq!(d.map_onto(0), 1);
-        assert_eq!(d.map_onto(1), 1);
+        assert!(d.contains(&0));
+        assert!(d.contains(&1));
     }
 
     #[cfg(feature = "serialize")]

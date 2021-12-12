@@ -12,14 +12,12 @@ impl Space for Binary {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Finite(2) }
-}
 
-impl BoundedSpace for Binary {
-    fn inf(&self) -> Option<bool> { Some(false) }
+    fn contains(&self, _: &bool) -> bool { true }
 
-    fn sup(&self) -> Option<bool> { Some(true) }
+    fn min(&self) -> Option<bool> { Some(false) }
 
-    fn contains(&self, _: bool) -> bool { true }
+    fn max(&self) -> Option<bool> { Some(true) }
 }
 
 impl FiniteSpace for Binary {
@@ -28,8 +26,8 @@ impl FiniteSpace for Binary {
 
 impl_union_intersect!(Binary, Binary);
 
-impl Surjection<bool, bool> for Binary {
-    fn map_onto(&self, val: bool) -> bool { val }
+impl Projection<bool, bool> for Binary {
+    fn project(&self, val: bool) -> bool { val }
 }
 
 impl fmt::Display for Binary {
@@ -68,8 +66,8 @@ mod tests {
         assert_eq!(d.inf().unwrap(), false);
         assert_eq!(d.sup().unwrap(), true);
 
-        assert!(d.contains(false));
-        assert!(d.contains(true));
+        assert!(d.contains(&false));
+        assert!(d.contains(&true));
     }
 
     #[test]
@@ -84,8 +82,8 @@ mod tests {
     fn test_surjection() {
         let d = Binary;
 
-        assert_eq!(d.map_onto(true), true);
-        assert_eq!(d.map_onto(false), false);
+        assert_eq!(d.project(true), true);
+        assert_eq!(d.project(false), false);
     }
 
     #[cfg(feature = "serialize")]

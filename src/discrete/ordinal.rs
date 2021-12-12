@@ -7,7 +7,6 @@ use std::{cmp, fmt, ops::Range};
 pub struct Ordinal(usize);
 
 impl Ordinal {
-
     pub fn new(size: usize) -> Ordinal {
         Ordinal(size)
     }
@@ -25,14 +24,12 @@ impl Space for Ordinal {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Finite(self.0) }
-}
 
-impl BoundedSpace for Ordinal {
-    fn inf(&self) -> Option<usize> { Some(0) }
+    fn contains(&self, val: &usize) -> bool { *val < self.0 }
 
-    fn sup(&self) -> Option<usize> { Some(self.0 - 1) }
+    fn min(&self) -> Option<usize> { Some(0) }
 
-    fn contains(&self, val: usize) -> bool { val < self.0 }
+    fn max(&self) -> Option<usize> { Some(self.0 - 1) }
 }
 
 impl FiniteSpace for Ordinal {
@@ -51,8 +48,8 @@ impl Intersection for Ordinal {
     }
 }
 
-impl Surjection<usize, usize> for Ordinal {
-    fn map_onto(&self, val: usize) -> usize { val as usize }
+impl Projection<usize, usize> for Ordinal {
+    fn project(&self, val: usize) -> usize { val as usize }
 }
 
 impl cmp::PartialEq for Ordinal {
@@ -95,9 +92,9 @@ mod tests {
             assert_eq!(d.inf().unwrap(), 0);
             assert_eq!(d.sup().unwrap(), size - 1);
 
-            assert!(d.contains(0));
-            assert!(d.contains(size - 1));
-            assert!(!d.contains(size));
+            assert!(d.contains(&0));
+            assert!(d.contains(&(size - 1)));
+            assert!(!d.contains(&size));
         }
 
         check(5);
@@ -116,16 +113,16 @@ mod tests {
     fn test_surjection() {
         let d = Ordinal::new(10);
 
-        assert_eq!(d.map_onto(0), 0);
-        assert_eq!(d.map_onto(1), 1);
-        assert_eq!(d.map_onto(2), 2);
-        assert_eq!(d.map_onto(3), 3);
-        assert_eq!(d.map_onto(4), 4);
-        assert_eq!(d.map_onto(5), 5);
-        assert_eq!(d.map_onto(6), 6);
-        assert_eq!(d.map_onto(7), 7);
-        assert_eq!(d.map_onto(8), 8);
-        assert_eq!(d.map_onto(9), 9);
+        assert_eq!(d.project(0), 0);
+        assert_eq!(d.project(1), 1);
+        assert_eq!(d.project(2), 2);
+        assert_eq!(d.project(3), 3);
+        assert_eq!(d.project(4), 4);
+        assert_eq!(d.project(5), 5);
+        assert_eq!(d.project(6), 6);
+        assert_eq!(d.project(7), 7);
+        assert_eq!(d.project(8), 8);
+        assert_eq!(d.project(9), 9);
     }
 
     #[cfg(feature = "serialize")]

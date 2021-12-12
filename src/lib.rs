@@ -20,17 +20,15 @@ import_all!(card);
 pub mod real;
 pub mod discrete;
 
-import_all!(empty);
 import_all!(interval);
 import_all!(partition);
 
 import_all!(pair);
-import_all!(n_space);
-import_all!(product);
+import_all!(nd_space);
 
 /// Trait for defining geometric spaces.
 pub trait Space {
-    /// The data representation of the space.
+    /// The data representation of elements of the space.
     type Value: Clone;
 
     /// Return the dimensionality of the space.
@@ -38,6 +36,32 @@ pub trait Space {
 
     /// Return the number of elements in the set comprising the space.
     fn card(&self) -> Card;
+
+    /// Returns true iff `val` is contained within the space.
+    fn contains(&self, val: &Self::Value) -> bool;
+
+    /// Returns the value of the space's minimum value, if it exists.
+    fn min(&self) -> Option<Self::Value> { None }
+
+    /// Return the infimum of the space.
+    fn inf(&self) -> Option<Self::Value> { self.min() }
+
+    /// Returns the value of the dimension's supremum, if it exists.
+    fn max(&self) -> Option<Self::Value> { None }
+
+    /// Returns the supremum of the space.
+    fn sup(&self) -> Option<Self::Value> { self.max() }
+
+    /// Returns true iff `self` has a well-defined infimum.
+    fn is_lower_bounded(&self) -> bool { self.inf().is_some() }
+
+    /// Returns true iff `self` has a well-defined supremum.
+    fn is_upper_bounded(&self) -> bool { self.sup().is_some() }
+
+    /// Returns true iff `self` has a well-defined minimum and maximum.
+    fn is_bounded(&self) -> bool { self.is_lower_bounded() && self.is_upper_bounded() }
+
+    fn is_complete(&self) -> bool { self.min().is_some() && self.max().is_some() }
 }
 
 impl<D: Space> Space for Box<D> {
@@ -46,6 +70,12 @@ impl<D: Space> Space for Box<D> {
     fn dim(&self) -> Dim { (**self).dim() }
 
     fn card(&self) -> Card { (**self).card() }
+
+    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
+
+    fn min(&self) -> Option<Self::Value> { (**self).min() }
+
+    fn max(&self) -> Option<Self::Value> { (**self).max() }
 }
 
 impl<'a, D: Space> Space for &'a D {
@@ -54,48 +84,24 @@ impl<'a, D: Space> Space for &'a D {
     fn dim(&self) -> Dim { (**self).dim() }
 
     fn card(&self) -> Card { (**self).card() }
-}
 
-/// Trait for defining spaces with at least one finite bound.
-///
-/// Note: If both `inf` and `sup` are well defined (i.e. are not None), then the interval is
-/// totally bounded and we have a compact space; this is true in `spaces` as bounds are treated as
-/// closed.
-pub trait BoundedSpace: Space where Self::Value: PartialOrd {
-    /// Returns the value of the dimension's infimum, if it exists.
-    fn inf(&self) -> Option<Self::Value>;
+    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
 
-    /// Returns the value of the dimension's supremum, if it exists.
-    fn sup(&self) -> Option<Self::Value>;
+    fn min(&self) -> Option<Self::Value> { (**self).min() }
 
-    /// Returns true iff `val` lies within the dimension's bounds (closed).
-    fn contains(&self, val: Self::Value) -> bool;
-
-    /// Returns true iff `self` has a finite infimum.
-    fn is_left_bounded(&self) -> bool { self.inf().is_some() }
-
-    /// Returns true iff `self` has a finite supremum.
-    fn is_right_bounded(&self) -> bool { self.sup().is_some() }
-
-    /// Returns true iff `self` has finite bounds in both directions.
-    ///
-    /// Note: this trait assumed closedness, so compactness follows.
-    fn is_compact(&self) -> bool { self.is_left_bounded() && self.is_right_bounded() }
+    fn max(&self) -> Option<Self::Value> { (**self).max() }
 }
 
 /// Trait for defining spaces containing a finite set of values.
-pub trait FiniteSpace: BoundedSpace where Self::Value: PartialOrd {
+pub trait FiniteSpace: Space where Self::Value: PartialOrd {
     /// Returns the finite range of values contained by this space.
     fn range(&self) -> ::std::ops::Range<Self::Value>;
 }
 
-/// Trait for types that implement a mapping from values of one set onto another.
-///
-/// A surjective function is such that every element of the codomain corresponds to at least one
-/// element of the domain. This clearly need not be unique.
-pub trait Surjection<X, Y> {
+/// Trait for types that implement an idempotent mapping from values of one space onto another.
+pub trait Projection<X, Y> {
     /// Map value from domain onto codomain.
-    fn map_onto(&self, from: X) -> Y;
+    fn project(&self, from: X) -> Y;
 }
 
 /// Trait for types that can be combined in the form of a union.
@@ -127,8 +133,9 @@ pub trait Intersection<S = Self> {
 
 mod prelude {
     pub use super::{
-        Space, BoundedSpace, FiniteSpace,
-        Surjection, Union, Intersection,
+        Space, FiniteSpace,
+        Projection,
+        Union, Intersection,
         Dim, Card,
     };
 }
