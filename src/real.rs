@@ -29,7 +29,7 @@ impl Space for Reals {
 
 impl_union_intersect!(Reals, Reals);
 
-impl Projection<f64, f64> for Reals {
+impl Project<f64, f64> for Reals {
     fn project(&self, val: f64) -> f64 { val }
 }
 
@@ -58,7 +58,7 @@ impl Space for NonNegativeReals {
 
 impl_union_intersect!(NonNegativeReals, NonNegativeReals);
 
-impl Projection<f64, f64> for NonNegativeReals {
+impl Project<f64, f64> for NonNegativeReals {
     fn project(&self, val: f64) -> f64 { val.max(0.0) }
 }
 

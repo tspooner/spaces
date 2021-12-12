@@ -49,10 +49,10 @@ impl<D1: Intersection, D2: Intersection> Intersection for PairSpace<D1, D2> {
     }
 }
 
-impl<D1, X1, D2, X2> Projection<(X1, X2), (D1::Value, D2::Value)> for PairSpace<D1, D2>
+impl<D1, X1, D2, X2> Project<(X1, X2), (D1::Value, D2::Value)> for PairSpace<D1, D2>
 where
-    D1: Space + Projection<X1, <D1 as Space>::Value>,
-    D2: Space + Projection<X2, <D2 as Space>::Value>,
+    D1: Space + Project<X1, <D1 as Space>::Value>,
+    D2: Space + Project<X2, <D2 as Space>::Value>,
 {
     fn project(&self, val: (X1, X2)) -> (D1::Value, D2::Value) {
         (self.0.project(val.0), self.1.project(val.1))

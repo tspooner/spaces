@@ -26,7 +26,7 @@ impl FiniteSpace for Binary {
 
 impl_union_intersect!(Binary, Binary);
 
-impl Projection<bool, bool> for Binary {
+impl Project<bool, bool> for Binary {
     fn project(&self, val: bool) -> bool { val }
 }
 

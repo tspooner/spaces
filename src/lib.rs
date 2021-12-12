@@ -99,7 +99,7 @@ pub trait FiniteSpace: Space where Self::Value: PartialOrd {
 }
 
 /// Trait for types that implement an idempotent mapping from values of one space onto another.
-pub trait Projection<X, Y> {
+pub trait Project<X, Y> {
     /// Map value from domain onto codomain.
     fn project(&self, from: X) -> Y;
 }
@@ -134,7 +134,7 @@ pub trait Intersection<S = Self> {
 mod prelude {
     pub use super::{
         Space, FiniteSpace,
-        Projection,
+        Project,
         Union, Intersection,
         Dim, Card,
     };

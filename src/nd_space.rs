@@ -83,9 +83,9 @@ impl<D: Space + Intersection + Clone, const N: usize> Intersection for NDSpace<D
     }
 }
 
-impl<D, X, const N: usize> Projection<[X; N], [D::Value; N]> for NDSpace<D, N>
+impl<D, X, const N: usize> Project<[X; N], [D::Value; N]> for NDSpace<D, N>
 where
-    D: Space + Projection<X, <D as Space>::Value>,
+    D: Space + Project<X, <D as Space>::Value>,
     D::Value: Default,
 {
     fn project(&self, val: [X; N]) -> [D::Value; N] {

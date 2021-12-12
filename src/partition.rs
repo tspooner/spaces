@@ -86,7 +86,7 @@ impl<const N: usize> FiniteSpace for Equipartition<N> {
     fn range(&self) -> Range<Self::Value> { 0..N }
 }
 
-impl<const N: usize> Projection<f64, usize> for Equipartition<N> {
+impl<const N: usize> Project<f64, usize> for Equipartition<N> {
     fn project(&self, val: f64) -> usize { self.to_partition(val) }
 }
 

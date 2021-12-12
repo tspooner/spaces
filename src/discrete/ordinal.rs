@@ -48,7 +48,7 @@ impl Intersection for Ordinal {
     }
 }
 
-impl Projection<usize, usize> for Ordinal {
+impl Project<usize, usize> for Ordinal {
     fn project(&self, val: usize) -> usize { val as usize }
 }
 
