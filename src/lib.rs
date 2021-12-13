@@ -24,6 +24,7 @@ import_all!(interval);
 import_all!(partition);
 
 import_all!(arrays);
+import_all!(maps);
 import_all!(tuples);
 
 pub type Euclidean<const N: usize> = [real::Reals; N];
