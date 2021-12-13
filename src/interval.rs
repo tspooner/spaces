@@ -117,7 +117,7 @@ impl<T: Clone + cmp::PartialOrd> Union for Interval<T> {
     }
 }
 
-impl<T: Clone + cmp::PartialOrd> Intersection for Interval<T> {
+impl<T: Clone + cmp::PartialOrd> Intersect for Interval<T> {
     fn intersect(self, other: &Self) -> Self {
         Interval::new(
             both(self.lb, other.lb.clone()).map(|(a, b)| {

@@ -36,7 +36,7 @@ macro_rules! impl_tuple {
             }
         }
 
-        impl<$($tp: Intersection),+> Intersection for ($($tp),+) {
+        impl<$($tp: Intersect),+> Intersect for ($($tp),+) {
             fn intersect(self, other: &Self) -> Self {
                 ($(self.$i.intersect(&other.$i)),+).into()
             }

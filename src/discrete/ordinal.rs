@@ -33,7 +33,7 @@ impl Union for Range<usize> {
     }
 }
 
-impl Intersection for Range<usize> {
+impl Intersect for Range<usize> {
     fn intersect(self, other: &Range<usize>) -> Range<usize> {
         Range {
             start: self.start.max(other.start),

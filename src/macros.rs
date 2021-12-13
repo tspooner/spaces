@@ -20,7 +20,7 @@ macro_rules! impl_union_intersect {
             fn union(self, _: &$type) -> Self { self }
         }
 
-        impl Intersection for $type {
+        impl Intersect for $type {
             fn intersect(self, _: &$type) -> Self { self }
         }
     };

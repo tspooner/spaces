@@ -36,7 +36,7 @@ impl<D: Space + Union + Clone, const N: usize> Union for [D; N] {
     }
 }
 
-impl<D: Space + Intersection + Clone, const N: usize> Intersection for [D; N] {
+impl<D: Space + Intersect + Clone, const N: usize> Intersect for [D; N] {
     fn intersect(self, other: &Self) -> Self {
         let mut i = 0;
 

@@ -134,7 +134,7 @@ pub trait Union<S = Self> {
 ///
 /// The intersection of a collection of sets is the set that contains only those
 /// elements present in each.
-pub trait Intersection<S = Self> {
+pub trait Intersect<S = Self> {
     /// Return the smallest space enclosing `self` and `other` of type `Self`.
     fn intersect(self, other: &S) -> Self;
 
@@ -149,5 +149,5 @@ pub trait Intersection<S = Self> {
 }
 
 mod prelude {
-    pub use super::{Card, Dim, FiniteSpace, Intersection, Project, Space, Union};
+    pub use super::{Card, Dim, FiniteSpace, Intersect, Project, Space, Union};
 }
