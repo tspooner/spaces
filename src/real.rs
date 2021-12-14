@@ -18,9 +18,9 @@ impl Reals {
 }
 
 impl Space for Reals {
-    type Value = f64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = f64;
 
     fn card(&self) -> Card { Card::Infinite }
 
@@ -41,9 +41,9 @@ impl fmt::Display for Reals {
 pub struct NonNegativeReals;
 
 impl Space for NonNegativeReals {
-    type Value = f64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = f64;
 
     fn card(&self) -> Card { Card::Infinite }
 
@@ -66,9 +66,9 @@ impl fmt::Display for NonNegativeReals {
 pub struct PositiveReals;
 
 impl Space for PositiveReals {
-    type Value = f64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = f64;
 
     fn card(&self) -> Card { Card::Infinite }
 

@@ -7,9 +7,9 @@ use std::fmt;
 pub struct Naturals;
 
 impl Space for Naturals {
-    type Value = u64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = u64;
 
     fn card(&self) -> Card { Card::Infinite }
 
@@ -41,9 +41,7 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        let d = Naturals;
-
-        assert_eq!(d.dim(), Dim::one());
+        assert_eq!(Naturals::DIM, 1);
     }
 
     #[test]

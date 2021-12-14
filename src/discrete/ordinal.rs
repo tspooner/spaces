@@ -2,9 +2,9 @@ use crate::prelude::*;
 use std::ops::Range;
 
 impl Space for Range<usize> {
-    type Value = usize;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = usize;
 
     fn card(&self) -> Card {
         // TODO: when the Step trait drops, we can replace this with a direct call to

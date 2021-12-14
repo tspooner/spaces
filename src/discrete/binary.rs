@@ -7,9 +7,9 @@ use std::{fmt, ops::Range};
 pub struct Binary;
 
 impl Space for Binary {
-    type Value = bool;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = bool;
 
     fn card(&self) -> Card { Card::Finite(2) }
 
@@ -45,9 +45,7 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        let d = Binary;
-
-        assert_eq!(d.dim(), Dim::one());
+        assert_eq!(Binary::DIM, 1);
     }
 
     #[test]

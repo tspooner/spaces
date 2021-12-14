@@ -7,9 +7,9 @@ use std::fmt;
 pub struct Integers;
 
 impl Space for Integers {
-    type Value = i64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = i64;
 
     fn card(&self) -> Card { Card::Infinite }
 
@@ -32,9 +32,9 @@ impl fmt::Display for Integers {
 pub struct NonZeroIntegers;
 
 impl Space for NonZeroIntegers {
-    type Value = i64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = i64;
 
     fn card(&self) -> Card { Card::Infinite }
 
@@ -57,9 +57,9 @@ impl fmt::Display for NonZeroIntegers {
 pub struct NonNegativeIntegers;
 
 impl Space for NonNegativeIntegers {
-    type Value = i64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = i64;
 
     fn card(&self) -> Card { Card::Infinite }
 

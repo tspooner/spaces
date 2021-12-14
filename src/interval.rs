@@ -50,9 +50,9 @@ impl<T> Interval<T> {
 }
 
 impl Space for Interval<f64> {
-    type Value = f64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = f64;
 
     fn card(&self) -> Card { Card::Infinite }
 
@@ -68,9 +68,9 @@ impl OrderedSpace for Interval<f64> {
 }
 
 impl Space for Interval<i64> {
-    type Value = i64;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = i64;
 
     fn card(&self) -> Card {
         match (self.lb, self.ub) {

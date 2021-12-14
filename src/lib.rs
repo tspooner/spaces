@@ -14,7 +14,6 @@ extern crate serde;
 
 mod macros;
 
-import_all!(dim);
 import_all!(card);
 
 pub mod discrete;
@@ -24,7 +23,6 @@ import_all!(interval);
 import_all!(partition);
 
 import_all!(arrays);
-import_all!(maps);
 import_all!(tuples);
 
 pub type Euclidean<const N: usize> = [real::Reals; N];
@@ -33,11 +31,11 @@ pub type Intervals<const N: usize> = [Interval; N];
 
 /// Trait for defining geometric spaces.
 pub trait Space {
+    /// The dimensionality of the space.
+    const DIM: usize;
+
     /// The data representation of elements of the space.
     type Value: Clone;
-
-    /// Return the dimensionality of the space.
-    fn dim(&self) -> Dim;
 
     /// Return the number of elements in the set comprising the space.
     fn card(&self) -> Card;
@@ -47,9 +45,9 @@ pub trait Space {
 }
 
 impl<D: Space> Space for Box<D> {
-    type Value = D::Value;
+    const DIM: usize = D::DIM;
 
-    fn dim(&self) -> Dim { (**self).dim() }
+    type Value = D::Value;
 
     fn card(&self) -> Card { (**self).card() }
 
@@ -57,16 +55,18 @@ impl<D: Space> Space for Box<D> {
 }
 
 impl<'a, D: Space> Space for &'a D {
-    type Value = D::Value;
+    const DIM: usize = D::DIM;
 
-    fn dim(&self) -> Dim { (**self).dim() }
+    type Value = D::Value;
 
     fn card(&self) -> Card { (**self).card() }
 
     fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
 }
 
-pub trait OrderedSpace: Space where Self::Value: PartialOrd {
+pub trait OrderedSpace: Space
+where Self::Value: PartialOrd
+{
     /// Returns the value of the space's minimum value, if it exists.
     fn min(&self) -> Option<Self::Value> { None }
 
@@ -135,5 +135,5 @@ pub trait Intersect<S = Self> {
 }
 
 mod prelude {
-    pub use super::{Card, Dim, OrderedSpace, FiniteSpace, Intersect, Space, Union};
+    pub use super::{Card, FiniteSpace, Intersect, OrderedSpace, Space, Union};
 }
