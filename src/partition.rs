@@ -76,7 +76,9 @@ impl<const N: usize> Space for Equipartition<N> {
     fn card(&self) -> Card { Card::Finite(N) }
 
     fn contains(&self, val: &usize) -> bool { *val < N }
+}
 
+impl<const N: usize> OrderedSpace for Equipartition<N> {
     fn min(&self) -> Option<usize> { Some(0) }
 
     fn max(&self) -> Option<usize> { Some(N - 1) }

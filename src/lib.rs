@@ -44,7 +44,37 @@ pub trait Space {
 
     /// Returns true iff `val` is contained within the space.
     fn contains(&self, val: &Self::Value) -> bool;
+}
 
+impl<D: Space> Space for Box<D> {
+    type Value = D::Value;
+
+    fn dim(&self) -> Dim { (**self).dim() }
+
+    fn card(&self) -> Card { (**self).card() }
+
+    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
+
+    // fn min(&self) -> Option<Self::Value> { (**self).min() }
+
+    // fn max(&self) -> Option<Self::Value> { (**self).max() }
+}
+
+impl<'a, D: Space> Space for &'a D {
+    type Value = D::Value;
+
+    fn dim(&self) -> Dim { (**self).dim() }
+
+    fn card(&self) -> Card { (**self).card() }
+
+    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
+
+    // fn min(&self) -> Option<Self::Value> { (**self).min() }
+
+    // fn max(&self) -> Option<Self::Value> { (**self).max() }
+}
+
+pub trait OrderedSpace: Space where Self::Value: PartialEq {
     /// Returns the value of the space's minimum value, if it exists.
     fn min(&self) -> Option<Self::Value> { None }
 
@@ -65,51 +95,15 @@ pub trait Space {
 
     /// Returns true iff `self` has a well-defined minimum and maximum.
     fn is_bounded(&self) -> bool { self.is_lower_bounded() && self.is_upper_bounded() }
-
-    /// Returns true iff `self` contains all of its limit points.
-    fn is_complete(&self) -> bool { self.min().is_some() && self.max().is_some() }
-}
-
-impl<D: Space> Space for Box<D> {
-    type Value = D::Value;
-
-    fn dim(&self) -> Dim { (**self).dim() }
-
-    fn card(&self) -> Card { (**self).card() }
-
-    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
-
-    fn min(&self) -> Option<Self::Value> { (**self).min() }
-
-    fn max(&self) -> Option<Self::Value> { (**self).max() }
-}
-
-impl<'a, D: Space> Space for &'a D {
-    type Value = D::Value;
-
-    fn dim(&self) -> Dim { (**self).dim() }
-
-    fn card(&self) -> Card { (**self).card() }
-
-    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
-
-    fn min(&self) -> Option<Self::Value> { (**self).min() }
-
-    fn max(&self) -> Option<Self::Value> { (**self).max() }
 }
 
 /// Trait for defining spaces containing a finite set of values.
 pub trait FiniteSpace: Space {
     fn to_ordinal(&self) -> ::std::ops::Range<usize> {
-        0..self.card().expect_finite("Finite spaces must have finite cardinality.")
+        0..self
+            .card()
+            .expect_finite("Finite spaces must have finite cardinality.")
     }
-}
-
-/// Trait for types that implement an idempotent mapping from values of one
-/// space onto another.
-pub trait Project<X, Y> {
-    /// Map value from domain onto codomain.
-    fn project(&self, from: X) -> Y;
 }
 
 /// Trait for types that can be combined in the form of a union.
@@ -148,6 +142,13 @@ pub trait Intersect<S = Self> {
     }
 }
 
+/// Trait for types that implement an idempotent mapping from values of one
+/// space onto another.
+pub trait Project<X, Y> {
+    /// Map value from domain onto codomain.
+    fn project(&self, from: X) -> Y;
+}
+
 mod prelude {
-    pub use super::{Card, Dim, FiniteSpace, Intersect, Project, Space, Union};
+    pub use super::{Card, Dim, OrderedSpace, FiniteSpace, Intersect, Project, Space, Union};
 }

@@ -14,11 +14,9 @@ impl Space for Integers {
     fn card(&self) -> Card { Card::Infinite }
 
     fn contains(&self, _: &i64) -> bool { true }
-
-    fn min(&self) -> Option<i64> { None }
-
-    fn max(&self) -> Option<i64> { None }
 }
+
+impl OrderedSpace for Integers {}
 
 impl_union_intersect!(Integers, Integers);
 
@@ -41,11 +39,9 @@ impl Space for NonZeroIntegers {
     fn card(&self) -> Card { Card::Infinite }
 
     fn contains(&self, val: &i64) -> bool { *val != 0 }
-
-    fn min(&self) -> Option<i64> { None }
-
-    fn max(&self) -> Option<i64> { None }
 }
+
+impl OrderedSpace for NonZeroIntegers {}
 
 impl_union_intersect!(NonZeroIntegers, NonZeroIntegers);
 
@@ -68,10 +64,10 @@ impl Space for NonNegativeIntegers {
     fn card(&self) -> Card { Card::Infinite }
 
     fn contains(&self, _: &i64) -> bool { true }
+}
 
+impl OrderedSpace for NonNegativeIntegers {
     fn min(&self) -> Option<i64> { Some(0) }
-
-    fn max(&self) -> Option<i64> { None }
 }
 
 impl_union_intersect!(NonNegativeIntegers, NonNegativeIntegers);

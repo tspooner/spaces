@@ -59,7 +59,9 @@ impl Space for Interval<f64> {
     fn contains(&self, val: &f64) -> bool {
         self.lb.map_or(true, |l| *val >= l) && self.ub.map_or(true, |u| *val <= u)
     }
+}
 
+impl OrderedSpace for Interval<f64> {
     fn min(&self) -> Option<f64> { self.lb }
 
     fn max(&self) -> Option<f64> { self.ub }
@@ -89,7 +91,9 @@ impl Space for Interval<i64> {
     fn contains(&self, val: &i64) -> bool {
         self.lb.map_or(true, |l| *val >= l) && self.ub.map_or(true, |u| *val <= u)
     }
+}
 
+impl OrderedSpace for Interval<i64> {
     fn min(&self) -> Option<i64> { self.lb }
 
     fn max(&self) -> Option<i64> { self.ub }

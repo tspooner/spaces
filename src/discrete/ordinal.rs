@@ -14,7 +14,9 @@ impl Space for Range<usize> {
     }
 
     fn contains(&self, val: &usize) -> bool { Range::contains(&self, val) }
+}
 
+impl OrderedSpace for Range<usize> {
     fn min(&self) -> Option<usize> { Some(self.start) }
 
     fn max(&self) -> Option<usize> { Some(self.end - 1) }

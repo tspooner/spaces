@@ -27,6 +27,8 @@ impl Space for Reals {
     fn contains(&self, _: &f64) -> bool { true }
 }
 
+impl OrderedSpace for Reals {}
+
 impl_union_intersect!(Reals, Reals);
 
 impl Project<f64, f64> for Reals {
@@ -50,7 +52,9 @@ impl Space for NonNegativeReals {
     fn card(&self) -> Card { Card::Infinite }
 
     fn contains(&self, val: &f64) -> bool { *val >= 0.0 }
+}
 
+impl OrderedSpace for NonNegativeReals {
     fn min(&self) -> Option<f64> { Some(0.0) }
 }
 
@@ -76,9 +80,11 @@ impl Space for PositiveReals {
 
     fn card(&self) -> Card { Card::Infinite }
 
-    fn inf(&self) -> Option<f64> { Some(0.0) }
-
     fn contains(&self, val: &f64) -> bool { *val > 0.0 }
+}
+
+impl OrderedSpace for PositiveReals {
+    fn inf(&self) -> Option<f64> { Some(0.0) }
 }
 
 impl_union_intersect!(PositiveReals, PositiveReals);

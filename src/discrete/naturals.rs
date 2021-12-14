@@ -14,7 +14,9 @@ impl Space for Naturals {
     fn card(&self) -> Card { Card::Infinite }
 
     fn contains(&self, _: &u64) -> bool { true }
+}
 
+impl OrderedSpace for Naturals {
     fn min(&self) -> Option<u64> { Some(0) }
 
     fn max(&self) -> Option<u64> { None }

@@ -14,7 +14,9 @@ impl Space for Binary {
     fn card(&self) -> Card { Card::Finite(2) }
 
     fn contains(&self, _: &bool) -> bool { true }
+}
 
+impl OrderedSpace for Binary {
     fn min(&self) -> Option<bool> { Some(false) }
 
     fn max(&self) -> Option<bool> { Some(true) }
