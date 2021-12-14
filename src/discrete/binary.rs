@@ -21,7 +21,7 @@ impl Space for Binary {
 }
 
 impl FiniteSpace for Binary {
-    fn range(&self) -> Range<Self::Value> { false..true }
+    fn to_ordinal(&self) -> Range<usize> { 0..1 }
 }
 
 impl_union_intersect!(Binary, Binary);
@@ -71,11 +71,8 @@ mod tests {
     }
 
     #[test]
-    fn test_range() {
-        let d = Binary;
-        let r = d.range();
-
-        assert!(r == (false..true) || r == (true..false));
+    fn test_to_ordinal() {
+        assert_eq!(Binary.to_ordinal(), 0..1);
     }
 
     #[test]

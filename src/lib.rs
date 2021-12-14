@@ -99,11 +99,10 @@ impl<'a, D: Space> Space for &'a D {
 }
 
 /// Trait for defining spaces containing a finite set of values.
-pub trait FiniteSpace: Space
-where Self::Value: PartialOrd
-{
-    /// Returns the finite range of values contained by this space.
-    fn range(&self) -> ::std::ops::Range<Self::Value>;
+pub trait FiniteSpace: Space {
+    fn to_ordinal(&self) -> ::std::ops::Range<usize> {
+        0..self.card().expect_finite("Finite spaces must have finite cardinality.")
+    }
 }
 
 /// Trait for types that implement an idempotent mapping from values of one

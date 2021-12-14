@@ -32,6 +32,36 @@ pub enum Card {
     Infinite,
 }
 
+impl Card {
+    pub fn is_zero(&self) -> bool {
+        match self {
+            &Card::Finite(n) => n == 0,
+            _ => false,
+        }
+    }
+
+    pub fn is_finite(&self) -> bool {
+        match self {
+            &Card::Finite(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_infinite(&self) -> bool {
+        match self {
+            &Card::Infinite => true,
+            _ => false,
+        }
+    }
+
+    pub fn expect_finite(&self, msg: &str) -> usize {
+        match self {
+            &Card::Finite(n) => n,
+            _ => panic!("{}", msg),
+        }
+    }
+}
+
 impl Mul for Card {
     type Output = Card;
 

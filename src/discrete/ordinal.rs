@@ -21,7 +21,7 @@ impl Space for Range<usize> {
 }
 
 impl FiniteSpace for Range<usize> {
-    fn range(&self) -> Range<Self::Value> { self.clone() }
+    fn to_ordinal(&self) -> Range<Self::Value> { self.clone() }
 }
 
 impl Union for Range<usize> {
@@ -87,10 +87,10 @@ mod tests {
     }
 
     #[test]
-    fn test_range() {
-        assert_eq!((0..1).range(), 0..1);
-        assert_eq!((0..5).range(), 0..5);
-        assert_eq!((0..10).range(), 0..10);
+    fn test_to_ordinal() {
+        assert_eq!((0..1).to_ordinal(), 0..1);
+        assert_eq!((0..5).to_ordinal(), 0..5);
+        assert_eq!((0..10).to_ordinal(), 0..10);
     }
 
     #[test]

@@ -83,7 +83,7 @@ impl<const N: usize> Space for Equipartition<N> {
 }
 
 impl<const N: usize> FiniteSpace for Equipartition<N> {
-    fn range(&self) -> Range<Self::Value> { 0..N }
+    fn to_ordinal(&self) -> Range<Self::Value> { 0..N }
 }
 
 impl<const N: usize> Project<f64, usize> for Equipartition<N> {
@@ -203,11 +203,11 @@ mod tests {
     }
 
     #[test]
-    fn test_range() {
+    fn test_to_ordinal() {
         fn check<const N: usize>(lb: f64, ub: f64) {
             let d = Equipartition::<N>::new(lb, ub);
 
-            assert_eq!(d.range(), 0..N);
+            assert_eq!(d.to_ordinal(), 0..N);
         }
 
         check::<5>(0.0, 5.0);
