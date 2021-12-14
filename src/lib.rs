@@ -74,7 +74,7 @@ impl<'a, D: Space> Space for &'a D {
     // fn max(&self) -> Option<Self::Value> { (**self).max() }
 }
 
-pub trait OrderedSpace: Space where Self::Value: PartialEq {
+pub trait OrderedSpace: Space where Self::Value: PartialOrd {
     /// Returns the value of the space's minimum value, if it exists.
     fn min(&self) -> Option<Self::Value> { None }
 
