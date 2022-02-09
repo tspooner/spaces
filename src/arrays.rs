@@ -1,9 +1,9 @@
 use crate::prelude::*;
 
 impl<D: Space, const N: usize> Space for [D; N] {
-    type Value = [D::Value; N];
+    const DIM: usize = N;
 
-    fn dim(&self) -> Dim { self.iter().fold(Dim::Finite(0), |acc, d| acc + d.dim()) }
+    type Value = [D::Value; N];
 
     fn card(&self) -> Card { self.iter().fold(Card::Finite(0), |acc, d| acc * d.card()) }
 
@@ -43,9 +43,11 @@ mod tests {
     use crate::Interval;
     use super::*;
 
+    type S = [::std::ops::Range<usize>; 2];
+
     #[test]
     fn test_dim() {
-        assert_eq!([0..2, 0..2].dim(), Dim::Finite(2));
+        assert_eq!(S::DIM, 2);
     }
 
     #[test]

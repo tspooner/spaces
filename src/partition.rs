@@ -69,9 +69,9 @@ impl<const N: usize> Equipartition<N> {
 }
 
 impl<const N: usize> Space for Equipartition<N> {
-    type Value = usize;
+    const DIM: usize = 1;
 
-    fn dim(&self) -> Dim { Dim::one() }
+    type Value = usize;
 
     fn card(&self) -> Card { Card::Finite(N) }
 
@@ -164,9 +164,9 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        assert_eq!(Equipartition::<5>::new(0.0, 5.0).dim(), Dim::one());
-        assert_eq!(Equipartition::<5>::new(0.0, 5.0).dim(), Dim::one());
-        assert_eq!(Equipartition::<10>::new(-5.0, 5.0).dim(), Dim::one());
+        assert_eq!(Equipartition::<1>::DIM, 1);
+        assert_eq!(Equipartition::<5>::DIM, 1);
+        assert_eq!(Equipartition::<10>::DIM, 1);
     }
 
     #[test]
