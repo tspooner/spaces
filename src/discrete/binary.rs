@@ -73,14 +73,6 @@ mod tests {
         assert_eq!(Binary.to_ordinal(), 0..1);
     }
 
-    #[test]
-    fn test_surjection() {
-        let d = Binary;
-
-        assert_eq!(d.project(true), true);
-        assert_eq!(d.project(false), false);
-    }
-
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {

@@ -183,24 +183,6 @@ mod tests {
     }
 
     #[test]
-    fn test_bounds() {
-        fn check<const N: usize>(lb: f64, ub: f64) {
-            let d = Equipartition::<N>::new(lb, ub);
-
-            assert_eq!(d.inf().unwrap(), 0);
-            assert_eq!(d.sup().unwrap(), N - 1);
-
-            assert!(d.contains(&d.project(ub)));
-            assert!(d.contains(&d.project(lb)));
-            assert!(d.contains(&d.project((lb + ub) / 2.0)));
-        }
-
-        check::<5>(0.0, 5.0);
-        check::<5>(-5.0, 0.0);
-        check::<10>(-5.0, 5.0);
-    }
-
-    #[test]
     fn test_to_ordinal() {
         fn check<const N: usize>(lb: f64, ub: f64) {
             let d = Equipartition::<N>::new(lb, ub);
@@ -211,20 +193,6 @@ mod tests {
         check::<5>(0.0, 5.0);
         check::<5>(-5.0, 0.0);
         check::<10>(-5.0, 5.0);
-    }
-
-    #[test]
-    fn test_surjection_f64() {
-        let d = Equipartition::<6>::new(0.0, 5.0);
-
-        assert_eq!(d.project(-1.0), 0);
-        assert_eq!(d.project(0.0), 0);
-        assert_eq!(d.project(1.0), 1);
-        assert_eq!(d.project(2.0), 2);
-        assert_eq!(d.project(3.0), 3);
-        assert_eq!(d.project(4.0), 4);
-        assert_eq!(d.project(5.0), 5);
-        assert_eq!(d.project(6.0), 5);
     }
 
     #[cfg(feature = "serialize")]

@@ -58,7 +58,6 @@ impl_tuple!((D1, X1)::0, (D2, X2)::1, (D3, X3)::2, (D4, X4)::3, (D5, X5)::4, (D6
 
 #[cfg(test)]
 mod tests {
-    use crate::Interval;
     use super::*;
 
     #[test]

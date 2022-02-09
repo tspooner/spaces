@@ -108,17 +108,6 @@ mod tests {
         assert_eq!(d.card(), Card::Infinite);
     }
 
-    #[test]
-    fn test_surjection() {
-        let d = Reals;
-
-        for i in -10..10 {
-            let v = i as f64;
-
-            assert_eq!(d.project(v), v);
-        }
-    }
-
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {

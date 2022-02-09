@@ -91,22 +91,6 @@ mod tests {
         assert_eq!((0..10).to_ordinal(), 0..10);
     }
 
-    #[test]
-    fn test_surjection() {
-        let d = 0..10;
-
-        assert_eq!(d.project(0), 0);
-        assert_eq!(d.project(1), 1);
-        assert_eq!(d.project(2), 2);
-        assert_eq!(d.project(3), 3);
-        assert_eq!(d.project(4), 4);
-        assert_eq!(d.project(5), 5);
-        assert_eq!(d.project(6), 6);
-        assert_eq!(d.project(7), 7);
-        assert_eq!(d.project(8), 8);
-        assert_eq!(d.project(9), 9);
-    }
-
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {

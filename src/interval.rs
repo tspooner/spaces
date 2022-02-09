@@ -200,28 +200,6 @@ mod tests {
         check(-5, 0);
     }
 
-    #[test]
-    fn test_surjection_f64() {
-        let d = Interval::<f64>::bounded(0.0, 5.0);
-
-        assert_eq!(d.project(-5.0), 0.0);
-        assert_eq!(d.project(0.0), 0.0);
-        assert_eq!(d.project(2.5), 2.5);
-        assert_eq!(d.project(5.0), 5.0);
-        assert_eq!(d.project(10.0), 5.0);
-    }
-
-    #[test]
-    fn test_surjection_i64() {
-        let d = Interval::<i64>::bounded(0, 5);
-
-        assert_eq!(d.project(-5), 0);
-        assert_eq!(d.project(0), 0);
-        assert_eq!(d.project(2), 2);
-        assert_eq!(d.project(5), 5);
-        assert_eq!(d.project(10), 5);
-    }
-
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
