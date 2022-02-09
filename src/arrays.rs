@@ -1,15 +1,5 @@
 use crate::prelude::*;
 
-// impl<const N: usize, const M: usize> NDSpace<Equipartition<M>, N> {
-    // pub fn centres(&self) -> [[f64; M]; N] {
-        // self.0.map(|eq| eq.centres())
-    // }
-
-    // pub fn edges(&self) -> [[f64; M]; N] {
-        // self.0.map(|eq| eq.edges())
-    // }
-// }
-
 impl<D: Space, const N: usize> Space for [D; N] {
     type Value = [D::Value; N];
 

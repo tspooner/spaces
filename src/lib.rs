@@ -54,10 +54,6 @@ impl<D: Space> Space for Box<D> {
     fn card(&self) -> Card { (**self).card() }
 
     fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
-
-    // fn min(&self) -> Option<Self::Value> { (**self).min() }
-
-    // fn max(&self) -> Option<Self::Value> { (**self).max() }
 }
 
 impl<'a, D: Space> Space for &'a D {
@@ -68,10 +64,6 @@ impl<'a, D: Space> Space for &'a D {
     fn card(&self) -> Card { (**self).card() }
 
     fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
-
-    // fn min(&self) -> Option<Self::Value> { (**self).min() }
-
-    // fn max(&self) -> Option<Self::Value> { (**self).max() }
 }
 
 pub trait OrderedSpace: Space where Self::Value: PartialOrd {
