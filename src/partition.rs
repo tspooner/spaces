@@ -88,10 +88,6 @@ impl<const N: usize> FiniteSpace for Equipartition<N> {
     fn to_ordinal(&self) -> Range<Self::Value> { 0..N }
 }
 
-impl<const N: usize> Project<f64, usize> for Equipartition<N> {
-    fn project(&self, val: f64) -> usize { self.to_partition(val) }
-}
-
 impl<const N: usize, const M: usize> cmp::PartialEq<Equipartition<M>> for Equipartition<N> {
     fn eq(&self, other: &Equipartition<M>) -> bool {
         N.eq(&M) && self.lb.eq(&other.lb) && self.ub.eq(&other.ub)

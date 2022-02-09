@@ -31,10 +31,6 @@ impl OrderedSpace for Reals {}
 
 impl_union_intersect!(Reals, Reals);
 
-impl Project<f64, f64> for Reals {
-    fn project(&self, val: f64) -> f64 { val }
-}
-
 impl fmt::Display for Reals {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}") }
 }
@@ -59,10 +55,6 @@ impl OrderedSpace for NonNegativeReals {
 }
 
 impl_union_intersect!(NonNegativeReals, NonNegativeReals);
-
-impl Project<f64, f64> for NonNegativeReals {
-    fn project(&self, val: f64) -> f64 { val.max(0.0) }
-}
 
 impl fmt::Display for NonNegativeReals {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(>0)") }

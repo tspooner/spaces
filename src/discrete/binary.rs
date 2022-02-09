@@ -28,10 +28,6 @@ impl FiniteSpace for Binary {
 
 impl_union_intersect!(Binary, Binary);
 
-impl Project<bool, bool> for Binary {
-    fn project(&self, val: bool) -> bool { val }
-}
-
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{{0, 1}}")

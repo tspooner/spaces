@@ -67,15 +67,6 @@ impl OrderedSpace for Interval<f64> {
     fn max(&self) -> Option<f64> { self.ub }
 }
 
-impl Project<f64, f64> for Interval<f64> {
-    fn project(&self, val: f64) -> f64 {
-        let val = self.lb.map_or(val, |inf| val.max(inf));
-        let val = self.ub.map_or(val, |sup| val.min(sup));
-
-        val
-    }
-}
-
 impl Space for Interval<i64> {
     type Value = i64;
 
@@ -97,15 +88,6 @@ impl OrderedSpace for Interval<i64> {
     fn min(&self) -> Option<i64> { self.lb }
 
     fn max(&self) -> Option<i64> { self.ub }
-}
-
-impl Project<i64, i64> for Interval<i64> {
-    fn project(&self, val: i64) -> i64 {
-        let val = self.lb.map_or(val, |inf| val.max(inf));
-        let val = self.ub.map_or(val, |sup| val.min(sup));
-
-        val
-    }
 }
 
 impl<T: Clone + cmp::PartialOrd> Union for Interval<T> {

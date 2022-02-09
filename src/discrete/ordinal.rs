@@ -44,10 +44,6 @@ impl Intersect for Range<usize> {
     }
 }
 
-impl Project<usize, usize> for Range<usize> {
-    fn project(&self, val: usize) -> usize { val as usize }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

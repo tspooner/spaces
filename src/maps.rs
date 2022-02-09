@@ -59,20 +59,6 @@ where
     }
 }
 
-impl<K, D, X> Project<HashMap<K, X>, HashMap<K, D::Value>> for HashMap<K, D>
-where
-    K: Clone + Eq + Hash,
-    D: Space + Project<X, <D as Space>::Value>
-{
-    fn project(&self, val: HashMap<K, X>) -> HashMap<K, D::Value> {
-        val.into_iter().filter_map(|(k, v)| {
-            self.get(&k).map(|d| (k, d, v))
-        }).map(|(k, d, v)| {
-            (k, d.project(v))
-        }).collect()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::Interval;
@@ -113,20 +99,5 @@ mod tests {
 
         assert_eq!(s12["position"], Interval::bounded(-1.0, 1.0));
         assert_eq!(s12["velocity"], Interval::bounded(0.0, 1.0));
-    }
-
-    #[test]
-    fn test_project() {
-        let space = HashMap::from([
-            ("position", Interval::bounded(0.0, 1.0)),
-            ("velocity", Interval::bounded(0.0, 1.0))
-        ]);
-
-        let x = space.project(HashMap::from([
-            ("position", 5.0), ("velocity", -100.0)
-        ]));
-
-        assert_eq!(x["position"], 1.0);
-        assert_eq!(x["velocity"], 0.0);
     }
 }
