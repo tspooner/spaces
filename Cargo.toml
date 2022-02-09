@@ -2,7 +2,7 @@
 name = "spaces"
 description = "Set/space primitives for defining machine learning problems."
 
-version = "5.0.0"
+version = "6.0.0"
 authors = ["Tom Spooner <t.spooner@liverpool.ac.uk>"]
 
 license = "MIT"
@@ -23,7 +23,7 @@ default = []
 serialize = ["serde"]
 
 [dependencies]
-itertools = "0.8"
+itertools = "0.10"
 num-traits = "0.2"
 
 serde = { version = "1.0", optional = true, features = ["derive"] }
