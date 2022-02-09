@@ -1,68 +1,51 @@
 use crate::prelude::*;
-use std::{cmp, fmt, ops::Range};
+use std::ops::Range;
 
-/// Type representing a finite, ordinal set of values.
-#[derive(Debug, Clone, Copy)]
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub struct Ordinal(usize);
-
-impl Ordinal {
-
-    pub fn new(size: usize) -> Ordinal {
-        Ordinal(size)
-    }
-}
-
-impl From<usize> for Ordinal {
-    fn from(t: usize) -> Ordinal {
-        Ordinal::new(t)
-    }
-}
-
-impl Space for Ordinal {
+impl Space for Range<usize> {
     type Value = usize;
 
     fn dim(&self) -> Dim { Dim::one() }
 
-    fn card(&self) -> Card { Card::Finite(self.0) }
+    fn card(&self) -> Card {
+        // TODO: when the Step trait drops, we can replace this with a direct call to
+        // Step::steps_between.
+        //      See https://github.com/rust-lang/rust/issues/42168
+        Card::Finite(self.len())
+    }
+
+    fn contains(&self, val: &usize) -> bool { Range::contains(&self, val) }
 }
 
-impl BoundedSpace for Ordinal {
-    fn inf(&self) -> Option<usize> { Some(0) }
+impl OrderedSpace for Range<usize> {
+    fn min(&self) -> Option<usize> { Some(self.start) }
 
-    fn sup(&self) -> Option<usize> { Some(self.0 - 1) }
-
-    fn contains(&self, val: usize) -> bool { val < self.0 }
+    fn max(&self) -> Option<usize> { Some(self.end - 1) }
 }
 
-impl FiniteSpace for Ordinal {
-    fn range(&self) -> Range<Self::Value> { 0..self.0 }
+impl FiniteSpace for Range<usize> {
+    fn to_ordinal(&self) -> Range<Self::Value> { self.clone() }
 }
 
-impl Union for Ordinal {
-    fn union(self, other: &Ordinal) -> Ordinal {
-        Ordinal::new(self.0.max(other.0))
+impl Union for Range<usize> {
+    fn union(self, other: &Range<usize>) -> Range<usize> {
+        Range {
+            start: self.start.min(other.start),
+            end: self.end.max(other.end)
+        }
     }
 }
 
-impl Intersection for Ordinal {
-    fn intersect(self, other: &Ordinal) -> Ordinal {
-        Ordinal::new(self.0.min(other.0))
+impl Intersect for Range<usize> {
+    fn intersect(self, other: &Range<usize>) -> Range<usize> {
+        Range {
+            start: self.start.max(other.start),
+            end: self.end.min(other.end)
+        }
     }
 }
 
-impl Surjection<usize, usize> for Ordinal {
-    fn map_onto(&self, val: usize) -> usize { val as usize }
-}
-
-impl cmp::PartialEq for Ordinal {
-    fn eq(&self, other: &Ordinal) -> bool { self.0.eq(&other.0) }
-}
-
-impl fmt::Display for Ordinal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[0..{}]", self.sup().unwrap())
-    }
+impl Project<usize, usize> for Range<usize> {
+    fn project(&self, val: usize) -> usize { val as usize }
 }
 
 #[cfg(test)]
@@ -77,7 +60,7 @@ mod tests {
     #[test]
     fn test_card() {
         fn check(size: usize) {
-            let d = Ordinal::new(size);
+            let d = 0..size;
 
             assert_eq!(d.card(), Card::Finite(size));
         }
@@ -90,14 +73,14 @@ mod tests {
     #[test]
     fn test_bounds() {
         fn check(size: usize) {
-            let d = Ordinal::new(size);
+            let d = 0..size;
 
             assert_eq!(d.inf().unwrap(), 0);
             assert_eq!(d.sup().unwrap(), size - 1);
 
-            assert!(d.contains(0));
-            assert!(d.contains(size - 1));
-            assert!(!d.contains(size));
+            assert!(d.contains(&0));
+            assert!(d.contains(&(size - 1)));
+            assert!(!d.contains(&size));
         }
 
         check(5);
@@ -106,26 +89,26 @@ mod tests {
     }
 
     #[test]
-    fn test_range() {
-        assert_eq!(Ordinal::new(1).range(), 0..1);
-        assert_eq!(Ordinal::new(5).range(), 0..5);
-        assert_eq!(Ordinal::new(10).range(), 0..10);
+    fn test_to_ordinal() {
+        assert_eq!((0..1).to_ordinal(), 0..1);
+        assert_eq!((0..5).to_ordinal(), 0..5);
+        assert_eq!((0..10).to_ordinal(), 0..10);
     }
 
     #[test]
     fn test_surjection() {
-        let d = Ordinal::new(10);
+        let d = 0..10;
 
-        assert_eq!(d.map_onto(0), 0);
-        assert_eq!(d.map_onto(1), 1);
-        assert_eq!(d.map_onto(2), 2);
-        assert_eq!(d.map_onto(3), 3);
-        assert_eq!(d.map_onto(4), 4);
-        assert_eq!(d.map_onto(5), 5);
-        assert_eq!(d.map_onto(6), 6);
-        assert_eq!(d.map_onto(7), 7);
-        assert_eq!(d.map_onto(8), 8);
-        assert_eq!(d.map_onto(9), 9);
+        assert_eq!(d.project(0), 0);
+        assert_eq!(d.project(1), 1);
+        assert_eq!(d.project(2), 2);
+        assert_eq!(d.project(3), 3);
+        assert_eq!(d.project(4), 4);
+        assert_eq!(d.project(5), 5);
+        assert_eq!(d.project(6), 6);
+        assert_eq!(d.project(7), 7);
+        assert_eq!(d.project(8), 8);
+        assert_eq!(d.project(9), 9);
     }
 
     #[cfg(feature = "serialize")]

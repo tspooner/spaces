@@ -12,24 +12,24 @@ impl Space for Binary {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Finite(2) }
+
+    fn contains(&self, _: &bool) -> bool { true }
 }
 
-impl BoundedSpace for Binary {
-    fn inf(&self) -> Option<bool> { Some(false) }
+impl OrderedSpace for Binary {
+    fn min(&self) -> Option<bool> { Some(false) }
 
-    fn sup(&self) -> Option<bool> { Some(true) }
-
-    fn contains(&self, _: bool) -> bool { true }
+    fn max(&self) -> Option<bool> { Some(true) }
 }
 
 impl FiniteSpace for Binary {
-    fn range(&self) -> Range<Self::Value> { false..true }
+    fn to_ordinal(&self) -> Range<usize> { 0..1 }
 }
 
 impl_union_intersect!(Binary, Binary);
 
-impl Surjection<bool, bool> for Binary {
-    fn map_onto(&self, val: bool) -> bool { val }
+impl Project<bool, bool> for Binary {
+    fn project(&self, val: bool) -> bool { val }
 }
 
 impl fmt::Display for Binary {
@@ -68,24 +68,21 @@ mod tests {
         assert_eq!(d.inf().unwrap(), false);
         assert_eq!(d.sup().unwrap(), true);
 
-        assert!(d.contains(false));
-        assert!(d.contains(true));
+        assert!(d.contains(&false));
+        assert!(d.contains(&true));
     }
 
     #[test]
-    fn test_range() {
-        let d = Binary;
-        let r = d.range();
-
-        assert!(r == (false..true) || r == (true..false));
+    fn test_to_ordinal() {
+        assert_eq!(Binary.to_ordinal(), 0..1);
     }
 
     #[test]
     fn test_surjection() {
         let d = Binary;
 
-        assert_eq!(d.map_onto(true), true);
-        assert_eq!(d.map_onto(false), false);
+        assert_eq!(d.project(true), true);
+        assert_eq!(d.project(false), false);
     }
 
     #[cfg(feature = "serialize")]

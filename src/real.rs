@@ -12,9 +12,9 @@ pub struct Reals;
 impl Reals {
     pub fn bounded(self, lb: f64, ub: f64) -> Interval { Interval::bounded(lb, ub) }
 
-    pub fn left_bounded(self, lb: f64) -> Interval { Interval::left_bounded(lb) }
+    pub fn lower_bounded(self, lb: f64) -> Interval { Interval::lower_bounded(lb) }
 
-    pub fn right_bounded(self, ub: f64) -> Interval { Interval::right_bounded(ub) }
+    pub fn upper_bounded(self, ub: f64) -> Interval { Interval::upper_bounded(ub) }
 }
 
 impl Space for Reals {
@@ -23,18 +23,20 @@ impl Space for Reals {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
+
+    fn contains(&self, _: &f64) -> bool { true }
 }
+
+impl OrderedSpace for Reals {}
 
 impl_union_intersect!(Reals, Reals);
 
-impl Surjection<f64, f64> for Reals {
-    fn map_onto(&self, val: f64) -> f64 { val }
+impl Project<f64, f64> for Reals {
+    fn project(&self, val: f64) -> f64 { val }
 }
 
 impl fmt::Display for Reals {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{211d}")
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}") }
 }
 
 /// Type representing the set of non-negative real numbers, R(≥0).
@@ -48,26 +50,22 @@ impl Space for NonNegativeReals {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
+
+    fn contains(&self, val: &f64) -> bool { *val >= 0.0 }
 }
 
-impl BoundedSpace for NonNegativeReals {
-    fn inf(&self) -> Option<f64> { Some(0.0) }
-
-    fn sup(&self) -> Option<f64> { None }
-
-    fn contains(&self, val: f64) -> bool { val >= 0.0 }
+impl OrderedSpace for NonNegativeReals {
+    fn min(&self) -> Option<f64> { Some(0.0) }
 }
 
 impl_union_intersect!(NonNegativeReals, NonNegativeReals);
 
-impl Surjection<f64, f64> for NonNegativeReals {
-    fn map_onto(&self, val: f64) -> f64 { val.max(0.0) }
+impl Project<f64, f64> for NonNegativeReals {
+    fn project(&self, val: f64) -> f64 { val.max(0.0) }
 }
 
 impl fmt::Display for NonNegativeReals {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{211d}(>0)")
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(>0)") }
 }
 
 /// Type representing the set of strictly positive real numbers, R(>0).
@@ -81,26 +79,18 @@ impl Space for PositiveReals {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
+
+    fn contains(&self, val: &f64) -> bool { *val > 0.0 }
 }
 
-impl BoundedSpace for PositiveReals {
-    fn inf(&self) -> Option<f64> { Some(1e-5) }
-
-    fn sup(&self) -> Option<f64> { None }
-
-    fn contains(&self, val: f64) -> bool { val > 0.0 }
+impl OrderedSpace for PositiveReals {
+    fn inf(&self) -> Option<f64> { Some(0.0) }
 }
 
 impl_union_intersect!(PositiveReals, PositiveReals);
 
-impl Surjection<f64, f64> for PositiveReals {
-    fn map_onto(&self, val: f64) -> f64 { val.max(1e-7) }
-}
-
 impl fmt::Display for PositiveReals {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\u{211d}(≥0)")
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(≥0)") }
 }
 
 #[cfg(test)]
@@ -133,7 +123,7 @@ mod tests {
         for i in -10..10 {
             let v = i as f64;
 
-            assert_eq!(d.map_onto(v), v);
+            assert_eq!(d.project(v), v);
         }
     }
 

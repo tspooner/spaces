@@ -6,14 +6,11 @@ use std::ops::Mul;
 /// for example, a 2-dimensional space, each with a finite set of values. In this case we have the
 /// following:
 /// ```
-/// use spaces::{
-///     Space, Card, PairSpace,
-///     discrete::Ordinal,
-/// };
+/// use spaces::{Space, Card};
 ///
-/// let d1 = Ordinal::new(5);
-/// let d2 = Ordinal::new(10);
-/// let space = PairSpace::new(d1, d2);
+/// let d1 = 0..5;
+/// let d2 = 0..10;
+/// let space = (d1, d2);
 ///
 /// assert_eq!(space.card(), Card::Finite(50));
 /// ```
@@ -33,6 +30,36 @@ use std::ops::Mul;
 pub enum Card {
     Finite(usize),
     Infinite,
+}
+
+impl Card {
+    pub fn is_zero(&self) -> bool {
+        match self {
+            &Card::Finite(n) => n == 0,
+            _ => false,
+        }
+    }
+
+    pub fn is_finite(&self) -> bool {
+        match self {
+            &Card::Finite(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_infinite(&self) -> bool {
+        match self {
+            &Card::Infinite => true,
+            _ => false,
+        }
+    }
+
+    pub fn expect_finite(&self, msg: &str) -> usize {
+        match self {
+            &Card::Finite(n) => n,
+            _ => panic!("{}", msg),
+        }
+    }
 }
 
 impl Mul for Card {

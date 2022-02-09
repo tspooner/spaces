@@ -2,14 +2,11 @@ use std::ops::Add;
 
 /// Measure of the dimensionality of the elements of a set.
 /// ```
-/// use spaces::{
-///     Space, Dim, PairSpace,
-///     discrete::Ordinal,
-/// };
+/// use spaces::{Space, Dim};
 ///
-/// let d1 = Ordinal::new(5);
-/// let d2 = Ordinal::new(10);
-/// let space = PairSpace::new(d1, d2);
+/// let d1 = 0..5;
+/// let d2 = 0..10;
+/// let space = (d1, d2);
 ///
 /// assert_eq!(space.dim(), Dim::Finite(2));
 /// ```

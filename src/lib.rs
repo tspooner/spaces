@@ -17,20 +17,23 @@ mod macros;
 import_all!(dim);
 import_all!(card);
 
-pub mod real;
 pub mod discrete;
+pub mod real;
 
-import_all!(empty);
 import_all!(interval);
 import_all!(partition);
 
-import_all!(pair);
-import_all!(n_space);
-import_all!(product);
+import_all!(arrays);
+import_all!(maps);
+import_all!(tuples);
+
+pub type Euclidean<const N: usize> = [real::Reals; N];
+
+pub type Intervals<const N: usize> = [Interval; N];
 
 /// Trait for defining geometric spaces.
 pub trait Space {
-    /// The data representation of the space.
+    /// The data representation of elements of the space.
     type Value: Clone;
 
     /// Return the dimensionality of the space.
@@ -38,6 +41,9 @@ pub trait Space {
 
     /// Return the number of elements in the set comprising the space.
     fn card(&self) -> Card;
+
+    /// Returns true iff `val` is contained within the space.
+    fn contains(&self, val: &Self::Value) -> bool;
 }
 
 impl<D: Space> Space for Box<D> {
@@ -46,6 +52,8 @@ impl<D: Space> Space for Box<D> {
     fn dim(&self) -> Dim { (**self).dim() }
 
     fn card(&self) -> Card { (**self).card() }
+
+    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
 }
 
 impl<'a, D: Space> Space for &'a D {
@@ -54,81 +62,85 @@ impl<'a, D: Space> Space for &'a D {
     fn dim(&self) -> Dim { (**self).dim() }
 
     fn card(&self) -> Card { (**self).card() }
+
+    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
 }
 
-/// Trait for defining spaces with at least one finite bound.
-///
-/// Note: If both `inf` and `sup` are well defined (i.e. are not None), then the interval is
-/// totally bounded and we have a compact space; this is true in `spaces` as bounds are treated as
-/// closed.
-pub trait BoundedSpace: Space where Self::Value: PartialOrd {
-    /// Returns the value of the dimension's infimum, if it exists.
-    fn inf(&self) -> Option<Self::Value>;
+pub trait OrderedSpace: Space where Self::Value: PartialOrd {
+    /// Returns the value of the space's minimum value, if it exists.
+    fn min(&self) -> Option<Self::Value> { None }
+
+    /// Return the infimum of the space.
+    fn inf(&self) -> Option<Self::Value> { self.min() }
 
     /// Returns the value of the dimension's supremum, if it exists.
-    fn sup(&self) -> Option<Self::Value>;
+    fn max(&self) -> Option<Self::Value> { None }
 
-    /// Returns true iff `val` lies within the dimension's bounds (closed).
-    fn contains(&self, val: Self::Value) -> bool;
+    /// Returns the supremum of the space.
+    fn sup(&self) -> Option<Self::Value> { self.max() }
 
-    /// Returns true iff `self` has a finite infimum.
-    fn is_left_bounded(&self) -> bool { self.inf().is_some() }
+    /// Returns true iff `self` has a well-defined infimum.
+    fn is_lower_bounded(&self) -> bool { self.inf().is_some() }
 
-    /// Returns true iff `self` has a finite supremum.
-    fn is_right_bounded(&self) -> bool { self.sup().is_some() }
+    /// Returns true iff `self` has a well-defined supremum.
+    fn is_upper_bounded(&self) -> bool { self.sup().is_some() }
 
-    /// Returns true iff `self` has finite bounds in both directions.
-    ///
-    /// Note: this trait assumed closedness, so compactness follows.
-    fn is_compact(&self) -> bool { self.is_left_bounded() && self.is_right_bounded() }
+    /// Returns true iff `self` has a well-defined minimum and maximum.
+    fn is_bounded(&self) -> bool { self.is_lower_bounded() && self.is_upper_bounded() }
 }
 
 /// Trait for defining spaces containing a finite set of values.
-pub trait FiniteSpace: BoundedSpace where Self::Value: PartialOrd {
-    /// Returns the finite range of values contained by this space.
-    fn range(&self) -> ::std::ops::Range<Self::Value>;
-}
-
-/// Trait for types that implement a mapping from values of one set onto another.
-///
-/// A surjective function is such that every element of the codomain corresponds to at least one
-/// element of the domain. This clearly need not be unique.
-pub trait Surjection<X, Y> {
-    /// Map value from domain onto codomain.
-    fn map_onto(&self, from: X) -> Y;
+pub trait FiniteSpace: Space {
+    fn to_ordinal(&self) -> ::std::ops::Range<usize> {
+        0..self
+            .card()
+            .expect_finite("Finite spaces must have finite cardinality.")
+    }
 }
 
 /// Trait for types that can be combined in the form of a union.
 ///
-/// The union of a collection of sets is the set that contains all elements in the collection.
+/// The union of a collection of sets is the set that contains all elements in
+/// the collection.
 pub trait Union<S = Self> {
-    /// Return the smallest space enclosing `self` and `other` of type `Self`.
+    /// Return a space enclosing `self` and `other` of type `Self`.
     fn union(self, other: &S) -> Self;
 
-    /// Return the smallest space enclosing `self` and all `other_spaces` of type `Self`.
-    fn union_many(self, other_spaces: &[S]) -> Self where Self: Sized {
-        other_spaces.into_iter().fold(self, |acc, other_space| acc.union(other_space))
+    /// Return a space enclosing `self` and all `other_spaces` of
+    /// type `Self`.
+    fn union_many(self, other_spaces: &[S]) -> Self
+    where Self: Sized {
+        other_spaces
+            .into_iter()
+            .fold(self, |acc, other_space| acc.union(other_space))
     }
 }
 
 /// Trait for types that can be combined in the form of an intersection.
 ///
-/// The intersection of a collection of sets is the set that contains only those elements present
-/// in each.
-pub trait Intersection<S = Self> {
+/// The intersection of a collection of sets is the set that contains only those
+/// elements present in each.
+pub trait Intersect<S = Self> {
     /// Return the smallest space enclosing `self` and `other` of type `Self`.
     fn intersect(self, other: &S) -> Self;
 
-    /// Return the smallest space enclosing `self` and all `other_spaces` of type `Self`.
-    fn intersect_many(self, other_spaces: &[S]) -> Self where Self: Sized {
-        other_spaces.into_iter().fold(self, |acc, other_space| acc.intersect(other_space))
+    /// Return the smallest space enclosing `self` and all `other_spaces` of
+    /// type `Self`.
+    fn intersect_many(self, other_spaces: &[S]) -> Self
+    where Self: Sized {
+        other_spaces
+            .into_iter()
+            .fold(self, |acc, other_space| acc.intersect(other_space))
     }
 }
 
+/// Trait for types that implement an idempotent mapping from values of one
+/// space onto another.
+pub trait Project<X, Y> {
+    /// Map value from domain onto codomain.
+    fn project(&self, from: X) -> Y;
+}
+
 mod prelude {
-    pub use super::{
-        Space, BoundedSpace, FiniteSpace,
-        Surjection, Union, Intersection,
-        Dim, Card,
-    };
+    pub use super::{Card, Dim, OrderedSpace, FiniteSpace, Intersect, Project, Space, Union};
 }

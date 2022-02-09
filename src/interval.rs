@@ -36,11 +36,11 @@ impl<T> Interval<T> {
         Interval::new(Some(lb), Some(ub))
     }
 
-    pub fn left_bounded(lb: T) -> Interval<T> {
+    pub fn lower_bounded(lb: T) -> Interval<T> {
         Interval::new(Some(lb), None)
     }
 
-    pub fn right_bounded(ub: T) -> Interval<T> {
+    pub fn upper_bounded(ub: T) -> Interval<T> {
         Interval::new(None, Some(ub))
     }
 
@@ -55,20 +55,20 @@ impl Space for Interval<f64> {
     fn dim(&self) -> Dim { Dim::one() }
 
     fn card(&self) -> Card { Card::Infinite }
-}
 
-impl BoundedSpace for Interval<f64> {
-    fn inf(&self) -> Option<f64> { self.lb }
-
-    fn sup(&self) -> Option<f64> { self.ub }
-
-    fn contains(&self, val: f64) -> bool {
-        self.lb.map_or(true, |inf| val >= inf) && self.ub.map_or(true, |sup| val <= sup)
+    fn contains(&self, val: &f64) -> bool {
+        self.lb.map_or(true, |l| *val >= l) && self.ub.map_or(true, |u| *val <= u)
     }
 }
 
-impl Surjection<f64, f64> for Interval<f64> {
-    fn map_onto(&self, val: f64) -> f64 {
+impl OrderedSpace for Interval<f64> {
+    fn min(&self) -> Option<f64> { self.lb }
+
+    fn max(&self) -> Option<f64> { self.ub }
+}
+
+impl Project<f64, f64> for Interval<f64> {
+    fn project(&self, val: f64) -> f64 {
         let val = self.lb.map_or(val, |inf| val.max(inf));
         let val = self.ub.map_or(val, |sup| val.min(sup));
 
@@ -87,20 +87,20 @@ impl Space for Interval<i64> {
             _ => Card::Infinite,
         }
     }
-}
 
-impl BoundedSpace for Interval<i64> {
-    fn inf(&self) -> Option<i64> { self.lb }
-
-    fn sup(&self) -> Option<i64> { self.ub }
-
-    fn contains(&self, val: i64) -> bool {
-        self.lb.map_or(true, |inf| val >= inf) && self.ub.map_or(true, |sup| val <= sup)
+    fn contains(&self, val: &i64) -> bool {
+        self.lb.map_or(true, |l| *val >= l) && self.ub.map_or(true, |u| *val <= u)
     }
 }
 
-impl Surjection<i64, i64> for Interval<i64> {
-    fn map_onto(&self, val: i64) -> i64 {
+impl OrderedSpace for Interval<i64> {
+    fn min(&self) -> Option<i64> { self.lb }
+
+    fn max(&self) -> Option<i64> { self.ub }
+}
+
+impl Project<i64, i64> for Interval<i64> {
+    fn project(&self, val: i64) -> i64 {
         let val = self.lb.map_or(val, |inf| val.max(inf));
         let val = self.ub.map_or(val, |sup| val.min(sup));
 
@@ -121,7 +121,7 @@ impl<T: Clone + cmp::PartialOrd> Union for Interval<T> {
     }
 }
 
-impl<T: Clone + cmp::PartialOrd> Intersection for Interval<T> {
+impl<T: Clone + cmp::PartialOrd> Intersect for Interval<T> {
     fn intersect(self, other: &Self) -> Self {
         Interval::new(
             both(self.lb, other.lb.clone()).map(|(a, b)| {
@@ -178,8 +178,8 @@ mod tests {
         assert_eq!(Interval::bounded(-5i64, 0i64).card(), Card::Finite(6));
 
         assert_eq!(Interval::<i64>::unbounded().card(), Card::Infinite);
-        assert_eq!(Interval::left_bounded(0i64).card(), Card::Infinite);
-        assert_eq!(Interval::right_bounded(0i64).card(), Card::Infinite);
+        assert_eq!(Interval::lower_bounded(0i64).card(), Card::Infinite);
+        assert_eq!(Interval::upper_bounded(0i64).card(), Card::Infinite);
     }
 
     #[test]
@@ -190,9 +190,9 @@ mod tests {
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
 
-            assert!(d.contains(ub));
-            assert!(d.contains(lb));
-            assert!(d.contains((lb + ub) / 2.0));
+            assert!(d.contains(&ub));
+            assert!(d.contains(&lb));
+            assert!(d.contains(&((lb + ub) / 2.0)));
         }
 
         check(0.0, 5.0);
@@ -208,9 +208,9 @@ mod tests {
             assert_eq!(d.inf().unwrap(), lb);
             assert_eq!(d.sup().unwrap(), ub);
 
-            assert!(d.contains(ub));
-            assert!(d.contains(lb));
-            assert!(d.contains((lb + ub) / 2));
+            assert!(d.contains(&ub));
+            assert!(d.contains(&lb));
+            assert!(d.contains(&((lb + ub) / 2)));
         }
 
         check(0, 5);
@@ -222,22 +222,22 @@ mod tests {
     fn test_surjection_f64() {
         let d = Interval::<f64>::bounded(0.0, 5.0);
 
-        assert_eq!(d.map_onto(-5.0), 0.0);
-        assert_eq!(d.map_onto(0.0), 0.0);
-        assert_eq!(d.map_onto(2.5), 2.5);
-        assert_eq!(d.map_onto(5.0), 5.0);
-        assert_eq!(d.map_onto(10.0), 5.0);
+        assert_eq!(d.project(-5.0), 0.0);
+        assert_eq!(d.project(0.0), 0.0);
+        assert_eq!(d.project(2.5), 2.5);
+        assert_eq!(d.project(5.0), 5.0);
+        assert_eq!(d.project(10.0), 5.0);
     }
 
     #[test]
     fn test_surjection_i64() {
         let d = Interval::<i64>::bounded(0, 5);
 
-        assert_eq!(d.map_onto(-5), 0);
-        assert_eq!(d.map_onto(0), 0);
-        assert_eq!(d.map_onto(2), 2);
-        assert_eq!(d.map_onto(5), 5);
-        assert_eq!(d.map_onto(10), 5);
+        assert_eq!(d.project(-5), 0);
+        assert_eq!(d.project(0), 0);
+        assert_eq!(d.project(2), 2);
+        assert_eq!(d.project(5), 5);
+        assert_eq!(d.project(10), 5);
     }
 
     #[cfg(feature = "serialize")]
