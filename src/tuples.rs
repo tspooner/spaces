@@ -41,15 +41,6 @@ macro_rules! impl_tuple {
                 ($(self.$i.intersect(&other.$i)),+).into()
             }
         }
-
-        impl<$($tp, $vp),+> Project<($($vp),+), ($($tp::Value),+)> for ($($tp),+)
-        where
-            $($tp: Space + Project<$vp, <$tp as Space>::Value>),+
-        {
-            fn project(&self, val: ($($vp),+)) -> ($($tp::Value),+) {
-                ($(self.$i.project(val.$i),)+)
-            }
-        }
     }
 }
 
@@ -78,14 +69,5 @@ mod tests {
     #[test]
     fn test_card() {
         assert_eq!((0..2, 0..2).card(), Card::Finite(4));
-    }
-
-    #[test]
-    fn test_surjection() {
-        let ps = (Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 2.0));
-
-        assert_eq!(ps.project((6.0, 0.0)), (5.0, 1.0));
-        assert_eq!(ps.project((2.5, 1.5)), (2.5, 1.5));
-        assert_eq!(ps.project((-1.0, 10.0)), (0.0, 2.0));
     }
 }

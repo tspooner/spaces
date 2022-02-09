@@ -134,13 +134,6 @@ pub trait Intersect<S = Self> {
     }
 }
 
-/// Trait for types that implement an idempotent mapping from values of one
-/// space onto another.
-pub trait Project<X, Y> {
-    /// Map value from domain onto codomain.
-    fn project(&self, from: X) -> Y;
-}
-
 mod prelude {
-    pub use super::{Card, Dim, OrderedSpace, FiniteSpace, Intersect, Project, Space, Union};
+    pub use super::{Card, Dim, OrderedSpace, FiniteSpace, Intersect, Space, Union};
 }
