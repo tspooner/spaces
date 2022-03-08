@@ -1,87 +1,108 @@
 //! Real spaces module.
 use crate::prelude::*;
-use std::fmt;
-
-pub type Interval = crate::Interval<f64>;
+use num_traits::real::Real;
+use std::{fmt, marker::PhantomData};
 
 /// Type representing the set of all real numbers.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub struct Reals;
+pub struct Reals<V>(PhantomData<V>);
 
-impl Reals {
-    pub fn bounded(self, lb: f64, ub: f64) -> Interval { Interval::bounded(lb, ub) }
-
-    pub fn lower_bounded(self, lb: f64) -> Interval { Interval::lower_bounded(lb) }
-
-    pub fn upper_bounded(self, ub: f64) -> Interval { Interval::upper_bounded(ub) }
+impl<V: Real> Reals<V> {
+    pub fn new() -> Reals<V> { Reals(PhantomData) }
 }
 
-impl Space for Reals {
+impl<V: Real> Space for Reals<V> {
     const DIM: usize = 1;
 
-    type Value = f64;
+    type Value = V;
 
     fn card(&self) -> Card { Card::Infinite }
 
-    fn contains(&self, _: &f64) -> bool { true }
+    fn contains(&self, _: &V) -> bool { true }
 }
 
-impl OrderedSpace for Reals {}
+impl<V: Real> OrderedSpace for Reals<V> {}
 
-impl_union_intersect!(Reals, Reals);
+impl<V: Real> Union for Reals<V> {
+    fn union(self, _: &Reals<V>) -> Self { self }
+}
 
-impl fmt::Display for Reals {
+impl<V: Real> Intersect for Reals<V> {
+    fn intersect(self, _: &Reals<V>) -> Self { self }
+}
+
+impl<V> fmt::Display for Reals<V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}") }
 }
 
 /// Type representing the set of non-negative real numbers, R(≥0).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub struct NonNegativeReals;
+pub struct NonNegativeReals<V>(PhantomData<V>);
 
-impl Space for NonNegativeReals {
+impl<V: Real> NonNegativeReals<V> {
+    pub fn new() -> Self { NonNegativeReals(PhantomData) }
+}
+
+impl<V: Real> Space for NonNegativeReals<V> {
     const DIM: usize = 1;
 
-    type Value = f64;
+    type Value = V;
 
     fn card(&self) -> Card { Card::Infinite }
 
-    fn contains(&self, val: &f64) -> bool { *val >= 0.0 }
+    fn contains(&self, val: &V) -> bool { val.is_sign_positive() }
 }
 
-impl OrderedSpace for NonNegativeReals {
-    fn min(&self) -> Option<f64> { Some(0.0) }
+impl<V: Real> OrderedSpace for NonNegativeReals<V> {
+    fn min(&self) -> Option<V> { Some(V::zero()) }
 }
 
-impl_union_intersect!(NonNegativeReals, NonNegativeReals);
+impl<V: Real> Union for NonNegativeReals<V> {
+    fn union(self, _: &NonNegativeReals<V>) -> Self { self }
+}
 
-impl fmt::Display for NonNegativeReals {
+impl<V: Real> Intersect for NonNegativeReals<V> {
+    fn intersect(self, _: &NonNegativeReals<V>) -> Self { self }
+}
+
+impl<V> fmt::Display for NonNegativeReals<V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(>0)") }
 }
 
 /// Type representing the set of strictly positive real numbers, R(>0).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub struct PositiveReals;
+pub struct PositiveReals<V>(PhantomData<V>);
 
-impl Space for PositiveReals {
+impl<V: Real> PositiveReals<V> {
+    pub fn new() -> Self { PositiveReals(PhantomData) }
+}
+
+impl<V: Real> Space for PositiveReals<V> {
     const DIM: usize = 1;
 
-    type Value = f64;
+    type Value = V;
 
     fn card(&self) -> Card { Card::Infinite }
 
-    fn contains(&self, val: &f64) -> bool { *val > 0.0 }
+    fn contains(&self, val: &V) -> bool { *val > V::zero() }
 }
 
-impl OrderedSpace for PositiveReals {
-    fn inf(&self) -> Option<f64> { Some(0.0) }
+impl<V: Real> OrderedSpace for PositiveReals<V> {
+    fn inf(&self) -> Option<V> { Some(V::zero()) }
 }
 
-impl_union_intersect!(PositiveReals, PositiveReals);
+impl<V: Real> Union for PositiveReals<V> {
+    fn union(self, _: &PositiveReals<V>) -> Self { self }
+}
 
-impl fmt::Display for PositiveReals {
+impl<V: Real> Intersect for PositiveReals<V> {
+    fn intersect(self, _: &PositiveReals<V>) -> Self { self }
+}
+
+impl<V> fmt::Display for PositiveReals<V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "\u{211d}(≥0)") }
 }
 
@@ -95,15 +116,8 @@ mod tests {
     use self::serde_test::{assert_tokens, Token};
 
     #[test]
-    fn test_bounded() {
-        let d = Reals;
-
-        assert_eq!(d.bounded(0.0, 1.0), Interval::bounded(0.0, 1.0));
-    }
-
-    #[test]
     fn test_card() {
-        let d = Reals;
+        let d = Reals::<f64>::new();
 
         assert_eq!(d.card(), Card::Infinite);
     }
@@ -111,8 +125,11 @@ mod tests {
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
-        let d = Reals;
+        let d = Reals::<f64>::new();
 
-        assert_tokens(&d, &[Token::UnitStruct { name: "Reals" }]);
+        assert_tokens(&d, &[
+            Token::NewtypeStruct { name: "Reals", },
+            Token::UnitStruct { name: "PhantomData", },
+        ]);
     }
 }

@@ -1,10 +1,13 @@
 use crate::prelude::*;
+use num_traits::PrimInt;
 use std::ops::Range;
 
-impl Space for Range<usize> {
+pub type Ordinal<V> = Range<V>;
+
+impl<V: PrimInt> Space for Range<V> where Self: ExactSizeIterator {
     const DIM: usize = 1;
 
-    type Value = usize;
+    type Value = V;
 
     fn card(&self) -> Card {
         // TODO: when the Step trait drops, we can replace this with a direct call to
@@ -13,34 +16,18 @@ impl Space for Range<usize> {
         Card::Finite(self.len())
     }
 
-    fn contains(&self, val: &usize) -> bool { Range::contains(&self, val) }
+    fn contains(&self, val: &V) -> bool { Range::contains(&self, val) }
 }
 
-impl OrderedSpace for Range<usize> {
-    fn min(&self) -> Option<usize> { Some(self.start) }
+impl<V: PrimInt> OrderedSpace for Range<V> where Self: ExactSizeIterator {
+    fn min(&self) -> Option<V> { Some(self.start) }
 
-    fn max(&self) -> Option<usize> { Some(self.end - 1) }
+    fn max(&self) -> Option<V> { Some(self.end - V::one()) }
 }
 
-impl FiniteSpace for Range<usize> {
-    fn to_ordinal(&self) -> Range<Self::Value> { self.clone() }
-}
-
-impl Union for Range<usize> {
-    fn union(self, other: &Range<usize>) -> Range<usize> {
-        Range {
-            start: self.start.min(other.start),
-            end: self.end.max(other.end)
-        }
-    }
-}
-
-impl Intersect for Range<usize> {
-    fn intersect(self, other: &Range<usize>) -> Range<usize> {
-        Range {
-            start: self.start.max(other.start),
-            end: self.end.min(other.end)
-        }
+impl<V: PrimInt> FiniteSpace for Range<V> where Self: ExactSizeIterator {
+    fn to_ordinal(&self) -> Range<usize> {
+        Range { start: 0, end: self.len(), }
     }
 }
 
@@ -94,20 +81,21 @@ mod tests {
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
-        fn check(size: usize) {
-            let d = Ordinal::new(size);
+        fn check<const N: u64>() {
+            let d = 0..N;
 
-            assert_tokens(
-                &d,
-                &[
-                    Token::NewtypeStruct { name: "Ordinal", },
-                    Token::U64(size as u64),
-                ],
-            );
+            assert_tokens(&d, &[
+                Token::Struct { name: "Range", len: 2, },
+                Token::Str("start"),
+                Token::U64(0),
+                Token::Str("end"),
+                Token::U64(N),
+                Token::StructEnd,
+            ]);
         }
 
-        check(5);
-        check(10);
-        check(100);
+        check::<5>();
+        check::<10>();
+        check::<100>();
     }
 }
