@@ -40,7 +40,7 @@ impl<D: Space + Intersect + Clone, const N: usize> Intersect for [D; N] {
 
 #[cfg(test)]
 mod tests {
-    use crate::Interval;
+    use crate::real::Reals;
     use super::*;
 
     type S = [::std::ops::Range<usize>; 2];
@@ -57,12 +57,9 @@ mod tests {
 
     #[test]
     fn test_union() {
-        let s1 = [Interval::bounded(0.0, 5.0), Interval::bounded(1.0, 3.0)];
-        let s2 = [Interval::bounded(-5.0, 0.0), Interval::bounded(1.0, 2.0)];
+        let s1 = [Reals::<f64>::new(); 2];
+        let s2 = [Reals::<f64>::new(); 2];
 
-        assert_eq!(s1.union(&s2), [
-            Interval::bounded(-5.0, 5.0),
-            Interval::bounded(1.0, 3.0)
-        ]);
+        assert_eq!(s1.union(&s2), [Reals::<f64>::new(); 2]);
     }
 }

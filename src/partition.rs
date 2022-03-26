@@ -1,29 +1,56 @@
 use crate::{Interval, prelude::*};
+use num_traits::{Float, NumCast};
 use std::{cmp, fmt, ops::Range};
+
+#[derive(Debug)]
+pub enum PartitionError<V> {
+    BoundsMismatch(V, V),
+    EmptyPartitioning,
+    UnboundedInterval(Interval<V>)
+}
+
+impl<V: std::fmt::Debug + std::fmt::Display> std::fmt::Display for PartitionError<V> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PartitionError::BoundsMismatch(lb, ub) => write!(
+                f, "Lower bound ({}) must be strictly less than the upper bound ({})", lb, ub
+            ),
+            PartitionError::EmptyPartitioning => write!(
+                f, "Partition number must be non-zero."
+            ),
+            PartitionError::UnboundedInterval(interval) => write!(
+                f, "Underlying interval ({}) must be fully bounded.", interval
+            ),
+        }
+    }
+}
 
 /// Finite, uniformly partitioned interval.
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub struct Equipartition<const N: usize> {
-    lb: f64,
-    ub: f64,
+pub struct Equipartition<const N: usize, V> {
+    pub lb: V,
+    pub ub: V,
 }
 
-impl<const N: usize> Equipartition<N> {
-    pub fn new(lb: f64, ub: f64) -> Equipartition<N> {
+impl<const N: usize, V: Float> Equipartition<N, V> {
+    pub fn new(lb: V, ub: V) -> Result<Equipartition<N, V>, PartitionError<V>> {
         if N == 0 {
-            panic!("A partition must have a number partitions of 1 or greater.")
+            Err(PartitionError::EmptyPartitioning)
+        } else if ub <= lb {
+            Err(PartitionError::BoundsMismatch(lb, ub))
+        } else {
+            Ok(Equipartition { lb, ub, })
         }
-
-        Equipartition { lb, ub, }
     }
 
-    pub fn from_interval<I: Into<Interval>>(d: I) -> Equipartition<N> {
-        let interval = d.into();
+    pub fn from_interval<I: Into<Interval<V>>>(d: I) -> Result<Equipartition<N, V>, PartitionError<V>> {
+        let interval: Interval<V> = d.into();
 
-        Equipartition {
-            lb: interval.lb.expect("Must be a bounded interval."),
-            ub: interval.ub.expect("Must be a bounded interval."),
+        if let (Some(l), Some(u)) = (interval.lb, interval.ub) {
+            Ok(Equipartition { lb: l, ub: u, })
+        } else {
+            Err(PartitionError::UnboundedInterval(interval))
         }
     }
 
@@ -31,44 +58,45 @@ impl<const N: usize> Equipartition<N> {
     pub fn n_partitions(&self) -> usize { N }
 
     #[inline]
-    pub fn partition_width(&self) -> f64 { (self.ub - self.lb) / N as f64 }
+    pub fn partition_width(&self) -> V { (self.ub - self.lb) / NumCast::from(N).unwrap() }
 
-    pub fn centres(&self) -> [f64; N] {
+    pub fn centres(&self) -> [V; N] {
         let w = self.partition_width();
-        let hw = w / 2.0;
-        let mut output = [f64::default(); N];
+        let hw = w / (V::one() + V::one());
+        let mut output = [V::zero(); N];
 
         for i in 0..N {
-            output[i] = self.lb + w * ((i + 1) as f64) - hw;
+            output[i] = self.lb + w * NumCast::from(i + 1).unwrap() - hw;
         }
 
         output
     }
 
-    pub fn edges(&self) -> [f64; N] {
+    pub fn edges(&self) -> [V; N] {
         let w = self.partition_width();
-        let mut output = [f64::default(); N];
+        let mut output = [V::zero(); N];
 
         for i in 0..N {
-            output[i] = self.lb + w * (i as f64);
+            output[i] = self.lb + w * NumCast::from(i).unwrap();
         }
 
         output
     }
 
-    pub fn to_partition(&self, val: f64) -> usize {
+    pub fn to_partition(&self, val: V) -> usize {
         let clipped = clip!(self.lb, val, self.ub);
 
         let diff = clipped - self.lb;
         let range = self.ub - self.lb;
 
-        let i = ((N as f64) * diff / range).floor() as usize;
+        let i = (diff * NumCast::from(N).unwrap() / range).floor();
+        let i: usize = NumCast::from(i).unwrap();
 
         if i >= N { N - 1 } else { i }
     }
 }
 
-impl<const N: usize> Space for Equipartition<N> {
+impl<const N: usize, V: Float> Space for Equipartition<N, V> {
     const DIM: usize = 1;
 
     type Value = usize;
@@ -78,23 +106,23 @@ impl<const N: usize> Space for Equipartition<N> {
     fn contains(&self, val: &usize) -> bool { *val < N }
 }
 
-impl<const N: usize> OrderedSpace for Equipartition<N> {
+impl<const N: usize, V: Float> OrderedSpace for Equipartition<N, V> {
     fn min(&self) -> Option<usize> { Some(0) }
 
     fn max(&self) -> Option<usize> { Some(N - 1) }
 }
 
-impl<const N: usize> FiniteSpace for Equipartition<N> {
+impl<const N: usize, V: Float> FiniteSpace for Equipartition<N, V> {
     fn to_ordinal(&self) -> Range<Self::Value> { 0..N }
 }
 
-impl<const N: usize, const M: usize> cmp::PartialEq<Equipartition<M>> for Equipartition<N> {
-    fn eq(&self, other: &Equipartition<M>) -> bool {
+impl<const N: usize, V: PartialEq, const M: usize> cmp::PartialEq<Equipartition<M, V>> for Equipartition<N, V> {
+    fn eq(&self, other: &Equipartition<M, V>) -> bool {
         N.eq(&M) && self.lb.eq(&other.lb) && self.ub.eq(&other.ub)
     }
 }
 
-impl<const N: usize> fmt::Display for Equipartition<N> {
+impl<const N: usize, V: fmt::Display> fmt::Display for Equipartition<N, V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match N {
             n if n == 1 => write!(f, "{{{} = x0, x1 = {}}}", self.lb, self.ub),
@@ -116,41 +144,41 @@ mod tests {
     #[test]
     fn test_from_interval() {
         assert_eq!(
-            Equipartition::<5>::new(0.0, 5.0),
-            Equipartition::<5>::from_interval(Interval::bounded(0.0, 5.0))
+            Equipartition::<5, f64>::new(0.0, 5.0).unwrap(),
+            Equipartition::<5, f64>::from_interval(Interval::bounded(0.0, 5.0).unwrap()).unwrap()
         );
     }
 
     #[test]
     fn test_density() {
-        assert_eq!(Equipartition::<5>::new(0.0, 5.0).n_partitions(), 5);
-        assert_eq!(Equipartition::<10>::new(0.0, 5.0).n_partitions(), 10);
-        assert_eq!(Equipartition::<100>::new(-5.0, 5.0).n_partitions(), 100);
+        assert_eq!(Equipartition::<5, f32>::new(0.0, 5.0).unwrap().n_partitions(), 5);
+        assert_eq!(Equipartition::<10, f32>::new(0.0, 5.0).unwrap().n_partitions(), 10);
+        assert_eq!(Equipartition::<100, f64>::new(-5.0, 5.0).unwrap().n_partitions(), 100);
     }
 
     #[test]
     fn test_partition_width() {
-        assert_eq!(Equipartition::<5>::new(0.0, 5.0).partition_width(), 1.0);
-        assert_eq!(Equipartition::<10>::new(0.0, 5.0).partition_width(), 0.5);
-        assert_eq!(Equipartition::<10>::new(-5.0, 5.0).partition_width(), 1.0);
+        assert_eq!(Equipartition::<5, f32>::new(0.0, 5.0).unwrap().partition_width(), 1.0);
+        assert_eq!(Equipartition::<10, f32>::new(0.0, 5.0).unwrap().partition_width(), 0.5);
+        assert_eq!(Equipartition::<100, f64>::new(-5.0, 5.0).unwrap().partition_width(), 0.1);
     }
 
     #[test]
     fn test_centres() {
         assert_eq!(
-            Equipartition::new(0.0, 5.0).centres(),
+            Equipartition::new(0.0, 5.0).unwrap().centres(),
             [0.5, 1.5, 2.5, 3.5, 4.5]
         );
 
         assert_eq!(
-            Equipartition::new(-5.0, 5.0).centres(),
+            Equipartition::new(-5.0, 5.0).unwrap().centres(),
             [-4.0, -2.0, 0.0, 2.0, 4.0]
         );
     }
 
     #[test]
     fn test_to_partition() {
-        let d = Equipartition::<6>::new(0.0, 5.0);
+        let d = Equipartition::<6, f64>::new(0.0, 5.0).unwrap();
 
         assert_eq!(d.to_partition(-1.0), 0);
         assert_eq!(d.to_partition(0.0), 0);
@@ -164,15 +192,15 @@ mod tests {
 
     #[test]
     fn test_dim() {
-        assert_eq!(Equipartition::<1>::DIM, 1);
-        assert_eq!(Equipartition::<5>::DIM, 1);
-        assert_eq!(Equipartition::<10>::DIM, 1);
+        assert_eq!(Equipartition::<1, f32>::DIM, 1);
+        assert_eq!(Equipartition::<5, f32>::DIM, 1);
+        assert_eq!(Equipartition::<10, f64>::DIM, 1);
     }
 
     #[test]
     fn test_card() {
         fn check<const N: usize>(lb: f64, ub: f64) {
-            let d = Equipartition::<N>::new(lb, ub);
+            let d = Equipartition::<N, f64>::new(lb, ub).unwrap();
 
             assert_eq!(d.card(), Card::Finite(N));
         }
@@ -185,7 +213,7 @@ mod tests {
     #[test]
     fn test_to_ordinal() {
         fn check<const N: usize>(lb: f64, ub: f64) {
-            let d = Equipartition::<N>::new(lb, ub);
+            let d = Equipartition::<N, f64>::new(lb, ub).unwrap();
 
             assert_eq!(d.to_ordinal(), 0..N);
         }
@@ -198,29 +226,21 @@ mod tests {
     #[cfg(feature = "serialize")]
     #[test]
     fn test_serialisation() {
-        fn check(lb: f64, ub: f64, n_partitions: usize) {
-            let d = Equipartition::new(lb, ub, n_partitions);
+        fn check<const N: usize>(lb: f64, ub: f64) {
+            let d = Equipartition::<N, f64>::new(lb, ub).unwrap();
 
-            assert_tokens(
-                &d,
-                &[
-                    Token::Struct {
-                        name: "Equipartition",
-                        len: 3,
-                    },
-                    Token::Str("lb"),
-                    Token::F64(lb),
-                    Token::Str("ub"),
-                    Token::F64(ub),
-                    Token::Str("n_partitions"),
-                    Token::U64(n_partitions as u64),
-                    Token::StructEnd,
-                ],
-            );
+            assert_tokens(&d, &[
+                Token::Struct { name: "Equipartition", len: 2, },
+                Token::Str("lb"),
+                Token::F64(lb),
+                Token::Str("ub"),
+                Token::F64(ub),
+                Token::StructEnd,
+            ]);
         }
 
-        check(0.0, 5.0, 5);
-        check(-5.0, 5.0, 10);
-        check(-5.0, 0.0, 5);
+        check::<5>(0.0, 5.0);
+        check::<10>(-5.0, 5.0);
+        check::<5>(-5.0, 0.0);
     }
 }

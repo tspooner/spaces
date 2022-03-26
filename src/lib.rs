@@ -25,9 +25,9 @@ import_all!(partition);
 import_all!(arrays);
 import_all!(tuples);
 
-pub type Euclidean<const N: usize> = [real::Reals; N];
+pub type Euclidean<const N: usize, V> = [real::Reals<V>; N];
 
-pub type Intervals<const N: usize> = [Interval; N];
+pub type Intervals<const N: usize, V> = [Interval<V>; N];
 
 /// Trait for defining geometric spaces.
 pub trait Space {
