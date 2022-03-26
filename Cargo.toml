@@ -20,13 +20,18 @@ coveralls = { repository = "tspooner/spaces", branch = "master", service = "gith
 [features]
 default = []
 
-serialize = ["serde"]
+serde = ["serde_crate"]
 
 [dependencies]
 itertools = "0.10"
 num-traits = "0.2"
 
-serde = { version = "1.0", optional = true, features = ["derive"] }
+[dependencies.serde_crate]
+package = "serde"
+optional = true
+version = "1.0"
+default-features = false
+features = ["std", "derive"]
 
 [dev-dependencies]
 serde_test = "1.0"
