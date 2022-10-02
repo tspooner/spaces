@@ -1,10 +1,10 @@
 use crate::prelude::*;
 
 macro_rules! stripped {
-    (+ $($rest: tt)*) => {
+    (* $($rest: tt)*) => {
         $($rest)*
     };
-    (* $($rest: tt)*) => {
+    (|| $($rest: tt)*) => {
         $($rest)*
     };
     (&& $($rest: tt)*) => {
@@ -15,12 +15,10 @@ macro_rules! stripped {
 macro_rules! impl_tuple {
     ($n:literal; $(($tp:ident, $vp:ident)::$i:tt),+) => {
         impl<$($tp: Space),+> Space for ($($tp),+) {
-            const DIM: usize = $n;
-
             type Value = ($($tp::Value),+);
 
-            fn card(&self) -> Card {
-                stripped!($(* self.$i.card())+)
+            fn is_empty(&self) -> bool {
+                stripped!($(|| self.$i.is_empty())+)
             }
 
             fn contains(&self, val: &Self::Value) -> bool {
@@ -28,17 +26,23 @@ macro_rules! impl_tuple {
             }
         }
 
-        impl<$($tp: Union),+> Union for ($($tp),+) {
-            fn union(self, other: &Self) -> Self {
-                ($(self.$i.union(&other.$i)),+).into()
+        impl<$($tp: FiniteSpace),+> FiniteSpace for ($($tp),+) {
+            fn cardinality(&self) -> usize {
+                stripped!($(* self.$i.cardinality())+)
             }
         }
 
-        impl<$($tp: Intersect),+> Intersect for ($($tp),+) {
-            fn intersect(self, other: &Self) -> Self {
-                ($(self.$i.intersect(&other.$i)),+).into()
-            }
-        }
+        // impl<$($tp: Union),+> Union for ($($tp),+) {
+            // fn union(self, other: &Self) -> Self {
+                // ($(self.$i.union(&other.$i)),+).into()
+            // }
+        // }
+
+        // impl<$($tp: Intersect),+> Intersect for ($($tp),+) {
+            // fn intersect(self, other: &Self) -> Self {
+                // ($(self.$i.intersect(&other.$i)),+).into()
+            // }
+        // }
     }
 }
 
@@ -57,16 +61,13 @@ impl_tuple!(12; (D1, X1)::0, (D2, X2)::1, (D3, X3)::2, (D4, X4)::3, (D5, X5)::4,
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    type S = (::std::ops::Range<usize>, ::std::ops::Range<usize>);
-
-    #[test]
-    fn test_dim() {
-        assert_eq!(S::DIM, 2);
-    }
+    use crate::intervals::Interval;
 
     #[test]
-    fn test_card() {
-        assert_eq!((0..2, 0..2).card(), Card::Finite(4));
+    fn test_cardinality() {
+        let a = Interval::lorc(0usize, 2usize);
+        let b = a.clone();
+
+        assert_eq!((a, b).cardinality(), 4);
     }
 }

@@ -1,65 +1,61 @@
 use crate::prelude::*;
 
 impl<D: Space, const N: usize> Space for [D; N] {
-    const DIM: usize = N;
-
     type Value = [D::Value; N];
 
-    fn card(&self) -> Card { self.iter().fold(Card::Finite(0), |acc, d| acc * d.card()) }
+    fn is_empty(&self) -> bool { self.iter().any(|d| d.is_empty()) }
 
     fn contains(&self, val: &Self::Value) -> bool {
-        self.iter()
-            .zip(val.iter())
-            .all(|(d, x)| d.contains(x))
+        self.iter().zip(val.iter()).all(|(d, x)| d.contains(x))
     }
 }
 
-impl<D: Space + Union + Clone, const N: usize> Union for [D; N] {
-    fn union(self, other: &Self) -> Self {
-        let mut i = 0;
-
-        self.map(|d| {
-            i += 1;
-
-            d.union(&other[i-1])
-        })
-    }
+impl<D: FiniteSpace, const N: usize> FiniteSpace for [D; N] {
+    fn cardinality(&self) -> usize { self.iter().map(|d| d.cardinality()).product() }
 }
 
-impl<D: Space + Intersect + Clone, const N: usize> Intersect for [D; N] {
-    fn intersect(self, other: &Self) -> Self {
-        let mut i = 0;
+// impl<D: Space + Union + Clone, const N: usize> Union for [D; N] {
+// fn union(self, other: &Self) -> Self {
+// let mut i = 0;
 
-        self.map(|d| {
-            i += 1;
+// self.map(|d| {
+// i += 1;
 
-            d.intersect(&other[i-1])
-        })
-    }
-}
+// d.union(&other[i-1])
+// })
+// }
+// }
+
+// impl<D: Space + Intersect + Clone, const N: usize> Intersect for [D; N] {
+// fn intersect(self, other: &Self) -> Self {
+// let mut i = 0;
+
+// self.map(|d| {
+// i += 1;
+
+// d.intersect(&other[i-1])
+// })
+// }
+// }
 
 #[cfg(test)]
 mod tests {
-    use crate::real::Reals;
     use super::*;
-
-    type S = [::std::ops::Range<usize>; 2];
-
-    #[test]
-    fn test_dim() {
-        assert_eq!(S::DIM, 2);
-    }
+    use crate::intervals::Interval;
 
     #[test]
     fn test_card() {
-        assert_eq!([0..2, 0..2].card(), Card::Finite(4));
+        let a = Interval::lorc(0usize, 2usize);
+        let b = a.clone();
+
+        assert_eq!([a, b].cardinality(), 4);
     }
 
-    #[test]
-    fn test_union() {
-        let s1 = [Reals::<f64>::new(); 2];
-        let s2 = [Reals::<f64>::new(); 2];
+    // #[test]
+    // fn test_union() {
+    // let s1 = [real::reals(); 2];
+    // let s2 = [real::reals(); 2];
 
-        assert_eq!(s1.union(&s2), [Reals::<f64>::new(); 2]);
-    }
+    // assert_eq!(s1.union(&s2), [real::reals(); 2]);
+    // }
 }

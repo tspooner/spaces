@@ -3,10 +3,10 @@ name = "spaces"
 description = "Set/space primitives for defining machine learning problems."
 
 version = "6.0.0"
-authors = ["Tom Spooner <t.spooner@liverpool.ac.uk>"]
+authors = ["Tom Spooner <spooner10000@gmail.com>"]
 
-license = "MIT"
 readme = "README.md"
+license-file = "LICENSE"
 
 keywords = ["geometry", "vector", "spaces", "machine", "learning"]
 
@@ -20,18 +20,10 @@ coveralls = { repository = "tspooner/spaces", branch = "master", service = "gith
 [features]
 default = []
 
-serde = ["serde_crate"]
+serde = ["intervals/serde"]
 
 [dependencies]
+intervals = "1.0"
 itertools = "0.10"
+array-init = "2.0"
 num-traits = "0.2"
-
-[dependencies.serde_crate]
-package = "serde"
-optional = true
-version = "1.0"
-default-features = false
-features = ["std", "derive"]
-
-[dev-dependencies]
-serde_test = "1.0"

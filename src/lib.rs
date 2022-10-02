@@ -5,65 +5,48 @@
 //! be used to define state/action spaces, for example. Mappings between
 //! different spaces may also be defined using traits such as `Surjection` to
 //! streamline many common preprocessing and type conversion tasks.
+extern crate array_init;
 extern crate itertools;
 extern crate num_traits;
-
-#[cfg(feature = "serialize")]
-#[macro_use]
-extern crate serde;
-
-mod macros;
-
-import_all!(card);
 
 pub mod discrete;
 pub mod real;
 
-import_all!(interval);
-import_all!(partition);
+pub extern crate intervals;
 
-import_all!(arrays);
-import_all!(tuples);
+mod arrays;
+mod interval_impls;
+mod option;
+mod tuples;
 
-pub type Euclidean<const N: usize, V> = [real::Reals<V>; N];
-
-pub type Intervals<const N: usize, V> = [Interval<V>; N];
-
-/// Trait for defining geometric spaces.
+///////////////////////////////////////////////////////////////////////////
+// Core Definitions
+///////////////////////////////////////////////////////////////////////////
+/// Trait for types representing geometric spaces.
 pub trait Space {
-    /// The dimensionality of the space.
-    const DIM: usize;
+    /// The data representation for elements of the space.
+    type Value;
 
-    /// The data representation of elements of the space.
-    type Value: Clone;
-
-    /// Return the number of elements in the set comprising the space.
-    fn card(&self) -> Card;
+    /// Return true iff the space contains no values.
+    ///
+    /// ```
+    /// # extern crate spaces;
+    /// # use spaces::{Space, ops::Intersection, real};
+    /// let space = real::reals::<f64>();
+    /// assert!(!space.is_empty());
+    ///
+    /// let space = real::negative_reals::<f64>().intersection(
+    ///     real::positive_reals::<f64>()
+    /// );
+    /// assert!(space.is_empty());
+    /// ```
+    fn is_empty(&self) -> bool;
 
     /// Returns true iff `val` is contained within the space.
     fn contains(&self, val: &Self::Value) -> bool;
 }
 
-impl<D: Space> Space for Box<D> {
-    const DIM: usize = D::DIM;
-
-    type Value = D::Value;
-
-    fn card(&self) -> Card { (**self).card() }
-
-    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
-}
-
-impl<'a, D: Space> Space for &'a D {
-    const DIM: usize = D::DIM;
-
-    type Value = D::Value;
-
-    fn card(&self) -> Card { (**self).card() }
-
-    fn contains(&self, val: &Self::Value) -> bool { (**self).contains(val) }
-}
-
+/// Trait for types representing ordered spaces.
 pub trait OrderedSpace: Space
 where Self::Value: PartialOrd
 {
@@ -91,49 +74,21 @@ where Self::Value: PartialOrd
 
 /// Trait for defining spaces containing a finite set of values.
 pub trait FiniteSpace: Space {
-    fn to_ordinal(&self) -> ::std::ops::Range<usize> {
-        0..self
-            .card()
-            .expect_finite("Finite spaces must have finite cardinality.")
-    }
+    /// Return the cardinality of the space.
+    ///
+    /// The cardinality of a space is given by the number of elements
+    /// contained within said set.
+    fn cardinality(&self) -> usize;
 }
 
-/// Trait for types that can be combined in the form of a union.
-///
-/// The union of a collection of sets is the set that contains all elements in
-/// the collection.
-pub trait Union<S = Self> {
-    /// Return a space enclosing `self` and `other` of type `Self`.
-    fn union(self, other: &S) -> Self;
+///////////////////////////////////////////////////////////////////////////
+// Set Operations
+///////////////////////////////////////////////////////////////////////////
+pub mod ops;
 
-    /// Return a space enclosing `self` and all `other_spaces` of
-    /// type `Self`.
-    fn union_many(self, other_spaces: &[S]) -> Self
-    where Self: Sized {
-        other_spaces
-            .into_iter()
-            .fold(self, |acc, other_space| acc.union(other_space))
-    }
-}
-
-/// Trait for types that can be combined in the form of an intersection.
-///
-/// The intersection of a collection of sets is the set that contains only those
-/// elements present in each.
-pub trait Intersect<S = Self> {
-    /// Return the smallest space enclosing `self` and `other` of type `Self`.
-    fn intersect(self, other: &S) -> Self;
-
-    /// Return the smallest space enclosing `self` and all `other_spaces` of
-    /// type `Self`.
-    fn intersect_many(self, other_spaces: &[S]) -> Self
-    where Self: Sized {
-        other_spaces
-            .into_iter()
-            .fold(self, |acc, other_space| acc.intersect(other_space))
-    }
-}
-
+///////////////////////////////////////////////////////////////////////////
+// Prelude
+///////////////////////////////////////////////////////////////////////////
 mod prelude {
-    pub use super::{Card, FiniteSpace, Intersect, OrderedSpace, Space, Union};
+    pub use super::{ops, FiniteSpace, OrderedSpace, Space};
 }
