@@ -61,7 +61,7 @@ where Self::Value: PartialOrd
     /// Returns true iff `self` has a well-defined supremum.
     fn is_upper_bounded(&self) -> bool { self.sup().is_some() }
 
-    /// Returns true iff `self` has a well-defined minimum and maximum.
+    /// Returns true iff `self` is bounded above and below.
     fn is_bounded(&self) -> bool { self.is_lower_bounded() && self.is_upper_bounded() }
 }
 
@@ -72,6 +72,15 @@ pub trait FiniteSpace: Space {
     /// The cardinality of a space is given by the number of elements
     /// contained within said set.
     fn cardinality(&self) -> usize;
+}
+
+/// Trait for `Space` types that have an associated value iterator.
+pub trait IterableSpace: Space {
+    /// The associated iterator type.
+    type ValueIter: Iterator<Item = Self::Value>;
+
+    /// Return an iterator over the values in this space.
+    fn iter(&self) -> Self::ValueIter;
 }
 
 ///////////////////////////////////////////////////////////////////////////

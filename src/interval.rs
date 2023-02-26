@@ -1,7 +1,8 @@
 use crate::{
-    Space, OrderedSpace, FiniteSpace,
+    Space, OrderedSpace, FiniteSpace, IterableSpace,
     ops::{Union, UnionPair, Intersection, Closure}
 };
+use std::ops::{RangeInclusive, RangeTo, RangeFrom, RangeToInclusive};
 use intervals::{Interval, bounds::{self, OpenOrClosed}};
 
 ///////////////////////////////////////////////////////////////////
@@ -135,6 +136,165 @@ impl_fs!(V; bounds::OpenOrClosed<V>, bounds::OpenOrClosed<V>; |self| {
 });
 
 ///////////////////////////////////////////////////////////////////
+// Iter Implementations
+///////////////////////////////////////////////////////////////////
+macro_rules! impl_iter {
+    ($v:ident; $left:ty, $right:ty; |$me:ident| -> $out:ty $code:block) => {
+        impl<$v> IterableSpace for Interval<$left, $right>
+        where
+            $v: num_traits::PrimInt,
+
+            $out: Iterator<Item = $v>,
+        {
+            type ValueIter = $out;
+
+            fn iter(&$me) -> Self::ValueIter { $code }
+        }
+    }
+}
+
+// Closed + ...
+impl_iter!(V; bounds::Closed<V>, bounds::Closed<V>; |self| -> RangeInclusive<V> {
+    self.left.0..=self.right.0
+});
+impl_iter!(V; bounds::Closed<V>, bounds::Open<V>; |self| -> RangeInclusive<V> {
+    self.left.0..=(self.right.0 - V::one())
+});
+impl_iter!(V; bounds::Closed<V>, bounds::OpenOrClosed<V>; |self| -> RangeInclusive<V> {
+    match self.right {
+        OpenOrClosed::Open(r) => self.left.0..=(r - V::one()),
+        OpenOrClosed::Closed(r) => self.left.0..=r,
+    }
+});
+
+impl<V> IterableSpace for Interval<bounds::Closed<V>, bounds::NoBound<V>>
+where
+    V: num_traits::PrimInt,
+
+    RangeFrom<V>: Iterator<Item = V>,
+{
+    type ValueIter = RangeFrom<V>;
+
+    fn iter(&self) -> Self::ValueIter {
+        self.left.0..
+    }
+}
+
+// Open + ...
+impl_iter!(V; bounds::Open<V>, bounds::Closed<V>; |self| -> RangeInclusive<V> {
+    (self.left.0 + V::one())..=self.right.0
+});
+impl_iter!(V; bounds::Open<V>, bounds::Open<V>; |self| -> RangeInclusive<V> {
+    (self.left.0 + V::one())..=(self.right.0 - V::one())
+});
+impl_iter!(V; bounds::Open<V>, bounds::OpenOrClosed<V>; |self| -> RangeInclusive<V> {
+    let l = self.left.0 + V::one();
+
+    match self.right {
+        OpenOrClosed::Open(r) => l..=(r - V::one()),
+        OpenOrClosed::Closed(r) => l..=r,
+    }
+});
+
+impl<V> IterableSpace for Interval<bounds::Open<V>, bounds::NoBound<V>>
+where
+    V: num_traits::PrimInt,
+
+    RangeFrom<V>: Iterator<Item = V>,
+{
+    type ValueIter = RangeFrom<V>;
+
+    fn iter(&self) -> Self::ValueIter {
+        (self.left.0 + V::one())..
+    }
+}
+
+// OpenOrClosed + ...
+impl_iter!(V; bounds::OpenOrClosed<V>, bounds::Closed<V>; |self| -> RangeInclusive<V> {
+    let r = self.right.0;
+
+    match self.left {
+        OpenOrClosed::Open(l) => (l + V::one())..=r,
+        OpenOrClosed::Closed(l) => l..=r,
+    }
+});
+impl_iter!(V; bounds::OpenOrClosed<V>, bounds::Open<V>; |self| -> RangeInclusive<V> {
+    let r = self.right.0 - V::one();
+
+    match self.left {
+        OpenOrClosed::Open(l) => (l + V::one())..=(r - V::one()),
+        OpenOrClosed::Closed(l) => l..=r,
+    }
+});
+impl_iter!(V; bounds::OpenOrClosed<V>, bounds::OpenOrClosed<V>; |self| -> RangeInclusive<V> {
+    match (self.left, self.right) {
+        (OpenOrClosed::Open(l), OpenOrClosed::Open(r)) => (l + V::one())..=(r - V::one()),
+        (OpenOrClosed::Open(l), OpenOrClosed::Closed(r)) => (l + V::one())..=r,
+        (OpenOrClosed::Closed(l), OpenOrClosed::Open(r)) => l..=(r - V::one()),
+        (OpenOrClosed::Closed(l), OpenOrClosed::Closed(r)) => l..=r,
+    }
+});
+
+impl<V> IterableSpace for Interval<bounds::OpenOrClosed<V>, bounds::NoBound<V>>
+where
+    V: num_traits::PrimInt,
+
+    RangeFrom<V>: Iterator<Item = V>,
+{
+    type ValueIter = RangeFrom<V>;
+
+    fn iter(&self) -> Self::ValueIter {
+        match self.left {
+            OpenOrClosed::Open(l) => (l + V::one())..,
+            OpenOrClosed::Closed(l) => l..,
+        }
+    }
+}
+
+// NoBound + ...
+impl<V> IterableSpace for Interval<bounds::NoBound<V>, bounds::Closed<V>>
+where
+    V: num_traits::PrimInt,
+
+    RangeToInclusive<V>: Iterator<Item = V>,
+{
+    type ValueIter = RangeToInclusive<V>;
+
+    fn iter(&self) -> Self::ValueIter {
+        ..=self.right.0
+    }
+}
+
+impl<V> IterableSpace for Interval<bounds::NoBound<V>, bounds::Open<V>>
+where
+    V: num_traits::PrimInt,
+
+    RangeTo<V>: Iterator<Item = V>,
+{
+    type ValueIter = RangeTo<V>;
+
+    fn iter(&self) -> Self::ValueIter {
+        ..self.right.0
+    }
+}
+
+impl<V> IterableSpace for Interval<bounds::NoBound<V>, bounds::OpenOrClosed<V>>
+where
+    V: num_traits::PrimInt,
+
+    RangeToInclusive<V>: Iterator<Item = V>,
+{
+    type ValueIter = RangeToInclusive<V>;
+
+    fn iter(&self) -> Self::ValueIter {
+        match self.right {
+            OpenOrClosed::Open(r) => ..=(r - V::one()),
+            OpenOrClosed::Closed(r) => ..=r,
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////
 // Op Implementations
 ///////////////////////////////////////////////////////////////////
 impl<L, R, LL, RR> Union<Interval<LL, RR>> for Interval<L, R>
@@ -227,5 +387,89 @@ mod tests {
         assert_eq!(b.intersect(c).unwrap(), Interval::degenerate(2.0));
 
         assert_eq!(a.intersect(c), None);
+    }
+
+    #[test]
+    fn test_iter_cc() {
+        let vals: Vec<_> = Interval::closed_unchecked(0, 5).iter().collect();
+
+        assert_eq!(vals, vec![0, 1, 2, 3, 4, 5]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::Closed(0),
+            bounds::OpenOrClosed::Closed(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![0, 1, 2, 3, 4, 5]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::OpenOrClosed::Closed(0),
+            bounds::OpenOrClosed::Closed(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![0, 1, 2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn test_iter_co() {
+        let vals: Vec<_> = Interval::lcro_unchecked(0, 5).iter().collect();
+
+        assert_eq!(vals, vec![0, 1, 2, 3, 4]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::Closed(0),
+            bounds::OpenOrClosed::Open(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![0, 1, 2, 3, 4]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::OpenOrClosed::Closed(0),
+            bounds::OpenOrClosed::Open(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_iter_oc() {
+        let vals: Vec<_> = Interval::lorc_unchecked(0, 5).iter().collect();
+
+        assert_eq!(vals, vec![1, 2, 3, 4, 5]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::Open(0),
+            bounds::OpenOrClosed::Closed(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![1, 2, 3, 4, 5]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::OpenOrClosed::Open(0),
+            bounds::OpenOrClosed::Closed(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![1, 2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn test_iter_oo() {
+        let vals: Vec<_> = Interval::open_unchecked(0, 5).iter().collect();
+
+        assert_eq!(vals, vec![1, 2, 3, 4]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::Open(0),
+            bounds::OpenOrClosed::Open(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![1, 2, 3, 4]);
+
+        let vals: Vec<_> = Interval::new_unchecked(
+            bounds::OpenOrClosed::Open(0),
+            bounds::OpenOrClosed::Open(5)
+        ).iter().collect();
+
+        assert_eq!(vals, vec![1, 2, 3, 4]);
     }
 }
