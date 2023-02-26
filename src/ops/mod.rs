@@ -1,6 +1,33 @@
 //! Module for operations acting on spaces.
 use crate::Space;
 
+type OoC<T> = crate::intervals::bounds::OpenOrClosed<T>;
+
+enum LRB<T> { Left(T), Both(T), Right(T), }
+
+impl<T> LRB<T> {
+    fn translate(
+        self,
+        left: impl FnOnce(T) -> OoC<T>,
+        both: impl FnOnce(T) -> OoC<T>,
+        right: impl FnOnce(T) -> OoC<T>,
+    ) -> OoC<T> {
+        match self {
+            LRB::Left(x) => left(x),
+            LRB::Both(x) => both(x),
+            LRB::Right(x) => right(x),
+        }
+    }
+}
+
+fn min_val<T: PartialOrd>(x: T, y: T) -> LRB<T> {
+    if x < y { LRB::Left(x) } else if x == y { LRB::Both(x) } else { LRB::Right(y) }
+}
+
+fn max_val<T: PartialOrd>(x: T, y: T) -> LRB<T> {
+    if x < y { LRB::Right(y) } else if x == y { LRB::Both(x) } else { LRB::Left(x) }
+}
+
 /// Trait for types that have a well-defined closure.
 pub trait Closure: Space {
     type Output: Space<Value = Self::Value>;
@@ -8,33 +35,10 @@ pub trait Closure: Space {
     fn closure(self) -> Self::Output;
 }
 
+pub type ClosureOf<S> = <S as Closure>::Output;
+
 mod union;
-pub use self::union::{Union, UnionOf, UnionPair};
+pub use self::union::{Union, UnionOf, UnionClosureOf, UnionPair};
 
 mod intersection;
 pub use self::intersection::{Intersection, IntersectionOf, IntersectionPair};
-
-pub type UnionClosureOf<S, T> = <UnionOf<S, T> as Closure>::Output;
-
-/// Trait for types implementing standard space operations.
-pub trait Operations<S = Self>: Closure + Union<S> + Intersection<S>
-where S: Space<Value = Self::Value>
-{
-    /// Compute the union-closure of the space.
-    fn union_closure(self, rhs: S) -> UnionClosureOf<Self, S>
-    where
-        Self: Sized,
-        UnionOf<Self, S>: Closure,
-    {
-        self.union(rhs).closure()
-    }
-}
-
-impl<S, T> Operations<S> for T
-where
-    S: Space,
-    T: Space<Value = S::Value> + Closure + Union<S> + Intersection<S>,
-
-    <Self as Intersection<S>>::Output: Closure,
-{
-}

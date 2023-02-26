@@ -23,7 +23,5 @@ default = []
 serde = ["intervals/serde"]
 
 [dependencies]
-intervals = "1.0"
-itertools = "0.10"
-array-init = "2.0"
+intervals = "2.1"
 num-traits = "0.2"

@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn test_cardinality() {
-        let a = Interval::lorc(0usize, 2usize);
+        let a = Interval::lorc_unchecked(0usize, 2usize);
         let b = a.clone();
 
         assert_eq!((a, b).cardinality(), 4);
