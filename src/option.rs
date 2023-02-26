@@ -1,9 +1,19 @@
 use crate::{
-    FiniteSpace, OrderedSpace, Space,
+    FiniteSpace, OrderedSpace, Space, IterableSpace,
     intervals::bounds::OpenOrClosed,
     ops::UnionPair,
     prelude::*,
 };
+
+pub struct OptionIter<S: IterableSpace>(Option<S::ValueIter>);
+
+impl<S: IterableSpace> Iterator for OptionIter<S> {
+    type Item = S::Value;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.as_mut().and_then(|iter| iter.next())
+    }
+}
 
 impl<S: Space> Space for Option<S> {
     type Value = S::Value;
@@ -29,6 +39,14 @@ where S::Value: PartialOrd
 
 impl<S: FiniteSpace> FiniteSpace for Option<S> {
     fn cardinality(&self) -> usize { self.as_ref().map_or(0, |s| s.cardinality()) }
+}
+
+impl<S: IterableSpace> IterableSpace for Option<S> {
+    type ValueIter = OptionIter<S>;
+
+    fn iter(&self) -> Self::ValueIter {
+        OptionIter(self.as_ref().map(|s| s.iter()))
+    }
 }
 
 impl<S: Closure> Closure for Option<S> {
