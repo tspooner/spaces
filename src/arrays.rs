@@ -2,6 +2,8 @@ use crate::{
     prelude::*,
     ops::{UnionPair, IntersectionPair},
 };
+use std::{iter::Map, convert::TryInto};
+use itertools::{Itertools, structs::MultiProduct};
 
 impl<const N: usize, D: Space> Space for [D; N] {
     type Value = [D::Value; N];
@@ -15,6 +17,27 @@ impl<const N: usize, D: Space> Space for [D; N] {
 
 impl<const N: usize, D: FiniteSpace> FiniteSpace for [D; N] {
     fn cardinality(&self) -> usize { self.iter().map(|d| d.cardinality()).product() }
+}
+
+impl<const N: usize, D: IterableSpace> IterableSpace for [D; N]
+where
+    D::Value: Clone,
+    D::ValueIter: Clone,
+{
+    // TODO - Ideally, we would replace MultiProduct with an optimised implementation
+    // for yielding arrays directly, not using an intermediate Vec.
+    type ValueIter = Map<
+        MultiProduct<D::ValueIter>,
+        fn(Vec<D::Value>) -> [D::Value; N]
+    >;
+
+    fn values(&self) -> Self::ValueIter {
+        let iters: Vec<_> = self.iter().map(|s| s.values()).collect();
+
+        iters.into_iter().multi_cartesian_product().map(|x| {
+            x.try_into().map_err(|_| ()).unwrap()
+        })
+    }
 }
 
 impl<const N: usize, D, S> Union<S> for [D; N]
@@ -100,6 +123,19 @@ mod tests {
             Interval::closed_unchecked(0usize, 2usize),
             Interval::closed_unchecked(0, 100)
         ].cardinality(), 303);
+    }
+
+    #[test]
+    fn test_values() {
+        let space = [Interval::closed_unchecked(0, 1), Interval::closed_unchecked(2, 3)];
+        let values: Vec<_> = space.values().collect();
+
+        assert_eq!(values, vec![
+            [0, 2],
+            [0, 3],
+            [1, 2],
+            [1, 3],
+        ])
     }
 
     #[test]

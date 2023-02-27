@@ -24,4 +24,5 @@ serde = ["intervals/serde"]
 
 [dependencies]
 intervals = "2.1"
+itertools = "0.10"
 num-traits = "0.2"
