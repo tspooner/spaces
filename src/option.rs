@@ -44,8 +44,8 @@ impl<S: FiniteSpace> FiniteSpace for Option<S> {
 impl<S: IterableSpace> IterableSpace for Option<S> {
     type ValueIter = OptionIter<S>;
 
-    fn iter(&self) -> Self::ValueIter {
-        OptionIter(self.as_ref().map(|s| s.iter()))
+    fn values(&self) -> Self::ValueIter {
+        OptionIter(self.as_ref().map(|s| s.values()))
     }
 }
 

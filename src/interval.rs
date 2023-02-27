@@ -148,7 +148,7 @@ macro_rules! impl_iter {
         {
             type ValueIter = $out;
 
-            fn iter(&$me) -> Self::ValueIter { $code }
+            fn values(&$me) -> Self::ValueIter { $code }
         }
     }
 }
@@ -175,7 +175,7 @@ where
 {
     type ValueIter = RangeFrom<V>;
 
-    fn iter(&self) -> Self::ValueIter {
+    fn values(&self) -> Self::ValueIter {
         self.left.0..
     }
 }
@@ -204,7 +204,7 @@ where
 {
     type ValueIter = RangeFrom<V>;
 
-    fn iter(&self) -> Self::ValueIter {
+    fn values(&self) -> Self::ValueIter {
         (self.left.0 + V::one())..
     }
 }
@@ -243,7 +243,7 @@ where
 {
     type ValueIter = RangeFrom<V>;
 
-    fn iter(&self) -> Self::ValueIter {
+    fn values(&self) -> Self::ValueIter {
         match self.left {
             OpenOrClosed::Open(l) => (l + V::one())..,
             OpenOrClosed::Closed(l) => l..,
@@ -260,7 +260,7 @@ where
 {
     type ValueIter = RangeToInclusive<V>;
 
-    fn iter(&self) -> Self::ValueIter {
+    fn values(&self) -> Self::ValueIter {
         ..=self.right.0
     }
 }
@@ -273,7 +273,7 @@ where
 {
     type ValueIter = RangeTo<V>;
 
-    fn iter(&self) -> Self::ValueIter {
+    fn values(&self) -> Self::ValueIter {
         ..self.right.0
     }
 }
@@ -286,7 +286,7 @@ where
 {
     type ValueIter = RangeToInclusive<V>;
 
-    fn iter(&self) -> Self::ValueIter {
+    fn values(&self) -> Self::ValueIter {
         match self.right {
             OpenOrClosed::Open(r) => ..=(r - V::one()),
             OpenOrClosed::Closed(r) => ..=r,
@@ -391,84 +391,84 @@ mod tests {
 
     #[test]
     fn test_iter_cc() {
-        let vals: Vec<_> = Interval::closed_unchecked(0, 5).iter().collect();
+        let vals: Vec<_> = Interval::closed_unchecked(0, 5).values().collect();
 
         assert_eq!(vals, vec![0, 1, 2, 3, 4, 5]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::Closed(0),
             bounds::OpenOrClosed::Closed(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![0, 1, 2, 3, 4, 5]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::OpenOrClosed::Closed(0),
             bounds::OpenOrClosed::Closed(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![0, 1, 2, 3, 4, 5]);
     }
 
     #[test]
     fn test_iter_co() {
-        let vals: Vec<_> = Interval::lcro_unchecked(0, 5).iter().collect();
+        let vals: Vec<_> = Interval::lcro_unchecked(0, 5).values().collect();
 
         assert_eq!(vals, vec![0, 1, 2, 3, 4]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::Closed(0),
             bounds::OpenOrClosed::Open(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![0, 1, 2, 3, 4]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::OpenOrClosed::Closed(0),
             bounds::OpenOrClosed::Open(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![0, 1, 2, 3, 4]);
     }
 
     #[test]
     fn test_iter_oc() {
-        let vals: Vec<_> = Interval::lorc_unchecked(0, 5).iter().collect();
+        let vals: Vec<_> = Interval::lorc_unchecked(0, 5).values().collect();
 
         assert_eq!(vals, vec![1, 2, 3, 4, 5]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::Open(0),
             bounds::OpenOrClosed::Closed(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![1, 2, 3, 4, 5]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::OpenOrClosed::Open(0),
             bounds::OpenOrClosed::Closed(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![1, 2, 3, 4, 5]);
     }
 
     #[test]
     fn test_iter_oo() {
-        let vals: Vec<_> = Interval::open_unchecked(0, 5).iter().collect();
+        let vals: Vec<_> = Interval::open_unchecked(0, 5).values().collect();
 
         assert_eq!(vals, vec![1, 2, 3, 4]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::Open(0),
             bounds::OpenOrClosed::Open(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![1, 2, 3, 4]);
 
         let vals: Vec<_> = Interval::new_unchecked(
             bounds::OpenOrClosed::Open(0),
             bounds::OpenOrClosed::Open(5)
-        ).iter().collect();
+        ).values().collect();
 
         assert_eq!(vals, vec![1, 2, 3, 4]);
     }

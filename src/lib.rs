@@ -3,6 +3,7 @@
 //! `spaces` provides set/space primitives to be used for defining properties of
 //! machine learning problems. Traits such as `Space`, and it's derivatives, may
 //! be used to define state/action spaces, for example.
+extern crate itertools;
 extern crate num_traits;
 
 pub mod discrete;
@@ -80,7 +81,7 @@ pub trait IterableSpace: Space {
     type ValueIter: Iterator<Item = Self::Value>;
 
     /// Return an iterator over the values in this space.
-    fn iter(&self) -> Self::ValueIter;
+    fn values(&self) -> Self::ValueIter;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -94,6 +95,6 @@ pub mod ops;
 mod prelude {
     pub use super::{
         ops::{Union, Intersection, Closure},
-        FiniteSpace, OrderedSpace, Space
+        FiniteSpace, OrderedSpace, Space, IterableSpace,
     };
 }
