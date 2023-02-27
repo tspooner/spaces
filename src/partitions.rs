@@ -3,7 +3,9 @@ use crate::{
     FiniteSpace,
     OrderedSpace,
     Space,
+    IterableSpace,
 };
+use std::ops::Range;
 
 impl<V> Space for partitions::Uniform<V> {
     type Value = usize;
@@ -27,6 +29,12 @@ impl<V> FiniteSpace for partitions::Uniform<V> {
     fn cardinality(&self) -> usize { self.size }
 }
 
+impl<V> IterableSpace for partitions::Uniform<V> {
+    type ValueIter = Range<usize>;
+
+    fn values(&self) -> Self::ValueIter { 0..self.size }
+}
+
 impl<const N: usize, V: PartialOrd + Clone> Space for partitions::Declarative<N, V> {
     type Value = usize;
 
@@ -47,4 +55,10 @@ impl<const N: usize, V: PartialOrd + Clone> OrderedSpace for partitions::Declara
 
 impl<const N: usize, V: PartialOrd + Clone> FiniteSpace for partitions::Declarative<N, V> {
     fn cardinality(&self) -> usize { self.len() }
+}
+
+impl<const N: usize, V: PartialOrd + Clone> IterableSpace for partitions::Declarative<N, V> {
+    type ValueIter = Range<usize>;
+
+    fn values(&self) -> Self::ValueIter { 0..N }
 }
