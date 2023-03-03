@@ -5,7 +5,7 @@ use crate::{
     prelude::*,
 };
 
-pub struct OptionIter<S: IterableSpace>(Option<S::ValueIter>);
+pub struct OptionIter<S: IterableSpace>(Option<S::ElemIter>);
 
 impl<S: IterableSpace> Iterator for OptionIter<S> {
     type Item = S::Value;
@@ -42,10 +42,10 @@ impl<S: FiniteSpace> FiniteSpace for Option<S> {
 }
 
 impl<S: IterableSpace> IterableSpace for Option<S> {
-    type ValueIter = OptionIter<S>;
+    type ElemIter = OptionIter<S>;
 
-    fn values(&self) -> Self::ValueIter {
-        OptionIter(self.as_ref().map(|s| s.values()))
+    fn elements(&self) -> OptionIter<S> {
+        OptionIter(self.as_ref().map(|s| s.elements()))
     }
 }
 

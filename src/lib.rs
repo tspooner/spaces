@@ -78,10 +78,10 @@ pub trait FiniteSpace: Space {
 /// Trait for `Space` types that have an associated value iterator.
 pub trait IterableSpace: Space {
     /// The associated iterator type.
-    type ValueIter: Iterator<Item = Self::Value>;
+    type ElemIter: Iterator<Item = Self::Value>;
 
-    /// Return an iterator over the values in this space.
-    fn values(&self) -> Self::ValueIter;
+    /// Return an iterator over the elements of this space.
+    fn elements(&self) -> Self::ElemIter;
 }
 
 ///////////////////////////////////////////////////////////////////////////

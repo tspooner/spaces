@@ -22,17 +22,17 @@ impl<const N: usize, D: FiniteSpace> FiniteSpace for [D; N] {
 impl<const N: usize, D: IterableSpace> IterableSpace for [D; N]
 where
     D::Value: Clone,
-    D::ValueIter: Clone,
+    D::ElemIter: Clone,
 {
     // TODO - Ideally, we would replace MultiProduct with an optimised implementation
     // for yielding arrays directly, not using an intermediate Vec.
-    type ValueIter = Map<
-        MultiProduct<D::ValueIter>,
+    type ElemIter = Map<
+        MultiProduct<D::ElemIter>,
         fn(Vec<D::Value>) -> [D::Value; N]
     >;
 
-    fn values(&self) -> Self::ValueIter {
-        let iters: Vec<_> = self.iter().map(|s| s.values()).collect();
+    fn elements(&self) -> Self::ElemIter {
+        let iters: Vec<_> = self.iter().map(|s| s.elements()).collect();
 
         iters.into_iter().multi_cartesian_product().map(|x| {
             x.try_into().map_err(|_| ()).unwrap()
@@ -128,7 +128,7 @@ mod tests {
     #[test]
     fn test_values() {
         let space = [Interval::closed_unchecked(0, 1), Interval::closed_unchecked(2, 3)];
-        let values: Vec<_> = space.values().collect();
+        let values: Vec<_> = space.elements().collect();
 
         assert_eq!(values, vec![
             [0, 2],

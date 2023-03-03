@@ -30,9 +30,9 @@ impl<V> FiniteSpace for partitions::Uniform<V> {
 }
 
 impl<V> IterableSpace for partitions::Uniform<V> {
-    type ValueIter = Range<usize>;
+    type ElemIter = Range<usize>;
 
-    fn values(&self) -> Self::ValueIter { 0..self.size }
+    fn elements(&self) -> Self::ElemIter { 0..self.size }
 }
 
 impl<const N: usize, V: PartialOrd + Clone> Space for partitions::Declarative<N, V> {
@@ -58,7 +58,7 @@ impl<const N: usize, V: PartialOrd + Clone> FiniteSpace for partitions::Declarat
 }
 
 impl<const N: usize, V: PartialOrd + Clone> IterableSpace for partitions::Declarative<N, V> {
-    type ValueIter = Range<usize>;
+    type ElemIter = Range<usize>;
 
-    fn values(&self) -> Self::ValueIter { 0..N }
+    fn elements(&self) -> Self::ElemIter { 0..N }
 }
